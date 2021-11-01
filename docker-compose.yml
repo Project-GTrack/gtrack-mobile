@@ -3,15 +3,13 @@ version: '3.6'
 services: # adds 2 services: mysql and phpmyadmin to connect with
   mysql:
     image: mysql:latest # use latest version of mysql
+    volumes:
+      - my-data:/var/lib/mysql
     container_name: gtrack_mysql_1 # add a name for the container
     command: --default-authentication-plugin=mysql_native_password
     environment: # add default values, see docs for more info.
-      MYSQL_USER: mysql
       MYSQL_ROOT_PASSWORD: mysql
-      MYSQL_PASSWORD: mysql
-      MYSQL_DATABASE: gtrack # create this database on startup
-    volumes:
-      - my-data:/var/lib/mysql
+      MYSQL_DATABASE: gtrack
     ports:
       - '3306:3306'
 
