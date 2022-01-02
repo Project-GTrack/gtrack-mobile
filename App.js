@@ -13,6 +13,7 @@ import {
   Code,
 } from "native-base";
 import NativeBaseIcon from "./components/NativeBaseIcon";
+import envs from './config/env.js'
 
 // Define the config
 const config = {
@@ -24,6 +25,7 @@ const config = {
 export const theme = extendTheme({ config });
 
 export default function App() {
+  console.log(envs);
   return (
     <NativeBaseProvider>
       <Center
