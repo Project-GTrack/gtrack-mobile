@@ -12,23 +12,26 @@ import {
   VStack,
   Code,
 } from "native-base";
-import NativeBaseIcon from "./components/NativeBaseIcon";
+import NativeBaseIcon from "./components/svg/NativeBaseIcon";
 import envs from './config/env.js'
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import HomePage from "./components/pages/HomePage";
 
 // Define the config
-const config = {
-  useSystemColorMode: false,
-  initialColorMode: "dark",
-};
-
+// const config = {
+//   useSystemColorMode: false,
+//   initialColorMode: "dark",
+// };
+const Stack = createNativeStackNavigator();
 // extend the theme
-export const theme = extendTheme({ config });
+// export const theme = extendTheme({ config });
 
 export default function App() {
   console.log(envs);
   return (
     <NativeBaseProvider>
-      <Center
+      {/* <Center
         _dark={{ bg: "blueGray.900" }}
         _light={{ bg: "blueGray.50" }}
         px={4}
@@ -49,7 +52,17 @@ export default function App() {
           </Link>
           <ToggleDarkMode />
         </VStack>
-      </Center>
+      </Center> */}
+      <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Screen
+            name="Home"
+            component={HomePage}
+            // options={{ title: 'Welcome' }}
+            options={{headerShown: false}}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
     </NativeBaseProvider>
   );
 }
