@@ -1,25 +1,13 @@
 import React from "react";
 import {
-  Text,
-  Link,
-  Button,
-  HStack,
-  Center,
-  Heading,
-  Switch,
-  useColorMode,
   NativeBaseProvider,
-  extendTheme,
-  VStack,
-  Code,
 } from "native-base";
-import NativeBaseIcon from "./components/svg/NativeBaseIcon";
 import envs from './config/env.js'
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import HomePage from "./components/pages/HomePage";
-import AnnouncementPage from "./components/pages/AnnouncementPage";
-import Toolbar from "./components/helpers/toolbar";
+import SignInPage from "./components/pages/SignInPage";
+import SignUpPage from "./components/pages/SignUpPage";
+import Toolbar from "./components/helpers/Toolbar";
 
 // Define the config
 // const config = {
@@ -59,8 +47,14 @@ export default function App() {
       <NavigationContainer>
         <Stack.Navigator>
           <Stack.Screen
-            name="Home"
-            component={HomePage}
+            name="SignInPage"
+            component={SignInPage}
+            // options={{ title: 'Welcome' }}
+            options={{headerShown: false}}
+          />
+          <Stack.Screen
+            name="SignUpPage"
+            component={SignUpPage}
             // options={{ title: 'Welcome' }}
             options={{headerShown: false}}
           />
@@ -68,7 +62,7 @@ export default function App() {
             name="Toolbar"
             component={Toolbar}
             options={{headerShown: false}}
-          />
+          />  
         </Stack.Navigator>
       </NavigationContainer>
     </NativeBaseProvider>
@@ -76,19 +70,19 @@ export default function App() {
 }
 
 // Color Switch Component
-function ToggleDarkMode() {
-  const { colorMode, toggleColorMode } = useColorMode();
-  return (
-    <HStack space={2} alignItems="center">
-      <Text>Dark</Text>
-      <Switch
-        isChecked={colorMode === "light" ? true : false}
-        onToggle={toggleColorMode}
-        aria-label={
-          colorMode === "light" ? "switch to dark mode" : "switch to light mode"
-        }
-      />
-      <Text>Light</Text>
-    </HStack>
-  );
-}
+// function ToggleDarkMode() {
+//   const { colorMode, toggleColorMode } = useColorMode();
+//   return (
+//     <HStack space={2} alignItems="center">
+//       <Text>Dark</Text>
+//       <Switch
+//         isChecked={colorMode === "light" ? true : false}
+//         onToggle={toggleColorMode}
+//         aria-label={
+//           colorMode === "light" ? "switch to dark mode" : "switch to light mode"
+//         }
+//       />
+//       <Text>Light</Text>
+//     </HStack>
+//   );
+// }
