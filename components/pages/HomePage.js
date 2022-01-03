@@ -14,7 +14,7 @@ import { MaterialIcons } from "@expo/vector-icons"
 import GtrackMainLogo from '../../assets/gtrack-logo-1.png'
 import GoogleIcon from '../../assets/google-icon.png'
 
-const HomePage = () => {
+const HomePage = ({ navigation }) => {
     return (
         <>
         <Center
@@ -59,7 +59,7 @@ const HomePage = () => {
                 <Divider w="300" />
                 <Input size="md" width="300" placeholder="Email Address" />
                 <Input size="md" type='password' width="300" placeholder="Password" isFullWidth={true}/>
-                <Button width="300" colorScheme="success" onPress={() => console.log("hello world")}>Sign in</Button>
+                <Button width="300" colorScheme="success" onPress={() => navigation.navigate('Toolbar')}>Sign in</Button>
             </Stack>
         </Center>
         </>
