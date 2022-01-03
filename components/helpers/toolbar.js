@@ -1,21 +1,9 @@
 import React from "react";
 import {
-  Text,
-  Image,
-  Button,
-  Center,
-  Input,
-  Divider,
-  Link,
-  Box,
   Icon,
-  Stack,
 } from "native-base";
 import { MaterialIcons } from "@expo/vector-icons";
-import GtrackMainLogo from "../../assets/gtrack-logo-1.png";
-import GoogleIcon from "../../assets/google-icon.png";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import HomePage from "../pages/HomePage";
 import AnnouncementPage from "../pages/AnnouncementPage";
 import EventPage from "../pages/EventPage";
 import SchedulePage from "../pages/SchedulePage";
@@ -29,10 +17,9 @@ const Toolbar = () => {
   return (
     <Tab.Navigator
       screenOptions={{
-        tabBarActiveTintColor: "white",
-        tabBarInactiveTintColor: "gray",
+        tabBarActiveTintColor: "#f0fdf4",
         tabBarStyle: {
-          backgroundColor: "#42BA96",
+          backgroundColor: "#10b981",
         },
       }}
     >
@@ -43,17 +30,17 @@ const Toolbar = () => {
           headerStyle: {
             backgroundColor: "white",
           },
-          headerTintColor: "#42BA96",
+          headerTintColor: "#10b981",
           headerTitleStyle: {
-            fontWeight: "bold",
+            fontWeight: "200",
           },
           tabBarLabel: "",
           tabBarIcon: (tabInfo) => (
             <Icon
               as={<MaterialIcons name="home" />}
-              color={tabInfo.focused ? "white" : "#8e8e93"}
-              size={30}
-              marginBottom={-3}
+              color={tabInfo.focused ? "white" : "#284c36"}
+              size={26}
+              mt={"auto"}
             />
           ),
         }}
@@ -65,17 +52,17 @@ const Toolbar = () => {
           headerStyle: {
             backgroundColor: "white",
           },
-          headerTintColor: "#42BA96",
+          headerTintColor: "#10b981",
           headerTitleStyle: {
-            fontWeight: "bold",
+            fontWeight: "200",
           },
           tabBarLabel: "",
           tabBarIcon: (tabInfo) => (
             <Icon
-              as={<MaterialIcons name="event" />}
-              color={tabInfo.focused ? "white" : "#8e8e93"}
-              size={30}
-              marginBottom={-3}
+              as={<MaterialIcons name="star" />}
+              color={tabInfo.focused ? "white" : "#284c36"}
+              size={26}
+              mt={"auto"}
             />
           ),
         }}
@@ -87,17 +74,17 @@ const Toolbar = () => {
           headerStyle: {
             backgroundColor: "white",
           },
-          headerTintColor: "#42BA96",
+          headerTintColor: "#10b981",
           headerTitleStyle: {
-            fontWeight: "bold",
+            fontWeight: "200",
           },
           tabBarLabel: "",
           tabBarIcon: (tabInfo) => (
             <Icon
-              as={<MaterialIcons name="date-range" />}
-              color={tabInfo.focused ? "white" : "#8e8e93"}
-              size={30}
-              marginBottom={-3}
+              as={<MaterialIcons name="event" />}
+              color={tabInfo.focused ? "white" : "#284c36"}
+              size={26}
+              mt={"auto"}
             />
           ),
         }}
@@ -109,17 +96,17 @@ const Toolbar = () => {
           headerStyle: {
             backgroundColor: "white",
           },
-          headerTintColor: "#42BA96",
+          headerTintColor: "#10b981",
           headerTitleStyle: {
-            fontWeight: "bold",
+            fontWeight: "200",
           },
           tabBarLabel: "",
           tabBarIcon: (tabInfo) => (
             <Icon
               as={<MaterialIcons name="room" />}
-              color={tabInfo.focused ? "white" : "#8e8e93"}
-              size={30}
-              marginBottom={-3}
+              color={tabInfo.focused ? "white" : "#284c36"}
+              size={26}
+              mt={"auto"}
             />
           ),
         }}
@@ -131,17 +118,17 @@ const Toolbar = () => {
           headerStyle: {
             backgroundColor: "white",
           },
-          headerTintColor: "#42BA96",
+          headerTintColor: "#10b981",
           headerTitleStyle: {
-            fontWeight: "bold",
+            fontWeight: "200",
           },
           tabBarLabel: "",
           tabBarIcon: (tabInfo) => (
             <Icon
               as={<MaterialIcons name="report-problem" />}
-              color={tabInfo.focused ? "white" : "#8e8e93"}
-              size={30}
-              marginBottom={-3}
+              color={tabInfo.focused ? "white" : "#284c36"}
+              size={26}
+              mt={"auto"}
             />
           ),
         }}
@@ -153,17 +140,17 @@ const Toolbar = () => {
           headerStyle: {
             backgroundColor: "white",
           },
-          headerTintColor: "#42BA96",
+          headerTintColor: "#10b981",
           headerTitleStyle: {
-            fontWeight: "bold",
+            fontWeight: "200",
           },
           tabBarLabel: "",
           tabBarIcon: (tabInfo) => (
             <Icon
               as={<MaterialIcons name="account-circle" />}
-              color={tabInfo.focused ? "white" : "#8e8e93"}
-              size={30}
-              marginBottom={-3}
+              color={tabInfo.focused ? "white" : "#284c36"}
+              size={26}
+              mt={"auto"}
             />
           ),
         }}
