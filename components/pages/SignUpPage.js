@@ -8,22 +8,23 @@ import {
     Divider,
     Link,
     Box,
-    Stack
+    Stack,
+    HStack
   } from "native-base";
-import { MaterialIcons } from "@expo/vector-icons"
 import GtrackMainLogo from '../../assets/gtrack-logo-1.png'
 import GoogleIcon from '../../assets/google-icon.png'
 
-const HomePage = () => {
+const SignUpPage = ({navigation}) => {
     return (
         <>
         <Center
-            px={3}
-            mt={10}
+            mt={8}
         >
             <Image
-                size={200}
-                resizeMode={"contain"}
+                size={150}
+                borderColor={"gray.500"}
+                borderBottomRadius={"sm"}
+                resizeMode={"center"}
                 source={GtrackMainLogo}
                 alt="GTrack Logo"
             />
@@ -32,13 +33,13 @@ const HomePage = () => {
                 fontSize={"xl"}
                 color={"gray.600"}
             >
-                Sign in with
+                Sign up with
             </Text>
         </Center>
         <Center
             px={3}
         >
-            <Stack space={4} alignItems="center">
+            <Stack space={3} alignItems="center">
                 <Link onPress={() => console.log("hello world")} >
                     <Box
                         size={12}
@@ -57,13 +58,32 @@ const HomePage = () => {
                     </Box>
                 </Link>
                 <Divider w="300" />
+                <HStack space={2}>
+                    <Input size="md" width="148" placeholder="First Name" />
+                    <Input size="md" width="148" placeholder="Last Name" />
+                </HStack>
                 <Input size="md" width="300" placeholder="Email Address" />
                 <Input size="md" type='password' width="300" placeholder="Password" isFullWidth={true}/>
-                <Button width="300" colorScheme="success" onPress={() => console.log("hello world")}>Sign in</Button>
+                <Input size="md" type='password' width="300" placeholder="Repeat Password" isFullWidth={true}/>
+                <HStack>
+                    <Text color={"gray.600"} >Already have an account?</Text>
+                    <Link ml={1}
+                        onPress={() =>
+                            navigation.navigate('SignInPage')
+                        } 
+                        isUnderlined 
+                        _text={{
+                            color: "primary.500",
+                        }}
+                    >
+                        Click Here
+                    </Link>
+                </HStack>
+                <Button width="300" colorScheme="success" onPress={() => console.log("hello world")}>Sign Up</Button>
             </Stack>
         </Center>
         </>
     )
 }
 
-export default HomePage
+export default SignUpPage
