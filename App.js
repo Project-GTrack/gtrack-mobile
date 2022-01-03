@@ -2,6 +2,7 @@ import React from "react";
 import {
   Text,
   Link,
+  Button,
   HStack,
   Center,
   Heading,
@@ -17,6 +18,8 @@ import envs from './config/env.js'
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomePage from "./components/pages/HomePage";
+import AnnouncementPage from "./components/pages/AnnouncementPage";
+import Toolbar from "./components/helpers/toolbar";
 
 // Define the config
 // const config = {
@@ -59,6 +62,11 @@ export default function App() {
             name="Home"
             component={HomePage}
             // options={{ title: 'Welcome' }}
+            options={{headerShown: false}}
+          />
+          <Stack.Screen
+            name="Toolbar"
+            component={Toolbar}
             options={{headerShown: false}}
           />
         </Stack.Navigator>
