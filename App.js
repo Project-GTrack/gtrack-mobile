@@ -7,7 +7,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SignInPage from "./components/pages/SignInPage";
 import SignUpPage from "./components/pages/SignUpPage";
-import BottomToolbar from "./components/helpers/BottomToolbar";
+import Toolbar from "./components/helpers/Toolbar";
 
 // Define the config
 // const config = {
@@ -60,7 +60,7 @@ export default function App() {
           />
           <Stack.Screen
             name="Toolbar"
-            component={BottomToolbar}
+            component={Toolbar}
             options={{headerShown: false}}
           />  
         </Stack.Navigator>
