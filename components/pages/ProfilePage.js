@@ -16,9 +16,9 @@ import { MaterialIcons } from "@expo/vector-icons"
 import GtrackMainLogo from '../../assets/gtrack-logo-1.png'
 import UserAvatar from '../../assets/user-avatar.png'
 import * as ImagePicker from 'expo-image-picker';
-import GeneralInformationModal from '../helpers/GeneralInformationModal';
-import ChangePasswordModal from '../helpers/ChangePasswordModal';
-import ChangeAddressModal from '../helpers/ChangeAddressModal';
+import GeneralInformationModal from '../modals/GeneralInformationModal';
+import ChangePasswordModal from '../modals/ChangePasswordModal';
+import ChangeAddressModal from '../modals/ChangeAddressModal';
 
 const ProfilePage = () => {
     const [showGIModal,setShowGIModal]=useState(false);

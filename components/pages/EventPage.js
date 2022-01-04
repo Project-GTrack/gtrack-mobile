@@ -18,7 +18,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import GtrackMainLogo from "../../assets/gtrack-logo-1.png";
 import GoogleIcon from "../../assets/google-icon.png";
 import { SliderBox } from "react-native-image-slider-box";
-import EventModal from "../modals/eventModal";
+import EventModal from "../modals/EventModal";
 
 const EventPage = () => {
   const arr = [
