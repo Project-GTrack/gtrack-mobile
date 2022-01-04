@@ -93,7 +93,7 @@ const EventPage = () => {
                   onCurrentImagePressed={(index) =>
                     console.warn(`image ${index} pressed`)
                   }
-                  dotColor="#FFEE58"
+                  dotColor="#10b981"
                   inactiveDotColor="#90A4AE"
                   paginationBoxVerticalPadding={10}
                   autoplay
