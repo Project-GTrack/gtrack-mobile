@@ -46,7 +46,7 @@ const Toolbar = () => {
         }}
       />
       <Tab.Screen
-        name="Events"
+        name="Events and Seminars"
         component={EventPage}
         options={{
           headerStyle: {
