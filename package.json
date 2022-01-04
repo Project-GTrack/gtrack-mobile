@@ -29,6 +29,7 @@
     "react-native": "https://github.com/expo/react-native/archive/sdk-42.0.0.tar.gz",
     "react-native-dotenv": "^3.3.1",
     "react-native-fast-image": "^8.5.11",
+    "react-native-image-picker": "^4.6.1",
     "react-native-image-slider-box": "^1.1.14",
     "react-native-pager-view": "5.0.12",
     "react-native-safe-area-context": "3.2.0",
