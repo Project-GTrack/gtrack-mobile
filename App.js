@@ -7,7 +7,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SignInPage from "./components/pages/SignInPage";
 import SignUpPage from "./components/pages/SignUpPage";
-import Toolbar from "./components/helpers/toolbar";
+import Toolbar from "./components/helpers/Toolbar";
 
 // Define the config
 // const config = {
