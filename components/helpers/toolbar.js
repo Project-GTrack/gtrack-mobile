@@ -8,7 +8,8 @@ import AnnouncementPage from "../pages/AnnouncementPage";
 import EventPage from "../pages/EventPage";
 import SchedulePage from "../pages/SchedulePage";
 import TrackCollectorPage from "../pages/TrackCollectorPage";
-import ReportPage from "../pages/driver/ReportPage";
+// import ReportPage from "../pages/driver/ReportPage";
+import ReportPage from "../pages/ReportPage";
 import ProfilePage from "../pages/ProfilePage";
 
 const Tab = createBottomTabNavigator();
