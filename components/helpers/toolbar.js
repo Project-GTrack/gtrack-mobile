@@ -8,6 +8,7 @@ import AnnouncementPage from "../pages/AnnouncementPage";
 import EventPage from "../pages/EventPage";
 import SchedulePage from "../pages/SchedulePage";
 import TrackCollectorPage from "../pages/TrackCollectorPage";
+import TopBar from "../pages/driver/helpers/TopBar";
 // import ReportPage from "../pages/driver/ReportPage";
 import ReportPage from "../pages/ReportPage";
 import ProfilePage from "../pages/ProfilePage";

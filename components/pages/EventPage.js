@@ -97,7 +97,6 @@ const EventPage = () => {
                   inactiveDotColor="#90A4AE"
                   paginationBoxVerticalPadding={10}
                   autoplay
-                  circleLoop
                 />
 
                 <Button
