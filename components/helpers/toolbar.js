@@ -8,8 +8,10 @@ import AnnouncementPage from "../pages/AnnouncementPage";
 import EventPage from "../pages/EventPage";
 import SchedulePage from "../pages/SchedulePage";
 import TrackCollectorPage from "../pages/TrackCollectorPage";
+// import ReportPage from "../pages/driver/ReportPage";
 import ReportPage from "../pages/ReportPage";
 import ProfilePage from "../pages/ProfilePage";
+import InputGarbageWeightPage from "../pages/InputGarbageWeightPage";
 
 const Tab = createBottomTabNavigator();
 
@@ -126,6 +128,28 @@ const Toolbar = () => {
           tabBarIcon: (tabInfo) => (
             <Icon
               as={<MaterialIcons name="report-problem" />}
+              color={tabInfo.focused ? "white" : "#284c36"}
+              size={26}
+              mt={"auto"}
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Input Garbage Weight"
+        component={InputGarbageWeightPage}
+        options={{
+          headerStyle: {
+            backgroundColor: "white",
+          },
+          headerTintColor: "#10b981",
+          headerTitleStyle: {
+            fontWeight: "200",
+          },
+          tabBarLabel: "",
+          tabBarIcon: (tabInfo) => (
+            <Icon
+              as={<MaterialIcons name="restore-from-trash" />}
               color={tabInfo.focused ? "white" : "#284c36"}
               size={26}
               mt={"auto"}
