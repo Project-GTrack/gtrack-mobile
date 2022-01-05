@@ -65,7 +65,7 @@ const ReportPage = () => {
                     <Select.Item label="Delay" value="Delay" />
                 </Select>
             </Stack>
-            <Button bgColor={'#f43f5e'} mt={10} mb={2}
+            <Button colorScheme='danger' mt={10} mb={2}
                 leftIcon={
                     <Icon
                         as={<MaterialIcons name="send" />}

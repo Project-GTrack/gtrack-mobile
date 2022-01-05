@@ -76,7 +76,7 @@ const SignInPage = ({navigation}) => {
                 
                 <Button width="300" colorScheme="success" 
                     onPress={() =>
-                        navigation.navigate('Toolbar')
+                        navigation.navigate('Drawer')
                     } 
                 >Sign in</Button>
             </Stack>

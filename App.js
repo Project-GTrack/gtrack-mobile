@@ -8,6 +8,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SignInPage from "./components/pages/SignInPage";
 import SignUpPage from "./components/pages/SignUpPage";
 import Toolbar from "./components/helpers/Toolbar";
+import Drawer from "./components/helpers/Drawer";
 
 // Define the config
 // const config = {
@@ -59,8 +60,8 @@ export default function App() {
             options={{headerShown: false}}
           />
           <Stack.Screen
-            name="Toolbar"
-            component={Toolbar}
+            name="Drawer"
+            component={Drawer}
             options={{headerShown: false}}
           />  
         </Stack.Navigator>
