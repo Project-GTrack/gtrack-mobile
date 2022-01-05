@@ -13,28 +13,21 @@ import {
 import { MaterialIcons } from "@expo/vector-icons"
 import GtrackMainLogo from '../../assets/gtrack-logo-1.png'
 import GoogleIcon from '../../assets/google-icon.png'
-
+import MapView from 'react-native-maps';
+import { Dimensions } from 'react-native';
 
 const TrackCollectorPage = () => {
     return (
         <>
         <Center
-            px={3}
-            mt={10}
+        style={{
+            alignSelf:'stretch'
+        }}
         >
-            <Image
-                size={200}
-                resizeMode={"contain"}
-                source={GtrackMainLogo}
-                alt="GTrack Logo"
-            />
-            <Text
-                mb={5}
-                fontSize={"xl"}
-                color={"gray.600"}
-            >
-                Track Collector
-            </Text>
+            <MapView style={{
+                width: Dimensions.get('window').width,
+                height: Dimensions.get('window').height,
+            }} />
         </Center>
         </>
     )
