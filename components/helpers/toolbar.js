@@ -125,7 +125,7 @@ const Toolbar = ({navigation}) => {
         />
         <Tab.Screen
           name="Track Collector"
-          component={TrackCollectorPage}
+          component={TopBar}
           options={{
             headerStyle: {
               backgroundColor: "white",
