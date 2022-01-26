@@ -18,8 +18,12 @@ import GoogleIcon from "../../../assets/google-icon.png";
 import * as Location from "expo-location";
 import MapView, { Marker } from "react-native-maps";
 import { Dimensions } from "react-native";
+import { getDatabase, ref, onValue, set } from 'firebase/database';
+
 
 const TrackCollectorPage = () => {
+  
+  
   const [marker, showMarker] = useState(false);
   const [initLoc, setInitLoc] = useState({
     latitude: 0,
@@ -34,29 +38,36 @@ const TrackCollectorPage = () => {
         Linking.openURL("app-settings:");
         return;
       }
-      let location = await Location.getCurrentPositionAsync({
+      await Location.watchPositionAsync({
         accuracy: Location.Accuracy.BestForNavigation,
-        maximumAge: 10000,
-      });
-      console.log(location);
-      setInitLoc((prevState) => ({
-        ...prevState,
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-      }));
-      // Geolocation.getCurrentPosition(
-      //     (position) => {
-      //       setInitLoc(prevState=>({...prevState,latitude:position.coords.latitude,longitude:position.coords.longitude}))
-      //     },
-      //     (error) => {
-      //       // See error code charts below.
-      //       console.log(error.code, error.message);
-      //     },
-      //     { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
-      // );
+      }, (res) => {
+        
+        console.log(res);
+        setInitLoc((prevState) => ({
+          ...prevState,
+          latitude: res.coords.latitude,
+          longitude: res.coords.longitude,
+        }));
+        const db = getDatabase();
+        const reference = ref(db, 'drivers/-MNcqKz5vxf-VIbMVxmE');
+        set(reference, {
+          active: 1,
+          driver_id: 2,
+          latitude: res.coords.latitude,
+          longitude: res.coords.longitude,
+          route: "Poblacion",
+        })
+      })
     })();
   }, []);
   const showLocation = () => {
+    
+    const db = getDatabase();
+    const reference = ref(db, 'drivers/-MNcqKz5vxf-VIbMVxmE');
+    onValue(reference, (snapshot) => {
+      const updateLocation = snapshot.val();
+      console.log(updateLocation);
+    })
     showMarker(true);
   };
   const stopSharing = () => {
