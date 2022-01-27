@@ -40,6 +40,8 @@ const TrackCollectorPage = () => {
         Linking.openURL("app-settings:");
         return;
       }
+      let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.BestForNavigation, maximumAge: 10000});
+      setInitLoc(prevState=>({...prevState,latitude:location.coords.latitude,longitude:location.coords.longitude}))
       if(marker){
         try{
           var temp = await Location.watchPositionAsync({
