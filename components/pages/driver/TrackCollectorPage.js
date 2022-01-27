@@ -40,14 +40,15 @@ const TrackCollectorPage = () => {
       }
       await Location.watchPositionAsync({
         accuracy: Location.Accuracy.BestForNavigation,
+        timeInterval: 300,
+        distanceInterval: 0
       }, (res) => {
-        
-        console.log(res);
         setInitLoc((prevState) => ({
           ...prevState,
           latitude: res.coords.latitude,
           longitude: res.coords.longitude,
         }));
+        console.log(initLoc);
         const db = getDatabase();
         const reference = ref(db, 'drivers/-MNcqKz5vxf-VIbMVxmE');
         set(reference, {
@@ -66,7 +67,6 @@ const TrackCollectorPage = () => {
     const reference = ref(db, 'drivers/-MNcqKz5vxf-VIbMVxmE');
     onValue(reference, (snapshot) => {
       const updateLocation = snapshot.val();
-      console.log(updateLocation);
     })
     showMarker(true);
   };
