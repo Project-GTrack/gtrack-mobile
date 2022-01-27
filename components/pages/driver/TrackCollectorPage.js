@@ -23,7 +23,7 @@ import { getDatabase, ref, onValue, set } from 'firebase/database';
 
 const TrackCollectorPage = () => {
   
-  
+  let location;
   const [marker, showMarker] = useState(false);
   const [initLoc, setInitLoc] = useState({
     latitude: 0,
@@ -31,6 +31,7 @@ const TrackCollectorPage = () => {
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
   });
+
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -38,31 +39,41 @@ const TrackCollectorPage = () => {
         Linking.openURL("app-settings:");
         return;
       }
-      await Location.watchPositionAsync({
-        accuracy: Location.Accuracy.BestForNavigation,
-        timeInterval: 300,
-        distanceInterval: 0
-      }, (res) => {
-        setInitLoc((prevState) => ({
-          ...prevState,
-          latitude: res.coords.latitude,
-          longitude: res.coords.longitude,
-        }));
-        console.log(initLoc);
-        const db = getDatabase();
-        const reference = ref(db, 'drivers/-MNcqKz5vxf-VIbMVxmE');
-        set(reference, {
-          active: 1,
-          driver_id: 2,
-          latitude: res.coords.latitude,
-          longitude: res.coords.longitude,
-          route: "Poblacion",
-        })
-      })
+      let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.BestForNavigation, maximumAge: 10000});
+      console.log(location);
+      setInitLoc(prevState=>({...prevState,latitude:location.coords.latitude,longitude:location.coords.longitude}))
+      // Geolocation.getCurrentPosition(
+      //     (position) => {
+      //       setInitLoc(prevState=>({...prevState,latitude:position.coords.latitude,longitude:position.coords.longitude}))
+      //     },
+      //     (error) => {
+      //       // See error code charts below.
+      //       console.log(error.code, error.message);
+      //     },
+      //     { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+      // );
     })();
   }, []);
   const showLocation = () => {
-    
+    location = Location.watchPositionAsync({
+      accuracy: Location.Accuracy.BestForNavigation,
+      timeInterval: 300,
+      distanceInterval: 0
+    }, (res) => {
+      console.log(res);
+      const db = getDatabase();
+      const reference = ref(db, 'drivers/-MNcqKz5vxf-VIbMVxmE');
+      set(reference, {
+        active: 1,
+        driver_id: 2,
+        latitude: res.coords.latitude,
+        longitude: res.coords.longitude,
+        route: "Poblacion",
+      })
+      setInitLoc(prevState=>({...prevState,latitude:res.coords.latitude,longitude:res.coords.longitude}))
+    })
+    console.log(initLoc);
+    console.log(location);
     const db = getDatabase();
     const reference = ref(db, 'drivers/-MNcqKz5vxf-VIbMVxmE');
     onValue(reference, (snapshot) => {
@@ -71,6 +82,7 @@ const TrackCollectorPage = () => {
     showMarker(true);
   };
   const stopSharing = () => {
+    location?.remove();
     showMarker(false);
   };
   return (
