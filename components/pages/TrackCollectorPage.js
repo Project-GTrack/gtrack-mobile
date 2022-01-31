@@ -18,11 +18,13 @@ import MapView,{Marker} from 'react-native-maps';
 import { Dimensions } from 'react-native';
 
 const TrackCollectorPage = () => {
+    const { height, width } = Dimensions.get( 'window' );
+    const LATITUDE_DELTA=0.23;
     const [initLoc,setInitLoc]=useState({
         latitude: 0,
         longitude: 0,
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421})
+        latitudeDelta: LATITUDE_DELTA,
+        longitudeDelta: LATITUDE_DELTA * (width / height)})
     useEffect(() => {
         (async () => {
             let { status } = await Location.requestForegroundPermissionsAsync();
@@ -54,13 +56,15 @@ const TrackCollectorPage = () => {
         >
             <MapView
             region={initLoc}
+            showsUserLocation={true}
+            showsMyLocationButton={true}
             style={{
-                width: Dimensions.get('window').width,
-                height: Dimensions.get('window').height,
+                width: '100%',
+                height: '100%',
             }} >
             <Marker
                 coordinate={{ latitude : initLoc.latitude , longitude : initLoc.longitude }}
-                />
+            />
             </MapView>
         </Center>
         </>
