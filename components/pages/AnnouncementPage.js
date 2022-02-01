@@ -33,7 +33,7 @@ const AnnouncementPage = () => {
   const [data,setData]=useState([]);
   let temp = [];
   useEffect(()=>{
-    axios.get("https://white-ladybug-25.loca.lt/mobile/announcement/get-announcements")
+    axios.get(`${envs.BACKEND_URL}/mobile/announcement/get-announcements`)
       .then((res) => {
         temp=res.data.data;
         setInfo(temp);
