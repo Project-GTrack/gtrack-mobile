@@ -19,7 +19,7 @@ import * as Location from "expo-location";
 import MapView, { Marker } from "react-native-maps";
 import { Dimensions } from "react-native";
 import { getDatabase, ref, onValue, set } from 'firebase/database';
-
+import Firebase from '../../helpers/Firebase';
 
 const TrackCollectorPage = () => {
   
@@ -50,15 +50,14 @@ const TrackCollectorPage = () => {
             distanceInterval: 0
           }, (res) => {
             console.log(res);
-            const db = getDatabase();
-            const reference = ref(db, 'drivers/-MNcqKz5vxf-VIbMVxmE');
-            set(reference, {
-              active: 1,
-              driver_id: 2,
-              latitude: res.coords.latitude,
-              longitude: res.coords.longitude,
-              route: "Poblacion",
-            })
+            Firebase.app().database('https://gtrack-339307-default-rtdb.asia-southeast1.firebasedatabase.app/')
+              .ref('Drivers/-MNcqKz5vxf-VIbMVxmE').set({
+                active: 1,
+                driver_id: 2,
+                latitude: res.coords.latitude,
+                longitude: res.coords.longitude,
+                route: "Poblacion",
+              })
             setInitLoc(prevState=>({...prevState,latitude:res.coords.latitude,longitude:res.coords.longitude}))
           })
           setWatch(temp);
