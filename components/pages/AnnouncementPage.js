@@ -22,6 +22,7 @@ import {
   View,
 } from "native-base";
 import { StyleSheet } from "react-native";
+import envs from '../../config/env.js'
 import { MaterialIcons } from "@expo/vector-icons";
 import GtrackMainLogo from "../../assets/gtrack-logo-1.png";
 import GoogleIcon from "../../assets/google-icon.png";
@@ -29,52 +30,27 @@ import { Line } from "react-native-svg";
 import axios from "axios";
 
 const AnnouncementPage = () => {
-  const [data,setData]=useState({});
+  const [data,setData]=useState([]);
+  let temp = [];
   useEffect(()=>{
-    console.log("YEAHH");
-    axios.get("https://kind-cobra-90.loca.lt/announcement/get-announcements")
+    axios.get("https://white-ladybug-25.loca.lt/mobile/announcement/get-announcements")
       .then((res) => {
-        setData(res.data);
-        console.log(res.data);
+        temp=res.data.data;
+        setInfo(temp);
       })
       .catch(error => console.log(error));
-  
+      
   },[])
-  const arr = [
-    {
-      id: 1,
-      person: "Arya Stark",
-      type: "Admin",
-      date: "January 3, 2022 10:00 PM",
-      description: "Happening NOW: Compostela Municipal Coastal Cleanup 2022",
-      content:
-        " NativeBase V3 a universal Design System for Mobile & Web built for React Native and React with the same API. Ships a bunch of components for most of the use-cases that includes Button, AppBar, Dialog, Modal and what not.",
-      avatar: GoogleIcon,
-    },
-    {
-      id: 2,
-      person: "Sansa Stark",
-      type: "Chair",
-      date: "January 3, 2022 10:00 PM",
-      description: "Happening NOW: Compostela Municipal Coastal Cleanup 2022",
-      avatar: GtrackMainLogo,
-    },
-    {
-      id: 3,
-      person: "Bran Stark",
-      type: "HR",
-      date: "January 3, 2022 10:00 PM",
-      description: "Happening NOW: Compostela Municipal Coastal Cleanup 2022",
-      avatar: GtrackMainLogo,
-    },
-  ];
+  const setInfo = (data) =>{
+    (data !== undefined)? setData(data):setData(null);
+}
   return (
     <View>
       <ScrollView>
-        {arr.map((arr) => {
+        {data.map((arr) => {
           return (
             <VStack
-              key={arr.id}
+              key={arr.announcement_id}
               marginLeft={3}
               marginRight={3}
               marginTop={2}
@@ -88,12 +64,12 @@ const AnnouncementPage = () => {
                   borderWidth={1}
                   size="lg"
                   backgroundColor="white"
-                  source={arr.avatar}
+                  source={GtrackMainLogo}
                 />
                 <VStack ml={2} space={2}>
                   <Text fontSize="lg" bold>
-                    {arr.person} | {arr.type} {"\n"}
-                    <Text>{arr.date}</Text>
+                    {arr.announcementAdmin.fname} {arr.announcementAdmin.lname} | {arr.announcementAdmin.user_type} {"\n"}
+                    <Text>{arr.createdAt}</Text>
                   </Text>
                   <View
                     style={{
@@ -105,7 +81,7 @@ const AnnouncementPage = () => {
               </HStack>
 
               <VStack px={4} pb={4}>
-                <Text bold>{arr.description}</Text>
+                <Text bold>{arr.title}</Text>
                 <Image
                   size={400}
                   borderRadius="md"
