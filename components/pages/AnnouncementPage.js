@@ -42,59 +42,90 @@ const AnnouncementPage = () => {
       
   },[])
   const setInfo = (data) =>{
-    (data !== undefined)? setData(data):setData(null);
+    if(data !== []){
+      setData(data)
+    }else{
+      setData(null);
+    }
+    
 }
   return (
     <View>
       <ScrollView>
-        {data.map((arr) => {
-          return (
-            <VStack
-              key={arr.announcement_id}
-              marginLeft={3}
-              marginRight={3}
-              marginTop={2}
-              marginBottom={2}
-              shadow={2}
-              borderRadius="sm"
-              backgroundColor="white"
-            >
-              <HStack alignItems="center" px={4} pt={4}>
-                <Avatar
-                  borderWidth={1}
-                  size="lg"
-                  backgroundColor="white"
-                  source={GtrackMainLogo}
-                />
-                <VStack ml={2} space={2}>
-                  <Text fontSize="lg" bold>
-                    {arr.announcementAdmin.fname} {arr.announcementAdmin.lname} | {arr.announcementAdmin.user_type} {"\n"}
-                    <Text>{arr.createdAt}</Text>
-                  </Text>
-                  <View
-                    style={{
-                      borderBottomColor: "black",
-                      borderBottomWidth: 1,
-                    }}
-                  />
-                </VStack>
-              </HStack>
-
-              <VStack px={4} pb={4}>
-                <Text bold>{arr.title}</Text>
-                <Image
-                  size={400}
-                  borderRadius="md"
-                  resizeMode={"contain"}
-                  source={GtrackMainLogo}
-                  alt="GTrack Logo"
-                />
-
-                <Text>{arr.content}</Text>
+      {(() => {
+           if(data.length !== 0){
+             console.log(data.length);
+             {data.map((arr) => {
+                return (
+                  <VStack
+                    key={arr.announcement_id}
+                    marginLeft={3}
+                    marginRight={3}
+                    marginTop={2}
+                    marginBottom={2}
+                    shadow={2}
+                    borderRadius="sm"
+                    backgroundColor="white"
+                  >
+                    <HStack alignItems="center" px={4} pt={4}>
+                      <Avatar
+                        borderWidth={1}
+                        size="lg"
+                        backgroundColor="white"
+                        source={GtrackMainLogo}
+                      />
+                      <VStack ml={2} space={2}>
+                        <Text fontSize="lg" bold>
+                          {arr.announcementAdmin.fname} {arr.announcementAdmin.lname} | {arr.announcementAdmin.user_type} {"\n"}
+                          <Text>{arr.createdAt}</Text>
+                        </Text>
+                        <View
+                          style={{
+                            borderBottomColor: "black",
+                            borderBottomWidth: 1,
+                          }}
+                        />
+                      </VStack>
+                    </HStack>
+      
+                    <VStack px={4} pb={4}>
+                      <Text bold>{arr.title}</Text>
+                      <Image
+                        size={400}
+                        borderRadius="md"
+                        resizeMode={"contain"}
+                        source={GtrackMainLogo}
+                        alt="GTrack Logo"
+                      />
+      
+                      <Text>{arr.content}</Text>
+                    </VStack>
+                  </VStack>
+                );
+              
+              
+                      })}
+           }else{
+             console.log(data);
+             return (
+              <VStack
+                marginLeft={3}
+                marginRight={3}
+                marginTop={2}
+                marginBottom={2}
+                height={100}
+                shadow={2}
+                borderRadius="sm"
+                backgroundColor="white"
+              >
+               <Text bold textAlign="center" fontSize={24} marginTop={35}>No Announcements Posted</Text>
               </VStack>
-            </VStack>
-          );
-        })}
+             );
+           }
+          })()}
+              
+             
+        
       </ScrollView>
     </View>
   );
