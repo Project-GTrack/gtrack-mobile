@@ -15,8 +15,20 @@ import {
   } from "native-base";
 import UserAvatar from '../../assets/user-avatar.png'
 import { MaterialIcons } from "@expo/vector-icons";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const CustomDrawerContent = ({navigation}) => {
+    const removeData = async () => {
+        try {
+            const value = await AsyncStorage.getItem('@user');
+            if(value){
+                await AsyncStorage.removeItem('@user');
+                navigation.replace('SignInPage');
+            }
+        } catch(e) {
+            console.log(e);
+        }
+    }
     return (
         <Stack space={3} py={12} px={3}>
             <Center>
@@ -83,7 +95,7 @@ const CustomDrawerContent = ({navigation}) => {
                         size={5}
                     />
                 }
-                onPress={()=>navigation.navigate('SignInPage')} 
+                onPress={()=>removeData()} 
                 mt={10} w={'1/2'} rounded={'full'} colorScheme='danger'>Logout</Button>
             </Center>
             

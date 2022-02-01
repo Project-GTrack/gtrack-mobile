@@ -24,50 +24,47 @@ import MessageAlert from '../helpers/MessageAlert';
 import ActivityIndicator from '../helpers/ActivityIndicator';
 import envs from '../../config/env.js'
 import { Alert } from "react-native";
-const auth = Firebase.auth();
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
+const auth = Firebase.auth();
 const SignInPage = ({navigation}) => {
-    // const [user,setUser]=useState(null);
-    // const initAsync = async () => {
-    //     await GoogleSignIn.initAsync();
-    //     _syncUserWithStateAsync();
-    // };
-    
-    // const _syncUserWithStateAsync = async () => {
-    //     const userG = await GoogleSignIn.signInSilentlyAsync();
-    //     setUser(userG);
-    // };
-    // const signOutAsync = async () => {
-    //     await GoogleSignIn.signOutAsync();
-    //     setUser(null);
-    // };
-    // signInAsync = async () => {
-    //     try {
-    //       await GoogleSignIn.askForPlayServicesAsync();
-    //       const { type, user } = await GoogleSignIn.signInAsync();
-    //       if (type === 'success') {
-    //         _syncUserWithStateAsync();
-    //       }
-    //     } catch ({ message }) {
-    //       alert('login: Error:' + message);
-    //     }
-    // };
     const [loading,setLoading]=useState(false);
-    const [request, response, promptAsync,user] = Google.useAuthRequest({
+    const [user,setUser]=useState(null);
+    const [request, response, promptAsync] = Google.useAuthRequest({
         expoClientId: envs.EXPO_CLIENT_ID,
         // iosClientId: 'GOOGLE_GUID.apps.googleusercontent.com',
         androidClientId: envs.ANDROID_CLIENT_ID,
         // webClientId: 'GOOGLE_GUID.apps.googleusercontent.com',
     });
+    const setData = async (data) => {
+        try {
+            const jsonValue = JSON.stringify(data);
+            await AsyncStorage.setItem('@user', jsonValue);
+            navigation.replace('Drawer');
+        } catch (e) {
+            setAlert({visible:true,message:e,colorScheme:"danger",header:"Error"});
+        }
+    }
+    const getData = async () => {
+        try {
+            const value = await AsyncStorage.getItem('@user');
+            if(value!==null){
+                setUser(JSON.parse(value));
+            }else{
+                setUser(null);
+            }
+        }catch (e){
+            console.log(e);
+        }
+    }
     const getUserInfo= async (token) =>{
         axios.get(` https://www.googleapis.com/oauth2/v3/userinfo?access_token=${token}`)
         .then(res => {
-            console.log(res.data);
             axios.post(`${envs.BACKEND_URL}/mobile/login`, {email:res.data.email,lname:res.data.family_name,fname:res.data.given_name,google_auth:true})
             .then(res => {
                 if(res.data.success){
                     setLoading(false);
-                    setAlert({visible:true,message:"You are logged in.",colorScheme:"success",header:"Success"});
+                    setData(res.data.data);
                 }else{
                     setLoading(false);
                     setAlert({visible:true,message:res.data.message,colorScheme:"danger",header:"Error"});
@@ -81,9 +78,9 @@ const SignInPage = ({navigation}) => {
         "Email not verified. Do you want to send another verification link?",
         [
             {
-            text: "No",
-            onPress: () => console.log("Cancel Pressed"),
-            style: "cancel"
+                text: "No",
+                onPress: () => console.log("Cancel Pressed"),
+                style: "cancel"
             },
             { text: "Yes", onPress: () => {auth.currentUser.sendEmailVerification()} }
         ]
@@ -95,11 +92,11 @@ const SignInPage = ({navigation}) => {
             auth.onAuthStateChanged(function(user) {
                 if (user && user.emailVerified) {
                     setLoading(false);
-                    resetForm();
+                    resetForm({email: '',password:''});
                     axios.post(`${envs.BACKEND_URL}/mobile/verify_email`, {email:values.email})
                     .then(res=>{
                         if(res.data.success){
-                            setAlert({visible:true,message:"You are logged in.",colorScheme:"success",header:"Success"});
+                            setData(res.data.data);
                         }else{
                             setAlert({visible:true,message:res.data.message,colorScheme:"danger",header:"Error"});
                         }
@@ -125,7 +122,8 @@ const SignInPage = ({navigation}) => {
             .then(res => {
                 if(res.data.success && res.data.verified){
                     setLoading(false);
-                    setAlert({visible:true,message:"You are logged in.",colorScheme:"success",header:"Success"});
+                    resetForm();
+                    setData(res.data.data);
                 }else if(!res.data.success && !res.data.verified){
                     setLoading(false);
                     handleFirebase(values,resetForm);
@@ -140,6 +138,7 @@ const SignInPage = ({navigation}) => {
     }
     const { handleChange, handleSubmit, values } = useFormik({
         initialValues:{ email: '',password:'' },
+        enableReinitialize:true,
         onSubmit: handleFormSubmit
     });
     const [alert,setAlert]=useState({
@@ -148,13 +147,23 @@ const SignInPage = ({navigation}) => {
         colorScheme:null,
         header:null
     });
+    // const getData = async () => {
+    //     const value = await AsyncStorage.getItem('@user');
+    //     return value!==null?JSON.parse(value):null;
+    // }
+    
     useEffect(() => {
         // initAsync();
+        
         if (response?.type === 'success') {
             const { authentication} = response;
             getUserInfo(authentication.accessToken);
         }
-    },[response]);
+        isFocused = navigation.addListener('focus', getData);
+        if(user){
+            navigation.navigate('Drawer');
+        }
+    },[user]);
     const handleGoogleClick = async () => {
         setLoading(true);
         promptAsync();
@@ -205,11 +214,11 @@ const SignInPage = ({navigation}) => {
                         <Divider w="300" />
                         <Input size="md" width="300" placeholder="Email Address" 
                             onChangeText={handleChange('email')}
-                            value={values.fname}
+                            value={values.email}
                         />
                         <Input size="md" type='password' width="300" placeholder="Password" isFullWidth={true}
                             onChangeText={handleChange('password')}
-                            value={values.fname}
+                            value={values.password}
                         />
                         <HStack>
                         <Text color={"gray.600"} >Don't have an account yet?</Text>
