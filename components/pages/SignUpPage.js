@@ -22,6 +22,8 @@ import CryptoES from "crypto-es";
 import envs from '../../config/env.js'
 import axios from 'axios';
 import * as Google from 'expo-auth-session/providers/google';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 const auth = Firebase.auth();
 const SignUpPage = ({navigation}) => {
     const [loading,setLoading]=useState(false);
@@ -31,15 +33,24 @@ const SignUpPage = ({navigation}) => {
         androidClientId: envs.ANDROID_CLIENT_ID,
         // webClientId: 'GOOGLE_GUID.apps.googleusercontent.com',
     });
+    const setData = async (data) => {
+        try {
+            const jsonValue = JSON.stringify(data);
+            await AsyncStorage.setItem('@user', jsonValue);
+            navigation.replace('Drawer');
+        } catch (e) {
+            setAlert({visible:true,message:e,colorScheme:"danger",header:"Error"});
+        }
+    }
     const getUserInfo= async (token) =>{
         axios.get(` https://www.googleapis.com/oauth2/v3/userinfo?access_token=${token}`)
         .then(res => {
-            console.log(res.data);
             axios.post(`${envs.BACKEND_URL}/mobile/register`, {email:res.data.email,lname:res.data.family_name,fname:res.data.given_name,google_auth:true})
             .then(res => {
                 if(res.data.success){
                     setLoading(false);
-                    setAlert({visible:true,message:"You are logged in.",colorScheme:"success",header:"Success"});
+                    setData(res.data.data);
+                    // setAlert({visible:true,message:"You are logged in.",colorScheme:"success",header:"Success"});
                 }else{
                     setLoading(false);
                     setAlert({visible:true,message:"Account already existed.",colorScheme:"danger",header:"Error"});
