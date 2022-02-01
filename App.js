@@ -9,22 +9,6 @@ import SignInPage from "./components/pages/SignInPage";
 import SignUpPage from "./components/pages/SignUpPage";
 import Toolbar from "./components/helpers/Toolbar";
 import Drawer from "./components/helpers/Drawer";
-import { initializeApp } from 'firebase/app';
-
-
-
-const firebaseConfig = {
-  apiKey: "AIzaSyBgm4wnKRFsVZBNvj4kntTzNB-gBw4nnSc",
-  authDomain: "mapsample-51a36.firebaseapp.com",
-  databaseURL: "https://mapsample-51a36.firebaseio.com",
-  projectId: "mapsample-51a36",
-  storageBucket: "mapsample-51a36.appspot.com",
-  messagingSenderId: "42946705440",
-  appId: "1:42946705440:web:1b76b0abc758b9f2f9a445",
-  measurementId: "G-YNRQ8ZCTXD"
-};
-
-initializeApp(firebaseConfig);
 
 // Define the config
 // const config = {

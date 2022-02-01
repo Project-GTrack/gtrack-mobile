@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Text,
   Image,
@@ -26,8 +26,20 @@ import { MaterialIcons } from "@expo/vector-icons";
 import GtrackMainLogo from "../../assets/gtrack-logo-1.png";
 import GoogleIcon from "../../assets/google-icon.png";
 import { Line } from "react-native-svg";
+import axios from "axios";
 
 const AnnouncementPage = () => {
+  const [data,setData]=useState({});
+  useEffect(()=>{
+    console.log("YEAHH");
+    axios.get("https://kind-cobra-90.loca.lt/announcement/get-announcements")
+      .then((res) => {
+        setData(res.data);
+        console.log(res.data);
+      })
+      .catch(error => console.log(error));
+  
+  },[])
   const arr = [
     {
       id: 1,
