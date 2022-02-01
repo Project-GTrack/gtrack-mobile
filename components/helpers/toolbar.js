@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Button,
   Icon,
@@ -15,9 +15,23 @@ import TopBar from "../pages/driver/helpers/TopBar";
 import ReportPage from "../pages/ReportPage";
 import ProfilePage from "../pages/ProfilePage";
 import InputGarbageWeightPage from "../pages/InputGarbageWeightPage";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useState } from "react/cjs/react.development";
+
 const Tab = createBottomTabNavigator();
 
+const getData = async (setUser) => {
+  const value = await AsyncStorage.getItem('@user');
+  if(value!==null){
+    setUser(JSON.parse(value));
+  }
+}
 const Toolbar = ({navigation}) => {
+  const [user,setUser]=useState(null);
+  useEffect(() => {
+    getData(setUser);
+  }, []);
+  
   return (
       <Tab.Navigator
         screenOptions={{
@@ -187,38 +201,41 @@ const Toolbar = ({navigation}) => {
             )
           }}
         />
-        <Tab.Screen
-          name="Input Garbage Weight"
-          component={InputGarbageWeightPage}
-          options={{
-            headerStyle: {
-              backgroundColor: "white",
-            },
-            headerTintColor: "#10b981",
-            headerTitleStyle: {
-              fontWeight: "200",
-            },
-            tabBarLabel: "",
-            tabBarIcon: (tabInfo) => (
-              <Icon
-                as={<MaterialIcons name="restore-from-trash" />}
-                color={tabInfo.focused ? "white" : "#284c36"}
-                size={26}
-                mt={"auto"}
-              />
-            ),
-            headerRight:(tabInfo) =>(
-              <Link onPress={()=>navigation.openDrawer()}>
-              <Icon
-                as={<MaterialIcons name="menu" />}
-                color={"#10b981"}
-                size={26}
-                mx={3}
-              />
-              </Link>
-            )
-          }}
-        />
+        {user && user.user_type==="Driver"?(
+          <Tab.Screen
+            name="Input Garbage Weight"
+            component={InputGarbageWeightPage}
+            options={{
+              headerStyle: {
+                backgroundColor: "white",
+              },
+              headerTintColor: "#10b981",
+              headerTitleStyle: {
+                fontWeight: "200",
+              },
+              tabBarLabel: "",
+              tabBarIcon: (tabInfo) => (
+                <Icon
+                  as={<MaterialIcons name="restore-from-trash" />}
+                  color={tabInfo.focused ? "white" : "#284c36"}
+                  size={26}
+                  mt={"auto"}
+                />
+              ),
+              headerRight:(tabInfo) =>(
+                <Link onPress={()=>navigation.openDrawer()}>
+                <Icon
+                  as={<MaterialIcons name="menu" />}
+                  color={"#10b981"}
+                  size={26}
+                  mx={3}
+                />
+                </Link>
+              )
+            }}
+          />
+        ):(<></>)}
+        
         <Tab.Screen
           name="Profile"
           component={ProfilePage}
