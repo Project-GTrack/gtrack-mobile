@@ -137,8 +137,9 @@ const Toolbar = ({navigation}) => {
             )
           }}
         />
-        <Tab.Screen
-          name="Track Collector"
+        {user && user.user_type==="Driver"?(
+          <Tab.Screen
+          name="Location Map"
           component={TopBar}
           options={{
             headerStyle: {
@@ -169,6 +170,39 @@ const Toolbar = ({navigation}) => {
             )
           }}
         />
+        ):(<Tab.Screen
+          name="Track Collector"
+          component={TrackCollectorPage}
+          options={{
+            headerStyle: {
+              backgroundColor: "white",
+            },
+            headerTintColor: "#10b981",
+            headerTitleStyle: {
+              fontWeight: "200",
+            },
+            tabBarLabel: "",
+            tabBarIcon: (tabInfo) => (
+              <Icon
+                as={<MaterialIcons name="room" />}
+                color={tabInfo.focused ? "white" : "#284c36"}
+                size={26}
+                mt={"auto"}
+              />
+            ),
+            headerRight:(tabInfo) =>(
+              <Link onPress={()=>navigation.openDrawer()}>
+              <Icon
+                as={<MaterialIcons name="menu" />}
+                color={"#10b981"}
+                size={26}
+                mx={3}
+              />
+              </Link>
+            )
+          }}
+        />)}
+        
         <Tab.Screen
           name="Report/Concern"
           component={ReportPage}
