@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Modal,
   FormControl,
@@ -15,41 +15,39 @@ import {
 } from "native-base";
 import { StyleSheet, TouchableOpacity } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
+import envs from '../../config/env.js'
 import GtrackMainLogo from "../../assets/gtrack-logo-1.png";
 import GoogleIcon from "../../assets/google-icon.png";
 import { SliderBox } from "react-native-image-slider-box";
 import EventModal from "../modals/EventModal";
+import moment from "moment";
+import axios from "axios";
+
 
 const EventPage = () => {
-  const arr = [
-    {
-      id: 1,
-      title: "Tree Planting",
-      location: "Poblacion, Compostela",
-      date: "September 9, 2021",
-      time: "7:00 AM - 11:00 AM",
-      organizer: "John Doe",
-      description: "Barangays would participate in cleaning their environment",
-    },
-    {
-      id: 2,
-      title: "Clean Up - Drive",
-      location: "Poblacion, Compostela",
-      date: "September 9, 2021",
-      time: "7:00 AM - 11:00 AM",
-      organizer: "John Doe",
-      description: "Barangays would participate in cleaning their environment",
-    },
-    {
-      id: 3,
-      title: "Fishing",
-      location: "Poblacion, Compostela",
-      date: "September 9, 2021",
-      time: "7:00 AM - 11:00 AM",
-      organizer: "John Doe",
-      description: "Barangays would participate in cleaning their environment",
-    },
-  ];
+  const [data,setData]=useState([]);
+  const [empty,setEmpty]=useState(false);
+  let temp = [];
+  useEffect(()=>{
+    axios.get(`${envs.BACKEND_URL}/mobile/event/get-events`)
+      .then((res) => {
+        console.log(res.data.data);
+        temp=res.data.data;
+        setInfo(temp);
+      })
+      .catch(error => console.log(error));
+      
+  },[setInfo])
+  const setInfo = (data) =>{
+    if(data.length > 0){
+      setData(data);
+    }else{
+      setEmpty(true);
+      console.log(empty);
+    }
+    
+  }
+ 
   const [images, setImages] = useState([
     "https://source.unsplash.com/1024x768/?nature",
     "https://source.unsplash.com/1024x768/?water",
@@ -61,10 +59,10 @@ const EventPage = () => {
   const [eventTitle,setEventTitle]=useState("");
   const handleModal = (id) => {
     setDataId(id);
-    for(var x = 0; x < arr.length; x++){
-      if(arr[x].id === id){
-        console.log(arr[x].title);
-        setEventTitle(arr[x].title);
+    for(var x = 0; x < data.length; x++){
+      if(data[x].event_id === id){
+        console.log(data[x].event_name);
+        setEventTitle(data[x].event_name);
       }
     }
     setShowModal(true);
@@ -72,11 +70,11 @@ const EventPage = () => {
   return (
     <>
       <View>
-        <ScrollView>
-          {arr.map((arr) => {
+        {empty? <Text bold textAlign="center" fontSize={24} marginTop={250}>No Events As of Now</Text>:<ScrollView>
+          {data.map((arr) => {
             return (
               <VStack
-                key={arr.id}
+                key={arr.event_id}
                 marginLeft={3}
                 marginRight={3}
                 marginTop={2}
@@ -106,7 +104,7 @@ const EventPage = () => {
                   marginTop={-28}
                   marginLeft={260}
                   backgroundColor="#10b981"
-                  onPress={() => handleModal(arr.id)}
+                  onPress={() => handleModal(arr.event_id)}
                   zIndex={999}
                 >
                   <Icon
@@ -118,7 +116,7 @@ const EventPage = () => {
                 </Button>
                 <VStack px={4} pb={4}>
                   <Text bold fontSize={20}>
-                    {arr.title}
+                    {arr.event_name}
                   </Text>
                   <Row marginLeft={5} padding={1}>
                     <Column>
@@ -126,11 +124,11 @@ const EventPage = () => {
                         as={<MaterialIcons name="room" />}
                         color="#10b981"
                         size={21}
-                        mt={"auto"}
+                        mt={3}
                       />
                     </Column>
                     <Column>
-                      <Text paddingLeft={3}>{arr.location}</Text>
+                      <Text paddingLeft={3}>{arr.street}, {arr.purok}, {arr.barangay}, {arr.town}, {arr.postal_code}</Text>
                     </Column>
                   </Row>
 
@@ -144,7 +142,7 @@ const EventPage = () => {
                       />
                     </Column>
                     <Column>
-                      <Text paddingLeft={3}>{arr.date}</Text>
+                      <Text paddingLeft={3}>{moment(arr.date.substring(0,10)).format('MMMM D, Y')}</Text>
                     </Column>
                   </Row>
                   <Row marginLeft={5} padding={1}>
@@ -157,7 +155,16 @@ const EventPage = () => {
                       />
                     </Column>
                     <Column>
-                      <Text paddingLeft={3}>{arr.time}</Text>
+                      <Text paddingLeft={3}>{(() => {
+                          var ts = arr.date.match(/\d\d:\d\d/).toString();
+                          var H = +ts.substring(0, 2);
+                          var h = (H % 12) || 12;
+                          h = (h < 10)?("0"+h):h;
+                          var ampm = H < 12 ? " AM" : " PM";
+                          ts = h + ts.substring(2, 5) + ampm;
+                          return ts;
+                          })()}
+                      </Text>
                     </Column>
                   </Row>
                   <Row marginLeft={5} padding={1}>
@@ -170,7 +177,7 @@ const EventPage = () => {
                       />
                     </Column>
                     <Column>
-                      <Text paddingLeft={3}>{arr.organizer}</Text>
+                      <Text paddingLeft={3}>{arr.eventAdmin.fname} {arr.eventAdmin.lname}</Text>
                     </Column>
                   </Row>
 
@@ -186,7 +193,8 @@ const EventPage = () => {
               </VStack>
             );
           })}
-        </ScrollView>
+        </ScrollView>}
+        
       </View>
     </>
   );

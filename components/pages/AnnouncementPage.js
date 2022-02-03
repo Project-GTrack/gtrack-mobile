@@ -22,39 +22,61 @@ import {
   View,
 } from "native-base";
 import { StyleSheet } from "react-native";
-import envs from '../../config/env.js'
+import envs from "../../config/env.js";
 import { MaterialIcons } from "@expo/vector-icons";
 import GtrackMainLogo from "../../assets/gtrack-logo-1.png";
 import GoogleIcon from "../../assets/google-icon.png";
 import { Line } from "react-native-svg";
 import axios from "axios";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const AnnouncementPage = () => {
-  const [data,setData]=useState([]);
+  const [data, setData] = useState([]);
+  const [empty, setEmpty] = useState(false);
+  const [user,setUser]=useState(null);
   let temp = [];
-  useEffect(()=>{
-    axios.get(`${envs.BACKEND_URL}/mobile/announcement/get-announcements`)
+  useEffect(() => {
+    axios
+      .get(
+        `${envs.BACKEND_URL}/mobile/announcement/get-announcements`
+      )
       .then((res) => {
-        temp=res.data.data;
+        temp = res.data.data;
         setInfo(temp);
+        getData();
       })
-      .catch(error => console.log(error));
-      
-  },[setInfo])
-  const setInfo = (data) =>{
-    if(data.length > 0){
-      setData(data)
-    }else{
-      setData([]);
+      .catch((error) => console.log(error));
+     
+  }, [setInfo]);
+  const setInfo = (data) => {
+    if (data.length > 0) {
+      setData(data);
+    } else {
+      setEmpty(true);
     }
-    
+  };
+  const getData = async () => {
+    try {
+        const value = await AsyncStorage.getItem('@user');
+        if(value!==null){
+            setUser(JSON.parse(value));
+            console.log("USERRR",value);
+        }else{
+            setUser(null);
+        }
+    }catch (e){
+        console.log(e);
+    }
 }
   return (
     <View>
-      <ScrollView>
-      
-     
-        {data.map((arr) => {
+      {empty ? (
+        <Text bold textAlign="center" fontSize={24} marginTop={250}>
+          No Announcements As of Now
+        </Text>
+      ) : (
+        <ScrollView>
+          {data.map((arr) => {
             return (
               <VStack
                 key={arr.announcement_id}
@@ -75,8 +97,18 @@ const AnnouncementPage = () => {
                   />
                   <VStack ml={2} space={2}>
                     <Text fontSize="lg" bold>
-                      {arr.announcementAdmin.fname} {arr.announcementAdmin.lname} | {arr.announcementAdmin.user_type} {"\n"}
-                      <Text>{arr.createdAt}</Text>
+                      {arr.announcementAdmin.fname}{" "}
+                      {arr.announcementAdmin.lname} |{" "}
+                      {arr.announcementAdmin.user_type} {"\n"}
+                      <Text>{moment(arr.createdAt.substring(0,10)).format('MMMM D, Y')} at {(() => {
+                          var ts = arr.createdAt.match(/\d\d:\d\d/).toString();
+                          var H = +ts.substring(0, 2);
+                          var h = (H % 12) || 12;
+                          h = (h < 10)?("0"+h):h;
+                          var ampm = H < 12 ? " AM" : " PM";
+                          ts = h + ts.substring(2, 5) + ampm;
+                          return ts;
+                          })()}</Text>
                     </Text>
                     <View
                       style={{
@@ -86,7 +118,7 @@ const AnnouncementPage = () => {
                     />
                   </VStack>
                 </HStack>
-  
+
                 <VStack px={4} pb={4}>
                   <Text bold>{arr.title}</Text>
                   <Image
@@ -96,37 +128,14 @@ const AnnouncementPage = () => {
                     source={GtrackMainLogo}
                     alt="GTrack Logo"
                   />
-  
+
                   <Text>{arr.content}</Text>
                 </VStack>
               </VStack>
             );
-               
-              })}
-              {/* {(() => {
-            if (data.length < 1) {
-              return (
-                <VStack
-                  marginLeft={3}
-                  marginRight={3}
-                  marginTop={2}
-                  marginBottom={2}
-                  height={100}
-                  shadow={2}
-                  borderRadius="sm"
-                  backgroundColor="white"
-                >
-                 <Text bold textAlign="center" fontSize={24} marginTop={35}>No Announcements Posted</Text>
-                </VStack>
-               );
-            }
-          })()}
-     */}
-      
-              
-             
-        
-      </ScrollView>
+          })}
+        </ScrollView>
+      )}
     </View>
   );
 };

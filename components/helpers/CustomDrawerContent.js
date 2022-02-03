@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import {
     Text,
     Image,
@@ -18,6 +18,22 @@ import { MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const CustomDrawerContent = ({navigation}) => {
+    const [user,setUser]=useState({});
+    useEffect(() => {
+         getData();
+      }, []);
+    const getData = async () => {
+        try {
+            const value = await AsyncStorage.getItem('@user');
+            if(value!==null){
+                setUser(JSON.parse(value));
+            }else{
+                setUser(null);
+            }
+        }catch (e){
+            console.log(e);
+        }
+    }
     const removeData = async () => {
         try {
             const value = await AsyncStorage.getItem('@user');
@@ -50,7 +66,7 @@ const CustomDrawerContent = ({navigation}) => {
                         />
                     </Center>
                 </Box>
-                <Text mt={3}>RESIDENT</Text>
+                <Text mt={3}>{user.user_type === "Resident" ? "RESIDENT":"DRIVER"}</Text>
             </Center>
             <Divider style={{
                 alignSelf:'stretch',
@@ -65,7 +81,7 @@ const CustomDrawerContent = ({navigation}) => {
                     size={28}
                     mx={3}
                 />
-                <Text fontSize={16}>John Snow</Text>
+                <Text fontSize={16}>{user.fname} {user.lname}</Text>
             </HStack>
             <HStack space={3}>
                 <Icon
@@ -74,7 +90,13 @@ const CustomDrawerContent = ({navigation}) => {
                     size={28}
                     mx={3}
                 />
-                <Text fontSize={16} w={"50%"}>Purok Dalubis, Los Martires St., Poblacion</Text>
+                <Text fontSize={16} w={"50%"}>{(() => {
+            if (user.purok == null && user.street == null && user.barangay == null) {
+              return "No Address Yet"
+            } else {
+              return user.purok + ", " + user.street + ", " + user.barangay;
+            }
+          })()}</Text>
             </HStack>
             <HStack space={3}>
                 <Icon
@@ -83,7 +105,13 @@ const CustomDrawerContent = ({navigation}) => {
                     size={28}
                     mx={3}
                 />
-                <Text fontSize={16}>09123456789</Text>
+                <Text fontSize={16}>{(() => {
+            if (user.contact_no == null) {
+              return "No Contact Number Yet"
+            } else {
+              return user.contact_no;
+            }
+          })()}</Text>
             </HStack>
             </VStack>
             <Center>
