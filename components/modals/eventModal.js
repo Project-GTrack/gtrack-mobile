@@ -94,7 +94,7 @@ const EventModal = (props) => {
                 variant="ghost"
                 colorScheme="blueGray"
                 onPress={() => {
-                  setShowModal(false);
+                  props.setShowModal(false);
                 }}
               >
                 Cancel
