@@ -134,8 +134,10 @@ const DriverReportPage = () => {
         let downURL = await Firebase.app().storage("gs://gtrack-339307.appspot.com")
         .ref("/gtrack-mobile/concern/" + uri.split("/").pop()).getDownloadURL();
         console.log(downURL);
+        let uid = Firebase.app().database('https://gtrack-339307-default-rtdb.asia-southeast1.firebasedatabase.app/')
+        .ref('Reports/').push();
         Firebase.app().database('https://gtrack-339307-default-rtdb.asia-southeast1.firebasedatabase.app/')
-                .ref('Reports/-MNcqKz5vxf-VIbMVxmE').set({
+                .ref('Reports/'+uid.key).set({
                   subject: values.subject,
                   description: values.description,
                   degree: degree.level,
