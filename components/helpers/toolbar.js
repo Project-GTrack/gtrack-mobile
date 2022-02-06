@@ -11,7 +11,7 @@ import EventPage from "../pages/EventPage";
 import SchedulePage from "../pages/SchedulePage";
 import TrackCollectorPage from "../pages/TrackCollectorPage";
 import TopBar from "../pages/driver/helpers/TopBar";
-// import ReportPage from "../pages/driver/ReportPage";
+import DriverReportPage from "../pages/driver/DriverReportPage";
 import ReportPage from "../pages/ReportPage";
 import ProfilePage from "../pages/ProfilePage";
 import InputGarbageWeightPage from "../pages/InputGarbageWeightPage";
@@ -202,8 +202,40 @@ const Toolbar = ({navigation}) => {
             )
           }}
         />)}
-        
-        <Tab.Screen
+        {user && user.user_type==="Driver"?(
+          <Tab.Screen
+          name="Report/Concern"
+          component={DriverReportPage}
+          options={{
+            headerStyle: {
+              backgroundColor: "white",
+            },
+            headerTintColor: "#10b981",
+            headerTitleStyle: {
+              fontWeight: "200",
+            },
+            tabBarLabel: "",
+            tabBarIcon: (tabInfo) => (
+              <Icon
+                as={<MaterialIcons name="report-problem" />}
+                color={tabInfo.focused ? "white" : "#284c36"}
+                size={26}
+                mt={"auto"}
+              />
+            ),
+            headerRight:(tabInfo) =>(
+              <Link onPress={()=>navigation.openDrawer()}>
+              <Icon
+                as={<MaterialIcons name="menu" />}
+                color={"#10b981"}
+                size={26}
+                mx={3}
+              />
+              </Link>
+            )
+          }}
+        />
+        ):(<Tab.Screen
           name="Report/Concern"
           component={ReportPage}
           options={{
@@ -234,7 +266,8 @@ const Toolbar = ({navigation}) => {
               </Link>
             )
           }}
-        />
+        />)}
+        
         {user && user.user_type==="Driver"?(
           <Tab.Screen
             name="Input Garbage Weight"
