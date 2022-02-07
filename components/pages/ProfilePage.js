@@ -1,50 +1,72 @@
-import React,{useState,useContext,useCallback} from 'react'
+import React,{useState,useEffect} from 'react'
 import {
     Text,
     Image,
     Button,
     Center,
-    Input,
-    Divider,
-    Link,
     Box,
-    Stack,
-    HStack,
     VStack
   } from "native-base";
-import { MaterialIcons } from "@expo/vector-icons"
-import GtrackMainLogo from '../../assets/gtrack-logo-1.png'
-import UserAvatar from '../../assets/user-avatar.png'
 import * as ImagePicker from 'expo-image-picker';
 import GeneralInformationModal from '../modals/GeneralInformationModal';
 import ChangePasswordModal from '../modals/ChangePasswordModal';
+import MessageAlert from '../helpers/MessageAlert';
 import ChangeAddressModal from '../modals/ChangeAddressModal';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ProfilePage = () => {
     const [showGIModal,setShowGIModal]=useState(false);
     const [showCPModal,setShowCPModal]=useState(false);
     const [showCAModal,setShowCAModal]=useState(false);
+    const [user,setUser]=useState(null);
+    const [image,setImage]=useState(null);
+    const [alert,setAlert]=useState({
+        visible:false,
+        message:null,
+        colorScheme:null,
+        header:null
+    });
+    const getData = async () => {
+        try {
+            const value = await AsyncStorage.getItem('@user');
+            if(value!==null){
+                setUser(JSON.parse(value));
+            }else{
+                setUser(null);
+            }
+        }catch (e){
+            console.log(e);
+        }
+    }
+    useEffect(() => {
+      getData();
+    }, []);
     return (
         <Center
             px={3}
             mt={10}
         >
+            <MessageAlert alert={alert} setAlert={setAlert}/>
             <Box
                 size={"150"}
-                bg="gray.200"
+                bg="gray.400"
                 rounded="full"
             >
                 <Center
                     my={'auto'}
                 >
-                    <Image
-                        size={130}
-                        resizeMode={"contain"}
-                        source={UserAvatar}
-                        alt="User Avatar"
-                        rounded={'full'}
-
-                    />
+                    {user&&user.image?(
+                        <Image
+                            size={130}
+                            resizeMode={"contain"}
+                            source={{uri: user.image}}
+                            alt="User Avatar"
+                            rounded={'full'}
+                        />
+                    ):(
+                        <Text color={"white"} style={{fontWeight:"600"}} fontSize="5xl">{user?user.fname[0]+user.lname[0]:""}</Text>
+                    )}
+                    
                 </Center>
             </Box>
             
@@ -78,13 +100,14 @@ const ProfilePage = () => {
                 </Button>
                 <Button
                     colorScheme='success'
+                    isDisabled={user&&user.google_auth?true:false}
                     onPress={()=>setShowCPModal(true)}
                 >
                     Change Password
                 </Button>
-                <GeneralInformationModal showModal={showGIModal} setShowModal={setShowGIModal}/>
-                <ChangePasswordModal showModal={showCPModal} setShowModal={setShowCPModal}/>
-                <ChangeAddressModal showModal={showCAModal} setShowModal={setShowCAModal}/>
+                <GeneralInformationModal alert={alert} setAlert={setAlert} user={user} showModal={showGIModal} setShowModal={setShowGIModal}/>
+                <ChangePasswordModal alert={alert} setAlert={setAlert} user={user} showModal={showCPModal} setShowModal={setShowCPModal}/>
+                <ChangeAddressModal alert={alert} setAlert={setAlert} user={user} showModal={showCAModal} setShowModal={setShowCAModal}/>
             </VStack>
         </Center>
     )

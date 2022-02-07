@@ -1,5 +1,6 @@
 import * as firebase from "firebase";
 import 'firebase/auth';
+import 'firebase/storage';
 import envs from '../../config/env.js'
 // Initialize Firebase
 

@@ -58,9 +58,9 @@ const SignInPage = ({navigation}) => {
         }
     }
     const getUserInfo= async (token) =>{
-        axios.get(` https://www.googleapis.com/oauth2/v3/userinfo?access_token=${token}`)
+        axios.get(`https://www.googleapis.com/oauth2/v3/userinfo?access_token=${token}`)
         .then(res => {
-            axios.post(`${envs.BACKEND_URL}/mobile/login`, {email:res.data.email,lname:res.data.family_name,fname:res.data.given_name,google_auth:true})
+            axios.post(`${envs.BACKEND_URL}/mobile/login`, {email:res.data.email,lname:res.data.family_name,fname:res.data.given_name,image:res.data.picture,google_auth:true})
             .then(res => {
                 if(res.data.success){
                     setLoading(false);
@@ -151,17 +151,19 @@ const SignInPage = ({navigation}) => {
     //     const value = await AsyncStorage.getItem('@user');
     //     return value!==null?JSON.parse(value):null;
     // }
-    
     useEffect(() => {
-        // initAsync();
-        
         if (response?.type === 'success') {
             const { authentication} = response;
             getUserInfo(authentication.accessToken);
+        }else{
+            setLoading(false);
         }
-        isFocused = navigation.addListener('focus', getData);
+    }, [response]);
+    
+    useEffect(() => {
+        isFocused = navigation.addListener('focus',getData);
         if(user){
-            navigation.navigate('Drawer');
+            navigation.replace('Drawer');
         }
     },[user]);
     const handleGoogleClick = async () => {
