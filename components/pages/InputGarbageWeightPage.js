@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Text,
   Image,
@@ -21,6 +21,13 @@ import GtrackMainLogo from "../../assets/gtrack-logo-1.png";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { fontSize, padding } from "styled-system";
 import { Platform } from "react-native";
+import { useFormik } from 'formik';
+import axios from 'axios';
+import envs from '../../config/env.js';
+import MessageAlert from '../helpers/MessageAlert';
+import ActivityIndicator from '../helpers/ActivityIndicator';
+import moment from "moment";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const InputGarbageWeightPage = () => {
   const [date, setDate] = useState("");
@@ -29,6 +36,58 @@ const InputGarbageWeightPage = () => {
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [curShow, setCurShow] = useState("");
+  const [loading,setLoading]=useState(false);
+  const [user,setUser]=useState({});
+  const [route,setRoute]=useState("");
+    useEffect(() => {
+         getData();
+      }, []);
+  const getData = async () => {
+        try {
+            const value = await AsyncStorage.getItem('@user');
+            if(value!==null){
+                setUser(JSON.parse(value));
+            }else{
+                setUser(null);
+            }
+        }catch (e){
+            console.log(e);
+        }
+    }
+    const handleFormSubmit = async (values,{resetForm}) =>{
+      if (values.weight !== '' && route != "" && date != "" && startTime != "") {
+          setLoading(true);
+          axios.post(`${envs.BACKEND_URL}/mobile/waste-collection/submit-collection/${user.user_id}`, {collection_weight_volume:values.weight,collection_date:date+" "+startTime,collection_route:route})
+          .then(res => {
+              if(res.data.success){
+                  resetForm();
+                  setDate("");
+                  setStartTime("");
+                  setRoute("");
+                  setLoading(false);
+                  setAlert({visible:true,message:res.data.message,colorScheme:"success",header:"Waste Collection Report"});
+              }
+          })
+      }else{
+        resetForm();
+        setDate("");
+        setStartTime("");
+        setRoute("");
+        setLoading(false);
+        setAlert({visible:true,message:"Please fill out all the fields",colorScheme:"danger",header:"Empty Fields"});
+      }
+  }
+  const { handleChange, handleSubmit, values } = useFormik({
+      initialValues:{ weight:'', route:'' },
+      enableReinitialize:true,
+      onSubmit: handleFormSubmit
+  });
+  const [alert,setAlert]=useState({
+      visible:false,
+      message:null,
+      colorScheme:null,
+      header:null
+  });
 
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
@@ -37,9 +96,7 @@ const InputGarbageWeightPage = () => {
     if(curShow === "date"){
       setDate(currentDate.toISOString().split('T')[0]);
     }else if(curShow === "StartTime"){
-      setStartTime(currentDate.toString().substring(16,21));
-    }else{
-      setEndTime(currentDate.toString().substring(16,21));
+      setStartTime(currentDate.toString().substring(16,24));
     }
     
     console.log(Platform.OS);
@@ -48,7 +105,7 @@ const InputGarbageWeightPage = () => {
 
   const showMode = (currentMode) => {
     setShow(true);
-    if(currentMode === "StartTime" || currentMode === "EndTime"){
+    if(currentMode === "StartTime"){
       setMode("time");
       setCurShow(currentMode);
     }else{
@@ -66,11 +123,10 @@ const InputGarbageWeightPage = () => {
   const showStartTimepicker = () => {
     showMode("StartTime");
   };
-  const showEndTimepicker = () => {
-    showMode("EndTime");
-  };
   return (
+    <>
     <View>
+      <MessageAlert alert={alert} setAlert={setAlert}/>
       <ScrollView>
         <Center>
           <Image
@@ -94,13 +150,10 @@ const InputGarbageWeightPage = () => {
             <Stack space={3} style={{ alignSelf: "stretch" }}>
               <HStack>
                 <VStack paddingRight={5}>
-                <Input size="md" width={120} bg={"white"} value={date.toString()} placeholder="Date" isReadOnly="true" isDisabled="true"/>
+                <Input size="md" isRequired width={175} bg={"white"} value={date != ""? moment(date.toString()).format('MMMM D, Y'):date.toString()} placeholder="Date" isReadOnly="true" isDisabled="true"/>
                 </VStack>
                 <VStack paddingRight={2}>
-                <Input size="sm" bg={"white"} value={startTime.toString()} placeholder="Start Time" isReadOnly="true" isDisabled="true"/>
-                </VStack>
-                <VStack>
-                <Input size="sm" bg={"white"} value={endTime.toString()} placeholder="End Time" isReadOnly="true" isDisabled="true"/>
+                <Input size="md" isRequired width={75} bg={"white"} value={startTime.toString().substring(0,5)} placeholder="Time" isReadOnly="true" isDisabled="true"/>
                 </VStack>
               </HStack>
               
@@ -112,7 +165,7 @@ const InputGarbageWeightPage = () => {
                       bgColor="#10b981"
                       title="Show date picker!"
                     >
-                      Date
+                      Set Date
                     </Button>
                   </VStack>
                   <VStack paddingRight={2}>
@@ -121,16 +174,7 @@ const InputGarbageWeightPage = () => {
                       bgColor="#10b981"
                       title="Show time picker!"
                     >
-                      Start Time
-                    </Button>
-                  </VStack>
-                  <VStack>
-                    <Button
-                      onPress={showEndTimepicker}
-                      bgColor="#10b981"
-                      title="Show time picker!"
-                    >
-                      End Time
+                      Set Time
                     </Button>
                   </VStack>
                 </HStack>
@@ -148,6 +192,7 @@ const InputGarbageWeightPage = () => {
               )}
 
               <Select
+                selectedValue={route}
                 accessibilityLabel="Choose Collection Route"
                 placeholder="Choose Collection Route"
                 _selectedItem={{
@@ -165,7 +210,7 @@ const InputGarbageWeightPage = () => {
                   borderWidth: 1,
                   borderColor: "#10b981",
                 }}
-                onValueChange={(itemValue) => console.log(itemValue)}
+                onValueChange={(itemValue) => setRoute(itemValue)}
               >
                 <Select.Item
                   label="Municipal Grounds"
@@ -177,7 +222,11 @@ const InputGarbageWeightPage = () => {
               <Input
                 size="md"
                 placeholder="Input Weight Volume Here..."
+                type="text"
                 bg={"white"}
+                isRequired
+                onChangeText={handleChange('weight')}
+                value={values.weight}
               />
             </Stack>
             <Button
@@ -191,6 +240,7 @@ const InputGarbageWeightPage = () => {
                   size={5}
                 />
               }
+              onPress={handleSubmit}
             >
               Submit
             </Button>
@@ -198,6 +248,8 @@ const InputGarbageWeightPage = () => {
         </VStack>
       </ScrollView>
     </View>
+    {loading?(<ActivityIndicator/>):(<></>)}
+    </>
   );
 };
 export default InputGarbageWeightPage;

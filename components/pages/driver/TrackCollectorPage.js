@@ -50,8 +50,10 @@ const TrackCollectorPage = () => {
             distanceInterval: 0
           }, (res) => {
             console.log(res);
+            let uid = Firebase.app().database('https://gtrack-339307-default-rtdb.asia-southeast1.firebasedatabase.app/')
+              .ref('Drivers/').push();
             Firebase.app().database('https://gtrack-339307-default-rtdb.asia-southeast1.firebasedatabase.app/')
-              .ref('Drivers/-MNcqKz5vxf-VIbMVxmE').set({
+              .ref('Drivers/'+uid.key).set({
                 active: 1,
                 driver_id: 2,
                 latitude: res.coords.latitude,
@@ -71,6 +73,7 @@ const TrackCollectorPage = () => {
     showMarker(true);
   };
   const stopSharing = () => {
+    //Include here... set firebase active to 0, using the uid above
     watch.remove();
     showMarker(false);
   };
