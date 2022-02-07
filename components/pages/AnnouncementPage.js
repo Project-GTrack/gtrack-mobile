@@ -31,7 +31,6 @@ import axios from "axios";
 const AnnouncementPage = () => {
   const [data,setData]=useState({});
   useEffect(()=>{
-    console.log("YEAHH");
     axios.get("https://kind-cobra-90.loca.lt/announcement/get-announcements")
       .then((res) => {
         setData(res.data);

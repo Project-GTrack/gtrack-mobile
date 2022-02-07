@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import {
     Text,
     Image,
@@ -11,13 +11,15 @@ import {
     Stack,
     HStack,
     Icon,
-    VStack
+    VStack,
+    Avatar
   } from "native-base";
 import UserAvatar from '../../assets/user-avatar.png'
+import { useDrawerStatus} from '@react-navigation/drawer';
 import { MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const CustomDrawerContent = ({navigation}) => {
+const CustomDrawerContent = ({navigation,user,getData}) => {
     const removeData = async () => {
         try {
             const value = await AsyncStorage.getItem('@user');
@@ -29,28 +31,40 @@ const CustomDrawerContent = ({navigation}) => {
             console.log(e);
         }
     }
+    const drawerStatus=()=>{
+        return useDrawerStatus()==='open'?true:false;
+    }
+    const isOpen= drawerStatus();
+    useEffect(() => {
+      getData()
+    }, [isOpen]);
+    
     return (
         <Stack space={3} py={12} px={3}>
             <Center>
                 <Box
-                    size={"130"}
-                    bg="gray.200"
+                    size={"120"} //130 if with photo
+                    bg="gray.400" //gray.200 if with photo
                     rounded="full"
                 >
                     <Center
                         my={'auto'}
                     >
-                        <Image
-                            size={120}
-                            resizeMode={"contain"}
-                            source={UserAvatar}
-                            alt="User Avatar"
-                            rounded={'full'}
-
-                        />
+                        {user&&user.image?(
+                            <Image
+                                size={120}
+                                resizeMode={"contain"}
+                                source={{uri:user.image}}
+                                alt="User Avatar"
+                                rounded={'full'}
+                            />
+                        ):(
+                            <Text color={"white"} style={{fontWeight:"600"}} fontSize="5xl">{user?user.fname[0]+user.lname[0]:""}</Text>
+                        )}
+                        
                     </Center>
                 </Box>
-                <Text mt={3}>RESIDENT</Text>
+                <Text mt={4} style={{textTransform: 'uppercase'}}>{user?user.user_type:""}</Text>
             </Center>
             <Divider style={{
                 alignSelf:'stretch',
@@ -65,7 +79,7 @@ const CustomDrawerContent = ({navigation}) => {
                     size={28}
                     mx={3}
                 />
-                <Text fontSize={16}>John Snow</Text>
+                <Text fontSize={16}>{user?user.fname:""} {user?user.lname:""}</Text>
             </HStack>
             <HStack space={3}>
                 <Icon
@@ -74,7 +88,7 @@ const CustomDrawerContent = ({navigation}) => {
                     size={28}
                     mx={3}
                 />
-                <Text fontSize={16} w={"50%"}>Purok Dalubis, Los Martires St., Poblacion</Text>
+                <Text fontSize={16} w={"50%"}>{user&&(user.purok||user.street||user.barangay)?((user.purok?`${user.purok}, `:"") + (user.street?`${user.street}, `:"") + (user.barangay?`${user.barangay}`:"")):("Not set")}</Text>
             </HStack>
             <HStack space={3}>
                 <Icon
@@ -83,7 +97,16 @@ const CustomDrawerContent = ({navigation}) => {
                     size={28}
                     mx={3}
                 />
-                <Text fontSize={16}>09123456789</Text>
+                <Text fontSize={16}>{user&&user.contact_no?user.contact_no:"Not set"}</Text>
+            </HStack>
+            <HStack space={3}>
+                <Icon
+                    as={<MaterialIcons name="email" />}
+                    color={"#10b981"}
+                    size={28}
+                    mx={3}
+                />
+                <Text fontSize={16}>{user&&user.email?user.email:"Not set"}</Text>
             </HStack>
             </VStack>
             <Center>

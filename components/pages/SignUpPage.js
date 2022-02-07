@@ -45,7 +45,7 @@ const SignUpPage = ({navigation}) => {
     const getUserInfo= async (token) =>{
         axios.get(` https://www.googleapis.com/oauth2/v3/userinfo?access_token=${token}`)
         .then(res => {
-            axios.post(`${envs.BACKEND_URL}/mobile/register`, {email:res.data.email,lname:res.data.family_name,fname:res.data.given_name,google_auth:true})
+            axios.post(`${envs.BACKEND_URL}/mobile/register`, {email:res.data.email,lname:res.data.family_name,fname:res.data.given_name,image:res.data.picture,google_auth:true})
             .then(res => {
                 if(res.data.success){
                     setLoading(false);
