@@ -27,13 +27,17 @@ import axios from "axios";
 const EventPage = () => {
   const [data,setData]=useState([]);
   const [empty,setEmpty]=useState(false);
+  let img = [];
   let temp = [];
   useEffect(()=>{
     axios.get(`${envs.BACKEND_URL}/mobile/event/get-events`)
       .then((res) => {
-        console.log(res.data.data);
+        console.log(res.data.data[0].eventLine.lineAttachment);
         temp=res.data.data;
         setInfo(temp);
+        // for(var x =0; x < res.data.data.eventLine.lineAttachment.length; x++){
+        //   tempImg.push(res.data.data.eventLine.lineAttachment[x].filename);
+        // }
       })
       .catch(error => console.log(error));
       
@@ -47,13 +51,6 @@ const EventPage = () => {
     }
     
   }
- 
-  const [images, setImages] = useState([
-    "https://source.unsplash.com/1024x768/?nature",
-    "https://source.unsplash.com/1024x768/?water",
-    "https://source.unsplash.com/1024x768/?girl",
-    "https://source.unsplash.com/1024x768/?tree", // Network image
-  ]);
   const [showModal, setShowModal] = useState(false);
   const [dataId,setDataId]=useState();
   const [eventTitle,setEventTitle]=useState("");
@@ -72,6 +69,9 @@ const EventPage = () => {
       <View>
         {empty? <Text bold textAlign="center" fontSize={24} marginTop={250}>No Events As of Now</Text>:<ScrollView>
           {data.map((arr) => {
+            arr.eventLine.lineAttachment.map((atts) => {
+              img.push(atts.filename);
+            })
             return (
               <VStack
                 key={arr.event_id}
@@ -85,7 +85,7 @@ const EventPage = () => {
               >
                
                 <SliderBox
-                  images={images}
+                  images={img}
                   sliderBoxHeight={200}
                   parentWidth={336}
                   onCurrentImagePressed={(index) =>

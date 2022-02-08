@@ -26,14 +26,17 @@ import envs from "../../config/env.js";
 import { MaterialIcons } from "@expo/vector-icons";
 import GtrackMainLogo from "../../assets/gtrack-logo-1.png";
 import GoogleIcon from "../../assets/google-icon.png";
+import moment from "moment";
 import { Line } from "react-native-svg";
 import axios from "axios";
+import { SliderBox } from "react-native-image-slider-box";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const AnnouncementPage = () => {
   const [data, setData] = useState([]);
   const [empty, setEmpty] = useState(false);
   const [user,setUser]=useState(null);
+  let img = [];
   let temp = [];
   useEffect(() => {
     axios
@@ -77,6 +80,9 @@ const AnnouncementPage = () => {
       ) : (
         <ScrollView>
           {data.map((arr) => {
+            arr.announcementLine.lineAttachment.map((atts) => {
+              img.push(atts.filename);
+            })
             return (
               <VStack
                 key={arr.announcement_id}
@@ -93,7 +99,7 @@ const AnnouncementPage = () => {
                     borderWidth={1}
                     size="lg"
                     backgroundColor="white"
-                    source={GtrackMainLogo}
+                    source={{uri:arr.announcementAdmin.image}}
                   />
                   <VStack ml={2} space={2}>
                     <Text fontSize="lg" bold>
@@ -118,18 +124,20 @@ const AnnouncementPage = () => {
                     />
                   </VStack>
                 </HStack>
-
-                <VStack px={4} pb={4}>
-                  <Text bold>{arr.title}</Text>
-                  <Image
-                    size={400}
-                    borderRadius="md"
-                    resizeMode={"contain"}
-                    source={GtrackMainLogo}
-                    alt="GTrack Logo"
+                <Text bold fontSize={21} px={4} pb={1}>{arr.title}</Text>
+                  <SliderBox
+                    images={img}
+                    sliderBoxHeight={200}
+                    parentWidth={336}
+                    onCurrentImagePressed={(index) =>
+                      console.warn(`image ${index} pressed`)
+                    }
+                    dotColor="#10b981"
+                    inactiveDotColor="#90A4AE"
+                    paginationBoxVerticalPadding={10}
                   />
-
-                  <Text>{arr.content}</Text>
+                <VStack px={4} pt={4} pb={5}>
+                  <Text fontSize={16}>{arr.content}</Text>
                 </VStack>
               </VStack>
             );
