@@ -45,7 +45,6 @@ import ActivityIndicator from '../../helpers/ActivityIndicator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const DriverReportPage = () => {
-  const [image,setImage]=useState(new Blob());
   const [images,setImages]=useState([]);
   const [path,setPath]=useState(null);
   const [loading,setLoading]=useState(false);
@@ -133,21 +132,18 @@ const DriverReportPage = () => {
   const handleFormSubmit = async (values,{resetForm}) => {
     try{
       setLoading(true);
-      if(values.subject != "" && values.description != "" && image != null && initLoc != null && degree != null){
+      if(values.subject != "" && values.description != "" && images.length != 0 && initLoc != null && degree != null){
         // let upload = await Firebase.app().storage("gs://gtrack-339307.appspot.com")
         // .ref("/gtrack-mobile/concern/" + uri.split("/").pop()).put(image);
         // let downURL = await Firebase.app().storage("gs://gtrack-339307.appspot.com")
         // .ref("/gtrack-mobile/concern/" + uri.split("/").pop()).getDownloadURL();
         // console.log(downURL);
-        let uid = Firebase.app().database('https://gtrack-339307-default-rtdb.asia-southeast1.firebasedatabase.app/')
-        .ref('Reports/').push();
         Firebase.app().database('https://gtrack-339307-default-rtdb.asia-southeast1.firebasedatabase.app/')
-                .ref('Reports/'+uid.key).set({
+                .ref('Reports/'+user.user_id).set({
                   subject: values.subject,
                   description: values.description,
                   degree: degree.level,
                   active: 1,
-                  driver_id: user.user_id,
                   coordinates: {
                     latitude: initLoc.latitude,
                     longitude: initLoc.longitude,
