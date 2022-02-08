@@ -30,12 +30,14 @@ import {
 import { StyleSheet, LogBox } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import envs from "../../../config/env";
+import PickImage from "../../helpers/PickImage";
 import * as Location from "expo-location";
 import GtrackMainLogo from "../../../assets/gtrack-logo-1.png";
 import * as ImagePicker from "expo-image-picker";
 import { useFormik } from 'formik';
 import GoogleIcon from "../../../assets/google-icon.png";
 import Firebase from "../../helpers/Firebase";
+import { uuidGenerator } from '../../helpers/uuidGenerator.js';
 import moment from "moment";
 import axios from "axios";
 import MessageAlert from '../../helpers/MessageAlert';
@@ -44,6 +46,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const DriverReportPage = () => {
   const [image,setImage]=useState(new Blob());
+  const [images,setImages]=useState([]);
+  const [path,setPath]=useState(null);
   const [loading,setLoading]=useState(false);
   const [degree,setDegree]=useState({
     level:'',
@@ -58,6 +62,7 @@ const DriverReportPage = () => {
   const [uri,setURI]=useState("");
   useEffect(() => {
     getData();
+    setPath(`/gtrack-mobile/report/${uuidGenerator()}`);
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
@@ -105,35 +110,35 @@ const DriverReportPage = () => {
     }
     
   
-  const pickImage = async () => {
-    // No permissions request is necessary for launching the image library
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-    console.log(result);
-    if(result.cancelled === false){
-      const img = await fetch(result.uri);
-      const bytes = await img.blob();
-      setURI(result.uri);
-      setImage(bytes)
-    }
+  // const pickImage = async () => {
+  //   // No permissions request is necessary for launching the image library
+  //   let result = await ImagePicker.launchImageLibraryAsync({
+  //     mediaTypes: ImagePicker.MediaTypeOptions.All,
+  //     allowsEditing: true,
+  //     aspect: [4, 3],
+  //     quality: 1,
+  //   });
+  //   console.log(result);
+  //   if(result.cancelled === false){
+  //     const img = await fetch(result.uri);
+  //     const bytes = await img.blob();
+  //     setURI(result.uri);
+  //     setImage(bytes)
+  //   }
 
-    if (result.cancelled) {
-      console.log("Cancelled");
-    }
-  }
+  //   if (result.cancelled) {
+  //     console.log("Cancelled");
+  //   }
+  // }
   const handleFormSubmit = async (values,{resetForm}) => {
     try{
       setLoading(true);
       if(values.subject != "" && values.description != "" && image != null && initLoc != null && degree != null){
-        let upload = await Firebase.app().storage("gs://gtrack-339307.appspot.com")
-        .ref("/gtrack-mobile/concern/" + uri.split("/").pop()).put(image);
-        let downURL = await Firebase.app().storage("gs://gtrack-339307.appspot.com")
-        .ref("/gtrack-mobile/concern/" + uri.split("/").pop()).getDownloadURL();
-        console.log(downURL);
+        // let upload = await Firebase.app().storage("gs://gtrack-339307.appspot.com")
+        // .ref("/gtrack-mobile/concern/" + uri.split("/").pop()).put(image);
+        // let downURL = await Firebase.app().storage("gs://gtrack-339307.appspot.com")
+        // .ref("/gtrack-mobile/concern/" + uri.split("/").pop()).getDownloadURL();
+        // console.log(downURL);
         let uid = Firebase.app().database('https://gtrack-339307-default-rtdb.asia-southeast1.firebasedatabase.app/')
         .ref('Reports/').push();
         Firebase.app().database('https://gtrack-339307-default-rtdb.asia-southeast1.firebasedatabase.app/')
@@ -147,13 +152,14 @@ const DriverReportPage = () => {
                     latitude: initLoc.latitude,
                     longitude: initLoc.longitude,
                   },
-                  imageDownloadURL:downURL                
+                  imageDownloadURL:images                
                 })
-        axios.post(`${envs.BACKEND_URL}/mobile/report/submit-report/${user.user_id}`, {subject:values.subject,message:values.description,latitude:initLoc.latitude,longitude:initLoc.longitude,degree:degree.level,image:downURL})
+        axios.post(`${envs.BACKEND_URL}/mobile/report/submit-report/${user.user_id}`, {subject:values.subject,message:values.description,latitude:initLoc.latitude,longitude:initLoc.longitude,degree:degree.level,image:images})
           .then(res => {
               if(res.data.success){
                 resetForm();
                 setOnChangeValue(0);
+                setImages([]);
                 setLoading(false);
                 setAlert({visible:true,message:res.data.message,colorScheme:"success",header:"Report Submission"});
               }
@@ -161,6 +167,7 @@ const DriverReportPage = () => {
       }else{
         resetForm();
         setOnChangeValue(0);
+        setImages([]);
         setLoading(false);
         setAlert({visible:true,message:"Please fill out all the fields",colorScheme:"danger",header:"Empty Fields"});
       }
@@ -252,20 +259,21 @@ const [alert,setAlert]=useState({
           <FormControl>
             <HStack mt={2}>
               <VStack minWidth="100">
-              <Button
-      mt={3}
-      colorScheme="success"
-      onPress={pickImage}
-      leftIcon={
-        <Icon
-          as={<MaterialIcons name="attachment" />}
-          color={"white"}
-          size={5}
-        />
-      }
-    >
-      Attach files/photos
-    </Button>
+              <PickImage path={path} value={images} setValue={setImages} multiple={true}/>
+              <Center marginTop={3}>
+                    <HStack>
+                    {images.map((img,i)=>{
+                        return  <Image key={i}
+                                    size={50}
+                                    resizeMode={"contain"}
+                                    source={{uri: img}}
+                                    alt="Concern Photo"
+                                    rounded={'full'}
+                                />
+                        })
+                    }
+                    </HStack>
+                </Center>
               </VStack>
             </HStack>
           </FormControl>
