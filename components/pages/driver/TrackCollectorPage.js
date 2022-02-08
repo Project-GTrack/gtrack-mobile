@@ -20,10 +20,11 @@ import MapView, { Marker } from "react-native-maps";
 import { Dimensions } from "react-native";
 import { getDatabase, ref, onValue, set } from 'firebase/database';
 import Firebase from '../../helpers/Firebase';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const TrackCollectorPage = () => {
-  
-  let location;
+  const [user,setUser]=useState(null);
+  const [sched,setSched]=useState(null);
   const [watch,setWatch] = useState(null);
   const [marker, showMarker] = useState(false);
   const [initLoc, setInitLoc] = useState({
@@ -32,6 +33,30 @@ const TrackCollectorPage = () => {
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
   });
+  const getData = async () => {
+    try {
+        const value = await AsyncStorage.getItem('@user');
+        if(value!==null){
+            setUser(JSON.parse(value));
+        }else{
+            setUser(null);
+        }
+    }catch (e){
+        console.log(e);
+    }
+  }
+  const getSched = async () => {
+    try {
+        const value = await AsyncStorage.getItem('@schedule');
+        if(value!==null){
+            setSched(JSON.parse(value));
+        }else{
+          setSched(null);
+        }
+    }catch (e){
+        console.log(e);
+    }
+  }
 
   useEffect(() => {
     (async () => {
@@ -42,6 +67,8 @@ const TrackCollectorPage = () => {
       }
       let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.BestForNavigation, maximumAge: 10000});
       setInitLoc(prevState=>({...prevState,latitude:location.coords.latitude,longitude:location.coords.longitude}))
+      getData();
+      getSched();
       if(marker){
         try{
           var temp = await Location.watchPositionAsync({
@@ -50,15 +77,13 @@ const TrackCollectorPage = () => {
             distanceInterval: 0
           }, (res) => {
             console.log(res);
-            let uid = Firebase.app().database('https://gtrack-339307-default-rtdb.asia-southeast1.firebasedatabase.app/')
-              .ref('Drivers/').push();
             Firebase.app().database('https://gtrack-339307-default-rtdb.asia-southeast1.firebasedatabase.app/')
-              .ref('Drivers/'+uid.key).set({
+              .ref('Drivers/'+user.user_id).set({
                 active: 1,
-                driver_id: 2,
                 latitude: res.coords.latitude,
                 longitude: res.coords.longitude,
-                route: "Poblacion",
+                landmark:sched.landmark || "",
+                barangay:sched.barangay || ""
               })
             setInitLoc(prevState=>({...prevState,latitude:res.coords.latitude,longitude:res.coords.longitude}))
           })
@@ -69,11 +94,13 @@ const TrackCollectorPage = () => {
       }
     })();
   }, [marker]);
+  
   const showLocation = async () => {
     showMarker(true);
   };
   const stopSharing = () => {
-    //Include here... set firebase active to 0, using the uid above
+    Firebase.app().database('https://gtrack-339307-default-rtdb.asia-southeast1.firebasedatabase.app/')
+      .ref('Drivers/'+user.user_id).remove();
     watch.remove();
     showMarker(false);
   };
