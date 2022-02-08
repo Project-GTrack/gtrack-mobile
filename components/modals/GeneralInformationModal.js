@@ -2,11 +2,10 @@ import React,{useEffect, useState} from "react"
 import {
   Button,
   Modal,
-  FormControl,
   Input,
   Center,
-  VStack,
   Icon,
+  Select,
   HStack
 } from "native-base"
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -36,7 +35,7 @@ const GeneralInformationModal = ({alert,setAlert,user,showModal,setShowModal}) =
   }
     const handleFormSubmit = async (values) =>{
       if(values.fname!=""&&values.lname!=""){
-        axios.post(`${envs.BACKEND_URL}/mobile/profile/general_info`, {email:values.email,lname:values.lname,fname:values.fname,contact_no:values.contact_no,birthday:date})
+        axios.post(`${envs.BACKEND_URL}/mobile/profile/general_info`, {email:values.email,lname:values.lname,fname:values.fname,contact_no:values.contact_no,gender:values.gender,birthday:date})
         .then(res => {
             if(res.data.success){
               setShowModal(false);
@@ -56,6 +55,7 @@ const GeneralInformationModal = ({alert,setAlert,user,showModal,setShowModal}) =
           email:user.email?user.email:"",
           fname:user.fname?user.fname:"",
           lname:user.lname?user.lname:"",
+          gender:user.gender?user.gender:"",
           contact_no:user.contact_no?user.contact_no:"",
           birthday:user.birthday?user.birthday:""
         })
@@ -104,7 +104,31 @@ const GeneralInformationModal = ({alert,setAlert,user,showModal,setShowModal}) =
                     display="default"
                     onChange={onChange}
                     />
-                )}
+                  )}
+                  <Select
+                    accessibilityLabel="Choose Gender"
+                    placeholder="Choose Gender"
+                    _selectedItem={{
+                        bg: "success.500",
+                        endIcon: <CheckIcon size="5" />,
+                    }}
+                    selectedValue={values&&values.gender?values.gender:""}
+                    dropdownIcon={
+                        <Icon
+                        as={<MaterialIcons name="unfold-more" />}
+                        color={'#10b981'}
+                        size={7}
+                        />
+                    }
+                    style={{
+                        borderWidth: 1,
+                        borderColor: '#10b981'
+                    }}
+                    onValueChange={handleChange('gender')}
+                  >
+                    <Select.Item label="Male" value="Male" />
+                    <Select.Item label="Female" value="Female" />
+                  </Select>
               </Center>
           </Modal.Body>
           <Modal.Footer>
