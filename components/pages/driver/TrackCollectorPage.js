@@ -80,6 +80,7 @@ const TrackCollectorPage = () => {
             Firebase.app().database('https://gtrack-339307-default-rtdb.asia-southeast1.firebasedatabase.app/')
               .ref('Drivers/'+user.user_id).set({
                 active: 1,
+                driver_id:user.user_id,
                 latitude: res.coords.latitude,
                 longitude: res.coords.longitude,
                 landmark:sched.landmark || "",
