@@ -21,7 +21,7 @@ import { Dimensions } from "react-native";
 import { getDatabase, ref, onValue, set } from 'firebase/database';
 import Firebase from '../../helpers/Firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+const db = Firebase.app().database();
 const TrackCollectorPage = () => {
   const [user,setUser]=useState(null);
   const [sched,setSched]=useState(null);
@@ -77,8 +77,7 @@ const TrackCollectorPage = () => {
             distanceInterval: 0
           }, (res) => {
             console.log(res);
-            Firebase.app().database('https://gtrack-339307-default-rtdb.asia-southeast1.firebasedatabase.app/')
-              .ref('Drivers/'+user.user_id).set({
+            db.ref('Drivers/'+user.user_id).set({
                 active: 1,
                 driver_id:user.user_id,
                 latitude: res.coords.latitude,
@@ -100,8 +99,7 @@ const TrackCollectorPage = () => {
     showMarker(true);
   };
   const stopSharing = () => {
-    Firebase.app().database('https://gtrack-339307-default-rtdb.asia-southeast1.firebasedatabase.app/')
-      .ref('Drivers/'+user.user_id).remove();
+    db.ref('Drivers/'+user.user_id).remove();
     watch.remove();
     showMarker(false);
   };
