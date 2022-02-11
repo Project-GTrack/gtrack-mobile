@@ -18,6 +18,7 @@ import UserAvatar from '../../assets/user-avatar.png'
 import { useDrawerStatus} from '@react-navigation/drawer';
 import { MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import moment from 'moment';
 
 const CustomDrawerContent = ({navigation,user,getData}) => {
     const removeData = async () => {
@@ -80,6 +81,15 @@ const CustomDrawerContent = ({navigation,user,getData}) => {
                     mx={3}
                 />
                 <Text fontSize={16}>{user?user.fname:""} {user?user.lname:""}</Text>
+            </HStack>
+            <HStack space={3}>
+                <Icon
+                    as={<MaterialIcons name="info" />}
+                    color={"#10b981"}
+                    size={28}
+                    mx={3}
+                />
+                <Text fontSize={16}>{user&&user.gender?user.gender:"Not set"} | {user&&user.birthday?moment().diff(user.birthday, 'years'):"Not set"}</Text>
             </HStack>
             <HStack space={3}>
                 <Icon

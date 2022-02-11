@@ -25,11 +25,21 @@ import ActivityIndicator from '../helpers/ActivityIndicator';
 import envs from '../../config/env.js'
 import { Alert } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as yup from 'yup'
 
 const auth = Firebase.auth();
 const SignInPage = ({navigation}) => {
     const [loading,setLoading]=useState(false);
     const [user,setUser]=useState(null);
+    const signinValidationSchema = yup.object().shape({
+        email: yup
+          .string()
+          .email("Please enter valid email")
+          .required('Email Address is Required'),
+        password: yup
+          .string()
+          .required('Password is required'),
+    })
     const [request, response, promptAsync] = Google.useAuthRequest({
         expoClientId: envs.EXPO_CLIENT_ID,
         // iosClientId: 'GOOGLE_GUID.apps.googleusercontent.com',
@@ -116,29 +126,27 @@ const SignInPage = ({navigation}) => {
         });
     }
     const handleFormSubmit = async (values,{resetForm}) =>{
-        if (values.email !== '' && values.password !== '') {
-            setLoading(true);
-            axios.post(`${envs.BACKEND_URL}/mobile/login`, {email:values.email,password:values.password})
-            .then(res => {
-                if(res.data.success && res.data.verified){
-                    setLoading(false);
-                    resetForm();
-                    setData(res.data.data);
-                }else if(!res.data.success && !res.data.verified){
-                    setLoading(false);
-                    handleFirebase(values,resetForm);
-                    // setAlert({visible:true,message:res.data.message,colorScheme:"danger",header:"Error"})
-                }else{
-                    setLoading(false);
-                    setAlert({visible:true,message:res.data.message,colorScheme:"danger",header:"Error"})
-                }
-            })
-            
-        }
+        setLoading(true);
+        axios.post(`${envs.BACKEND_URL}/mobile/login`, {email:values.email,password:values.password})
+        .then(res => {
+            if(res.data.success && res.data.verified){
+                setLoading(false);
+                resetForm();
+                setData(res.data.data);
+            }else if(!res.data.success && !res.data.verified){
+                setLoading(false);
+                handleFirebase(values,resetForm);
+                // setAlert({visible:true,message:res.data.message,colorScheme:"danger",header:"Error"})
+            }else{
+                setLoading(false);
+                setAlert({visible:true,message:res.data.message,colorScheme:"danger",header:"Error"})
+            }
+        })
     }
-    const { handleChange, handleSubmit, values } = useFormik({
+    const { handleChange, handleSubmit,handleBlur, values,errors,isValid,touched } = useFormik({
         initialValues:{ email: '',password:'' },
         enableReinitialize:true,
+        validationSchema:signinValidationSchema,
         onSubmit: handleFormSubmit
     });
     const [alert,setAlert]=useState({
@@ -164,6 +172,9 @@ const SignInPage = ({navigation}) => {
         isFocused = navigation.addListener('focus',getData);
         if(user){
             navigation.replace('Drawer');
+        }
+        return ()=>{
+            isFocused=null;
         }
     },[user]);
     const handleGoogleClick = async () => {
@@ -214,12 +225,21 @@ const SignInPage = ({navigation}) => {
                             </Box>
                         </Link>
                         <Divider w="300" />
+                        {(errors.email && touched.email) &&
+                            <Text style={{ fontSize: 10, color: 'red' }}>{errors.email}</Text>
+                        }
                         <Input size="md" width="300" placeholder="Email Address" 
                             onChangeText={handleChange('email')}
+                            onBlur={handleBlur('email')}
                             value={values.email}
                         />
+                        
+                        {(errors.email && touched.password) &&
+                            <Text style={{ fontSize: 10, color: 'red' }}>{errors.password}</Text>
+                        }
                         <Input size="md" type='password' width="300" placeholder="Password" isFullWidth={true}
                             onChangeText={handleChange('password')}
+                            onBlur={handleBlur('password')}
                             value={values.password}
                         />
                         <HStack>
@@ -239,6 +259,7 @@ const SignInPage = ({navigation}) => {
                         
                         <Button width="300" colorScheme="success" 
                             onPress={handleSubmit}
+                            disabled={!isValid}
                         >Sign in</Button>
                     </Stack>
                 </Center>

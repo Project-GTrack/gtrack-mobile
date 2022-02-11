@@ -12,7 +12,10 @@ import GeneralInformationModal from '../modals/GeneralInformationModal';
 import ChangePasswordModal from '../modals/ChangePasswordModal';
 import MessageAlert from '../helpers/MessageAlert';
 import ChangeAddressModal from '../modals/ChangeAddressModal';
+import PickImage from '../helpers/PickImage.js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import envs from '../../config/env.js'
 
 const ProfilePage = () => {
     const [showGIModal,setShowGIModal]=useState(false);
@@ -38,9 +41,32 @@ const ProfilePage = () => {
             console.log(e);
         }
     }
+    const setData = async (data) => {
+        try {
+            const jsonValue = JSON.stringify(data);
+            await AsyncStorage.setItem('@user', jsonValue);
+        } catch (e) {
+            setAlert({visible:true,message:e,colorScheme:"danger",header:"Error"});
+        }
+    }
     useEffect(() => {
-      getData();
+        getData();
     }, []);
+    
+    useEffect(() => {
+        if(image){
+            axios.post(`${envs.BACKEND_URL}/mobile/profile/change_photo`,{email:user?user.email:"",image:image})
+            .then(res => {
+                if(res.data.success){
+                    setData(res.data.data);
+                    setUser(res.data.data);
+                    setAlert({visible:true,message:res.data.message,colorScheme:"success",header:"Success"});
+                }else{
+                    setAlert({visible:true,message:res.data.message,colorScheme:"danger",header:"Error"})
+                }
+            })
+        }
+    }, [image]);
     return (
         <Center
             px={3}
@@ -77,7 +103,7 @@ const ProfilePage = () => {
             >
                 Profile
             </Text> */}
-            <Upload/>
+            <PickImage path={"/gtrack-mobile/profile"} value={image} setValue={setImage} multiple={false}/>
             <VStack 
                 space={3} 
                 mt={8}
@@ -112,26 +138,5 @@ const ProfilePage = () => {
         </Center>
     )
 }
-const Upload = () => {
-    const pickImage = async () => {
-        // No permissions request is necessary for launching the image library
-        let result = await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: ImagePicker.MediaTypeOptions.All,
-          allowsEditing: true,
-          aspect: [4, 3],
-          quality: 1,
-        });
-    
-        console.log(result);
-    
-        if (!result.cancelled) {
-          console.log("Cancelled")
-        }
-    };
-  
-    return (
-        <Button mt={3} colorScheme="success" onPress={pickImage}>Choose File</Button>
-    );
-  };
 
 export default ProfilePage

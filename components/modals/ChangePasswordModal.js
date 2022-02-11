@@ -3,6 +3,7 @@ import {
   Button,
   Modal,
   FormControl,
+  Text,
   Input,
   Center
 } from "native-base"
@@ -12,10 +13,24 @@ import envs from '../../config/env.js'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CryptoES from "crypto-es";
 import Firebase from '../helpers/Firebase';
+import * as yup from 'yup'
 
 const auth = Firebase.auth();
 const ChangePasswordModal = ({alert,setAlert,user,showModal,setShowModal}) => {
   const [initialValues, setInitialValues] = useState(null);
+  const changePassValidationSchema = yup.object().shape({
+    old_password: yup
+      .string()
+      .required('Current password is required'),
+    new_password: yup
+      .string()
+      .min(8, ({ min }) => `Password must be at least ${min} characters`)
+      .required('Confirm password is required'),
+    repeat_password: yup
+      .string()
+      .oneOf([yup.ref('new_password')], 'Passwords do not match')
+      .required('Repeat password is required'),
+  })
   const setData = async (data) => {
     try {
         const jsonValue = JSON.stringify(data);
@@ -48,30 +63,25 @@ const ChangePasswordModal = ({alert,setAlert,user,showModal,setShowModal}) => {
     });
 }
   const handleFormSubmit = async (values,{resetForm}) =>{
-    if(values.new_password===values.repeat_password){
-      const decrypted=decryptPassword(user.password);
-      console.log(decrypted);
-      if(decrypted===values.old_password){
-        const encrypted=encryptPassword(values.new_password)
-        axios.post(`${envs.BACKEND_URL}/mobile/profile/change_password`, {email:values.email,password:encrypted})
-        .then(res => {
-            if(res.data.success){
-              setShowModal(false);
-              handleFirebase(values,resetForm,res.data.data,res.data.message);
-              // setData(res.data.data)
-              // setAlert({visible:true,message:res.data.message,colorScheme:"success",header:"Success"});
-            }else{
-              setShowModal(false)
-              setAlert({visible:true,message:"Password Change Unsuccessful.",colorScheme:"danger",header:"Error"})
-            }
-        })
-      }else{
-        setShowModal(false)
-        setAlert({visible:true,message:"Incorrect old password.",colorScheme:"danger",header:"Error"})
-      }
+    const decrypted=decryptPassword(user.password);
+    console.log(decrypted);
+    if(decrypted===values.old_password){
+      const encrypted=encryptPassword(values.new_password)
+      axios.post(`${envs.BACKEND_URL}/mobile/profile/change_password`, {email:values.email,password:encrypted})
+      .then(res => {
+          if(res.data.success){
+            setShowModal(false);
+            handleFirebase(values,resetForm,res.data.data,res.data.message);
+            // setData(res.data.data)
+            // setAlert({visible:true,message:res.data.message,colorScheme:"success",header:"Success"});
+          }else{
+            setShowModal(false)
+            setAlert({visible:true,message:"Password Change Unsuccessful.",colorScheme:"danger",header:"Error"})
+          }
+      })
     }else{
       setShowModal(false)
-      setAlert({visible:true,message:"Password Mismatch.",colorScheme:"danger",header:"Error"})
+      setAlert({visible:true,message:"Incorrect old password.",colorScheme:"danger",header:"Error"})
     }
   }
   useEffect(() => {
@@ -85,9 +95,10 @@ const ChangePasswordModal = ({alert,setAlert,user,showModal,setShowModal}) => {
     };
     
   }, [user]);
-  const { handleChange, handleSubmit, values } = useFormik({
+  const { handleChange, handleSubmit, values, errors, isValid, touched } = useFormik({
     initialValues:initialValues,
     enableReinitialize:true,
+    validationSchema:changePassValidationSchema,
     onSubmit: handleFormSubmit
   });
     return (
@@ -96,14 +107,23 @@ const ChangePasswordModal = ({alert,setAlert,user,showModal,setShowModal}) => {
           <Modal.CloseButton />
           <Modal.Header>Change Password</Modal.Header>
           <Modal.Body>
+            {(errors.old_password && touched.old_password) &&
+              <Text style={{ fontSize: 10, color: 'red' }}>{errors.old_password}</Text>
+            }
             <FormControl>
               <FormControl.Label>Current password</FormControl.Label>
               <Input type="password" value={values&&values.old_password?values.old_password:""} onChangeText={handleChange('old_password')}/>
             </FormControl>
+            {(errors.new_password && touched.new_password) &&
+              <Text style={{ fontSize: 10, color: 'red' }}>{errors.new_password}</Text>
+            }
             <FormControl mt="3">
               <FormControl.Label>New Password</FormControl.Label>
               <Input type="password" value={values&&values.new_password?values.new_password:""} onChangeText={handleChange('new_password')}/>
             </FormControl>
+            {(errors.repeat_password && touched.repeat_password) &&
+              <Text style={{ fontSize: 10, color: 'red' }}>{errors.repeat_password}</Text>
+            }
             <FormControl mt="3">
               <FormControl.Label>Repeat New Password</FormControl.Label>
               <Input type="password" value={values&&values.repeat_password?values.repeat_password:""} onChangeText={handleChange('repeat_password')}/>
@@ -122,6 +142,7 @@ const ChangePasswordModal = ({alert,setAlert,user,showModal,setShowModal}) => {
               </Button>
               <Button
                 onPress={handleSubmit}
+                disabled={!isValid}
               >
                 Update
               </Button>
