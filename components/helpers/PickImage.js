@@ -9,7 +9,7 @@ import { uuidGenerator } from './uuidGenerator.js';
 import Firebase from '../helpers/Firebase';
 import { LogBox } from 'react-native';
 const storage=Firebase.storage();
-const PickImage = ({multiple,path,value,setValue}) => {
+const PickImage = ({multiple,path,value,setValue,setFieldValue}) => {
     useEffect(() => {
         LogBox.ignoreLogs(['Setting a timer']);
     }, []);
@@ -27,6 +27,7 @@ const PickImage = ({multiple,path,value,setValue}) => {
             blob.close();
         // })
         setValue([...imageTemp]);
+        setFieldValue("images",[...imageTemp]);
     }
     const uploadSingleImageAsync=async(setValue,selected,path)=>{
         const newPath=`${path}/${uuidGenerator()}`

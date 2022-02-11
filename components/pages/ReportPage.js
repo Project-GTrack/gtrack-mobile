@@ -3,6 +3,7 @@ import {
     Image,
     Button,
     Center,
+    Text,
     Input,
     ScrollView,
     Select,
@@ -20,7 +21,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import MessageAlert from '../helpers/MessageAlert';
 import PickImage from '../helpers/PickImage.js';
 import { uuidGenerator } from '../helpers/uuidGenerator.js';
+import Firebase from '../helpers/Firebase.js';
+import * as yup from 'yup'
 
+const database=Firebase.database();
 const ReportPage = () => {
     const [initialValues, setInitialValues] = useState(null);
     const [user,setUser]=useState(null);
@@ -32,6 +36,21 @@ const ReportPage = () => {
         colorScheme:null,
         header:null
     });
+    const reportValidationSchema = yup.object().shape({
+        subject: yup
+          .string()
+          .required('Subject is required'),
+        message: yup
+          .string()
+          .required('Message is required'),
+        classification: yup
+          .string()
+          .required('Classification is required'),
+        images: yup
+          .array()
+          .min(1,"Attach atleast 1 image")
+          .required('Attach atleast 1 image'),
+    })
     const getData = async () => {
         try {
             const value = await AsyncStorage.getItem('@user');
@@ -47,32 +66,45 @@ const ReportPage = () => {
     useEffect(() => {
         getData();
         setPath(`/gtrack-mobile/concern/${uuidGenerator()}`);
-      }, []);
+    }, []);
     useEffect(() => {
       if(user){
         setInitialValues({
           email:user.email?user.email:"",
           subject:"",
           message:"",
-          classification:""
+          classification:"",
+          images:[]
         })
       };
     }, [user]);
+    const setFirebaseConcern=async (concern)=>{
+        await database.ref(`/Concerns/${concern.concern_id}`)
+        .set({
+            sender: `${user.fname} ${user.lname}`,
+            subject: concern.subject,
+            message: concern.message,
+            classification: concern.classification,
+            active: 1
+        })
+    }
     const handleFormSubmit = async (values,{resetForm}) =>{
         axios.post(`${envs.BACKEND_URL}/mobile/concern/send`,{email:values.email,subject:values.subject,message:values.message,classification:values.classification,images:images})
         .then(res => {
             if(res.data.success){
                 resetForm();
                 setImages([]);
+                setFirebaseConcern(res.data.data);
                 setAlert({visible:true,message:res.data.message,colorScheme:"success",header:"Success"});
             }else{
                 setAlert({visible:true,message:res.data.message,colorScheme:"danger",header:"Error"})
             }
         })
     }
-    const { handleChange, handleSubmit, values } = useFormik({
+    const { handleChange, handleSubmit,handleBlur, values, errors, isValid, touched, setFieldValue } = useFormik({
         initialValues:initialValues,
         enableReinitialize:true,
+        validationSchema:reportValidationSchema,
         onSubmit: handleFormSubmit
     });
     return (
@@ -83,12 +115,19 @@ const ReportPage = () => {
             mt={10}
         >
             <Stack space={3} style={{alignSelf:'stretch'}}>
+                {(errors.subject && touched.subject) &&
+                    <Text style={{ fontSize: 10, color: 'red' }}>{errors.subject}</Text>
+                }
                 <Input 
                     size="md" 
                     placeholder="Subject"
                     bg={'white'}
+                    onBlur={handleBlur('subject')}
                     value={values&&values.subject?values.subject:""} onChangeText={handleChange('subject')}
                 />
+                {(errors.message && touched.message) &&
+                    <Text style={{ fontSize: 10, color: 'red' }}>{errors.message}</Text>
+                }
                 <TextArea
                     h={200}
                     bgColor={'white'}
@@ -97,10 +136,14 @@ const ReportPage = () => {
                       textAlignVertical:'top',
                       fontSize:14,
                     }}
+                    onBlur={handleBlur('message')}
                     p={3}
                     value={values&&values.message?values.message:""} onChangeText={handleChange('message')}
                 />
-                <PickImage path={path} value={images} setValue={setImages} multiple={true}/>
+                {(errors.images && touched.images) &&
+                    <Text style={{ fontSize: 10, color: 'red' }}>{errors.images}</Text>
+                }
+                <PickImage path={path} value={images} setValue={setImages} multiple={true} setFieldValue={setFieldValue}/>
                 
                 <Center >
                     <HStack>
@@ -116,6 +159,9 @@ const ReportPage = () => {
                     }
                     </HStack>
                 </Center>
+                {(errors.classification && touched.classification) &&
+                    <Text style={{ fontSize: 10, color: 'red' }}>{errors.classification}</Text>
+                }
                 <Select
                     accessibilityLabel="Choose report category"
                     placeholder="Choose report category"
@@ -151,40 +197,12 @@ const ReportPage = () => {
                     />
                 }
                 onPress={handleSubmit}
-            >Send Report</Button>
+                disabled={!isValid}
+            >
+                Send Report
+            </Button>
         </Center>
         </ScrollView>
     )
 }
-// const Upload = () => {
-//     const pickImages = async () => {
-//         // No permissions request is necessary for launching the image library
-//         let result = await ImagePicker.launchImageLibraryAsync({
-//           mediaTypes: ImagePicker.MediaTypeOptions.All,
-//           allowsEditing: true,
-//           aspect: [4, 3],
-//           quality: 1,
-//           allowsMultipleSelection: true,
-//         });
-        
-//         if (!result.cancelled) {
-//             console.log(result.selected[0].uri);
-//             // uploadImagesAsync(result.selected);
-//         }else{
-//             console.log("cancelled")
-//         }
-//     };
-  
-//     return (
-//         <Button mt={3} colorScheme="success" onPress={()=>pickImages()} 
-//             leftIcon={ <Icon
-//                 as={<MaterialIcons name="attachment" />}
-//                 color={'white'}
-//                 size={5}
-//             />} 
-//         >
-//             Attach files/photos
-//         </Button>
-//     );
-// };
 export default ReportPage
