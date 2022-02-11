@@ -35,7 +35,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const AnnouncementPage = () => {
   const [data, setData] = useState([]);
   const [empty, setEmpty] = useState(false);
-  const [user,setUser]=useState(null);
   let img = [];
   let temp = [];
   useEffect(() => {
@@ -46,7 +45,6 @@ const AnnouncementPage = () => {
       .then((res) => {
         temp = res.data.data;
         setInfo(temp);
-        getData();
       })
       .catch((error) => console.log(error));
      
@@ -58,19 +56,6 @@ const AnnouncementPage = () => {
       setEmpty(true);
     }
   };
-  const getData = async () => {
-    try {
-        const value = await AsyncStorage.getItem('@user');
-        if(value!==null){
-            setUser(JSON.parse(value));
-            console.log("USERRR",value);
-        }else{
-            setUser(null);
-        }
-    }catch (e){
-        console.log(e);
-    }
-}
   return (
     <View>
       {empty ? (

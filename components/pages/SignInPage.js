@@ -46,10 +46,11 @@ const SignInPage = ({navigation}) => {
         androidClientId: envs.ANDROID_CLIENT_ID,
         // webClientId: 'GOOGLE_GUID.apps.googleusercontent.com',
     });
-    const setData = async (data) => {
+    const setData = async (data,sched) => {
         try {
-            const jsonValue = JSON.stringify(data);
-            await AsyncStorage.setItem('@user', jsonValue);
+            const firstPair = ["@user", JSON.stringify(data)]
+            const secondPair = ["@schedule", JSON.stringify(sched)]
+            await AsyncStorage.multiSet([firstPair, secondPair])
             navigation.replace('Drawer');
         } catch (e) {
             setAlert({visible:true,message:e,colorScheme:"danger",header:"Error"});
@@ -74,7 +75,7 @@ const SignInPage = ({navigation}) => {
             .then(res => {
                 if(res.data.success){
                     setLoading(false);
-                    setData(res.data.data);
+                    setData(res.data.data,res.data.sched);
                 }else{
                     setLoading(false);
                     setAlert({visible:true,message:res.data.message,colorScheme:"danger",header:"Error"});
@@ -106,7 +107,7 @@ const SignInPage = ({navigation}) => {
                     axios.post(`${envs.BACKEND_URL}/mobile/verify_email`, {email:values.email})
                     .then(res=>{
                         if(res.data.success){
-                            setData(res.data.data);
+                            setData(res.data.data,res.data.sched);
                         }else{
                             setAlert({visible:true,message:res.data.message,colorScheme:"danger",header:"Error"});
                         }

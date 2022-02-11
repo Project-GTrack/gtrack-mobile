@@ -27,8 +27,9 @@ import envs from '../../config/env.js';
 import MessageAlert from '../helpers/MessageAlert';
 import ActivityIndicator from '../helpers/ActivityIndicator';
 import moment from "moment";
+import Firebase from "../helpers/Firebase";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+const db=Firebase.app().database();
 const InputGarbageWeightPage = () => {
   const [date, setDate] = useState("");
   const [mode, setMode] = useState("date");
@@ -60,6 +61,18 @@ const InputGarbageWeightPage = () => {
           axios.post(`${envs.BACKEND_URL}/mobile/waste-collection/submit-collection/${user.user_id}`, {collection_weight_volume:values.weight,collection_date:date+" "+startTime,collection_route:route})
           .then(res => {
               if(res.data.success){
+                  db.ref("Dumpsters/").once('value', (snapshot) => {
+                    for(var x = 0; x < snapshot.val().length;x++){
+                      if(snapshot.val()[x] != undefined){
+                        if(snapshot.val()[x].driver_id != undefined && snapshot.val()[x].driver_id === user.user_id){
+                          db.ref("Dumpsters/"+snapshot.val()[x].dumpster_id).update({complete: 0});
+                          db.ref("Dumpsters/"+snapshot.val()[x].dumpster_id).child("driver_id").remove();
+                          axios.put(`${envs.BACKEND_URL}/mobile/dumpster/update-dumpster/${snapshot.val()[x].dumpster_id}`);
+                        }
+                      }
+                      
+                    }
+                  })
                   resetForm();
                   setDate("");
                   setStartTime("");
@@ -162,7 +175,7 @@ const InputGarbageWeightPage = () => {
                   <VStack paddingRight={15} marginLeft={2}>
                     <Button
                       onPress={showDatepicker}
-                      bgColor="#10b981"
+                      colorScheme="success"
                       title="Show date picker!"
                     >
                       Set Date
@@ -171,7 +184,7 @@ const InputGarbageWeightPage = () => {
                   <VStack paddingRight={2}>
                     <Button
                       onPress={showStartTimepicker}
-                      bgColor="#10b981"
+                      colorScheme="success"
                       title="Show time picker!"
                     >
                       Set Time
@@ -230,7 +243,7 @@ const InputGarbageWeightPage = () => {
               />
             </Stack>
             <Button
-              bgColor={"#f43f5e"}
+              colorScheme="danger"
               mt={5}
               mb={2}
               leftIcon={
