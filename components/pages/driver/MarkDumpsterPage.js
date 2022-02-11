@@ -11,10 +11,12 @@ import { uuidGenerator } from "../../helpers/uuidGenerator.js";
 import axios from "axios";
 import MessageAlert from "../../helpers/MessageAlert";
 import ActivityIndicator from "../../helpers/ActivityIndicator";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const db = Firebase.app().database();
 const MarkDumpsterPage = () => {
   const [loading, setLoading] = useState(false);
+  const [user,setUser]=useState({});
   const [dumpsters, setDumpsters] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [empty, setEmpty] = useState(true);
@@ -25,17 +27,17 @@ const MarkDumpsterPage = () => {
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
   });
-  useEffect(() => {
-    axios
-      .get(`${envs.BACKEND_URL}/mobile/dumpster/get-dumpsters`)
-      .then((res) => {
-        if (res.data.success) {
-          var temp = res.data.data;
-          setToFirebase(res.data.data);
-          setEmpty(false);
-        }
-      });
-  }, []);
+  // useEffect(() => {
+  //   axios
+  //     .get(`${envs.BACKEND_URL}/mobile/dumpster/get-dumpsters`)
+  //     .then((res) => {
+  //       if (res.data.success) {
+  //         var temp = res.data.data;
+  //         setToFirebase(res.data.data);
+  //         setEmpty(false);
+  //       }
+  //     });
+  // }, []);
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -55,6 +57,7 @@ const MarkDumpsterPage = () => {
     })();
   }, []);
   useEffect(() => {
+    getData();
     let temp = [];
     db.ref("Dumpsters/").on("value", (snapshot) => {
       for (var x = 0; x < snapshot.val().length; x++) {
@@ -63,6 +66,7 @@ const MarkDumpsterPage = () => {
         }
       }
       setDumpsters(temp);
+      setEmpty(false);
     });
 
     return () => {
@@ -70,6 +74,18 @@ const MarkDumpsterPage = () => {
       db.ref("Dumpsters/").off("value");
     };
   }, []);
+  const getData = async () => {
+    try {
+        const value = await AsyncStorage.getItem('@user');
+        if(value!==null){
+            setUser(JSON.parse(value));
+        }else{
+            setUser(null);
+        }
+    }catch (e){
+        console.log(e);
+    }
+  }
   const handleModal = (id) => {
     dumpsters.map((dump) => {
       if (dump.dumpster_id === id) {
@@ -100,7 +116,7 @@ const MarkDumpsterPage = () => {
       .put(`${envs.BACKEND_URL}/mobile/dumpster/update-dumpster/${data}`)
       .then((res) => {
         if (res.data.success) {
-          db.ref("Dumpsters/" + data).update({ complete: res.data.data });
+          db.ref("Dumpsters/" + data).update({ driver_id: user.user_id, complete: res.data.data });
           setLoading(false);
           setAlert({
             visible: true,
