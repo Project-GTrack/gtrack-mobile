@@ -20,6 +20,7 @@ import * as Location from "expo-location";
 import MapView, { Marker } from "react-native-maps";
 import { Dimensions } from "react-native";
 import { getDatabase, ref, onValue, set } from 'firebase/database';
+import MessageAlert from "../../helpers/MessageAlert";
 import { LogBox } from 'react-native';
 import Firebase from '../../helpers/Firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -41,6 +42,12 @@ const TrackCollectorPage = () => {
     longitude: 0,
     latitudeDelta: LATITUDE_DELTA,
     longitudeDelta: LATITUDE_DELTA * (width / height),
+  });
+  const [alert, setAlert] = useState({
+    visible: false,
+    message: null,
+    colorScheme: null,
+    header: null,
   });
   const getData = async () => {
     try {
@@ -116,7 +123,6 @@ useEffect(() => {
     const interval = setInterval(() => {
       getLiveLocation()
   }, 6000);
-  
     await db.ref('Drivers/'+user.user_id).set({
       active: 1,
       driver_id:user.user_id,
@@ -158,17 +164,30 @@ useEffect(() => {
 }
   
   const showLocation = async () => {
-    showMarker(true);
+    console.log(user, user.hasOwnProperty("userSchedule"));
+    if(user.hasOwnProperty("userSchedule")){
+      showMarker(true);
+    }else{
+      setAlert({
+        visible: true,
+        message: "You don't have a Scheduled Collection today",
+        colorScheme: "danger",
+        header: "No Schedule",
+      });
+    }
+   
     
   };
   const stopSharing = async() => {
     // db.ref('Drivers/'+user.user_id).remove();
     // watch.remove();
     showMarker(false);
+    getLiveLocation();
     await db.ref('Drivers/').child(user.user_id).remove();
   };
   return (
     <>
+      <MessageAlert alert={alert} setAlert={setAlert} />
       <View>
         <MapView
         region={initLoc}
