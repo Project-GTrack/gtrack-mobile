@@ -119,20 +119,24 @@ const TrackCollectorPage = () => {
 useEffect(() => {
   LogBox.ignoreLogs(['Setting a timer']);
   (async () => {
+    let interval;
     if(marker){
-    const interval = setInterval(() => {
+    interval = setInterval(() => {
       getLiveLocation()
   }, 6000);
     await db.ref('Drivers/'+user.user_id).set({
       active: 1,
       driver_id:user.user_id,
+      driver_name:user.fname+" "+user.lname,
       latitude: initLoc.latitude,
       longitude: initLoc.longitude,
-      landmark:user.userSchedule[0].landmark || "",
-      barangay:user.userSchedule[0].barangay || ""
+      garbage_type:user.userSchedule[0].garbage_type,
+      landmark:user.userSchedule[0].landmark,
+      barangay:user.userSchedule[0].barangay,
     })
+    
   }
-  return () => clearInterval(interval)
+  return () => clearInterval(interval);
   })();
  
 },[marker, initLoc])
