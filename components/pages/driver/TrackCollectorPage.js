@@ -95,11 +95,13 @@ const TrackCollectorPage = () => {
   //           console.log(res);
   //           db.ref('Drivers/'+user.user_id).set({
   //               active: 1,
-  //               driver_id:user.user_id,
-  //               latitude: res.coords.latitude,
-  //               longitude: res.coords.longitude,
-  //               landmark:user.userSchedule[0].landmark || "",
-  //               barangay:user.userSchedule[0].barangay || ""
+                    // driver_id:user.user_id,
+                    // driver_name:user.fname+" "+user.lname,
+                    // latitude: initLoc.latitude,
+                    // longitude: initLoc.longitude,
+                    // garbage_type:user.userSchedule[0].garbage_type,
+                    // landmark:user.userSchedule[0].landmark,
+                    // barangay:user.userSchedule[0].barangay,
   //             })
   //           setInitLoc(prevState=>({...prevState,latitude:res.coords.latitude,longitude:res.coords.longitude}))
   //         })
@@ -118,13 +120,13 @@ const TrackCollectorPage = () => {
   },[])
 useEffect(() => {
   LogBox.ignoreLogs(['Setting a timer']);
-  (async () => {
+
     let interval;
-    if(marker){
+  if(marker){
     interval = setInterval(() => {
       getLiveLocation()
   }, 6000);
-    await db.ref('Drivers/'+user.user_id).set({
+   db.ref('Drivers/'+user.user_id).set({
       active: 1,
       driver_id:user.user_id,
       driver_name:user.fname+" "+user.lname,
@@ -137,7 +139,6 @@ useEffect(() => {
     
   }
   return () => clearInterval(interval);
-  })();
  
 },[marker, initLoc])
   // useEffect(() => {
@@ -186,7 +187,7 @@ useEffect(() => {
     // db.ref('Drivers/'+user.user_id).remove();
     // watch.remove();
     showMarker(false);
-    getLiveLocation();
+    //getLiveLocation();
     await db.ref('Drivers/').child(user.user_id).remove();
   };
   return (
