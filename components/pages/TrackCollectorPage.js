@@ -36,16 +36,20 @@ const TrackCollectorPage = () => {
     const [dumpsters,setDumpsters]=useState(null);
     const getFirebaseDrivers = () => {
         database.ref(`Drivers/`).on('value', function (snapshot) {
-            var snap=snapshot.val();
-            var temp=Object.keys(snap).map((key) => snap[key]);
-            setDrivers(temp);
+            if(snapshot.val()){
+                var snap=snapshot.val();
+                var temp=Object.keys(snap).map((key) => snap[key]);
+                setDrivers(temp);
+            }
         });
      }
      const getFirebaseDumpsters = () => {
         database.ref(`Dumpsters/`).on('value', function (snapshot) {
-            var snap=snapshot.val();
-            var temp=Object.keys(snap).map((key) => snap[key]);
-            setDumpsters(temp);
+            if(snapshot.val()){
+                var snap=snapshot.val();
+                var temp=Object.keys(snap).map((key) => snap[key]);
+                setDumpsters(temp);
+            }
         });
      }
     useEffect(() => {
@@ -73,18 +77,7 @@ const TrackCollectorPage = () => {
               return;
             }
             let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.BestForNavigation, maximumAge: 10000});
-            // console.log(location);
             setInitLoc(prevState=>({...prevState,latitude:location.coords.latitude,longitude:location.coords.longitude}))
-            // Geolocation.getCurrentPosition(
-            //     (position) => {
-            //       setInitLoc(prevState=>({...prevState,latitude:position.coords.latitude,longitude:position.coords.longitude}))
-            //     },
-            //     (error) => {
-            //       // See error code charts below.
-            //       console.log(error.code, error.message);
-            //     },
-            //     { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
-            // );
           })();
     }, [])
     return (
@@ -95,7 +88,7 @@ const TrackCollectorPage = () => {
         }}
         >
             <MapView
-            region={initLoc}
+            // region={initLoc}
             showsUserLocation={true}
             showsMyLocationButton={true}
             onMapReady={()=>setMarginBottom(0)}
@@ -138,7 +131,7 @@ const TrackCollectorPage = () => {
                                             color={"#10b981"}
                                             size={25}
                                         />
-                                        <Text fontSize={16}>John Doe</Text>
+                                        <Text fontSize={16}>{value.driver_name}</Text>
                                     </HStack>
                                     <HStack space={3}>
                                         <Icon
@@ -146,7 +139,7 @@ const TrackCollectorPage = () => {
                                             color={"#10b981"}
                                             size={25}
                                         />
-                                        <Text fontSize={16}>Biodegradable</Text>
+                                        <Text fontSize={16}>{value.garbage_type}</Text>
                                     </HStack>
                                 </View>
                             </Callout>
@@ -158,7 +151,7 @@ const TrackCollectorPage = () => {
 
                         <Marker 
                             key={i} 
-                            coordinate={{ latitude : value.latitude , longitude : value.longitude }}
+                            coordinate={{ latitude : parseFloat(value.latitude) , longitude : parseFloat(value.longitude) }}
                             image={value.complete===1?DumpsterComplete:DumpsterMarker}
                         >
                             <Callout >
