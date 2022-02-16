@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Text, Image, Button, Center, Modal } from "native-base";
-import GreenTrash from "../../../assets/greentrash.png";
-import RedDump from "../../../assets/reddump.png";
+import GreenTrash from "../../../assets/dumpster_complete_icon.png";
+import RedDump from "../../../assets/dumpster_marker_icon.png";
 import * as Location from "expo-location";
 import envs from "../../../config/env";
 import MapView, { Marker } from "react-native-maps";
@@ -15,7 +15,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const db = Firebase.app().database();
 const MarkDumpsterPage = () => {
+  const { height, width } = Dimensions.get( 'window' );
   const [loading, setLoading] = useState(false);
+  const LATITUDE_DELTA=0.23;
   const [user,setUser]=useState({});
   const [dumpsters, setDumpsters] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -24,20 +26,20 @@ const MarkDumpsterPage = () => {
   const [initLoc, setInitLoc] = useState({
     latitude: 0,
     longitude: 0,
-    latitudeDelta: 0.0922,
-    longitudeDelta: 0.0421,
+    latitudeDelta: LATITUDE_DELTA,
+    longitudeDelta: LATITUDE_DELTA * (width / height),
   });
-  // useEffect(() => {
-  //   axios
-  //     .get(`${envs.BACKEND_URL}/mobile/dumpster/get-dumpsters`)
-  //     .then((res) => {
-  //       if (res.data.success) {
-  //         var temp = res.data.data;
-  //         setToFirebase(res.data.data);
-  //         setEmpty(false);
-  //       }
-  //     });
-  // }, []);
+  useEffect(() => {
+    axios
+      .get(`${envs.BACKEND_URL}/mobile/dumpster/get-dumpsters`)
+      .then((res) => {
+        if (res.data.success) {
+          var temp = res.data.data;
+          setToFirebase(res.data.data);
+          setEmpty(false);
+        }
+      });
+  }, []);
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -58,22 +60,22 @@ const MarkDumpsterPage = () => {
   }, []);
   useEffect(() => {
     getData();
-    let temp = [];
+    console.log("YEAHHHH MANNN");
+    getDumpsters();
+  }, []);
+  const getDumpsters = () =>{
+    
     db.ref("Dumpsters/").on("value", (snapshot) => {
+      let temp = [];
       for (var x = 0; x < snapshot.val().length; x++) {
         if (snapshot.val()[x] != undefined) {
           temp.push(snapshot.val()[x]);
         }
       }
       setDumpsters(temp);
-      setEmpty(false);
     });
-
-    return () => {
-      setDumpsters([]);
-      db.ref("Dumpsters/").off("value");
-    };
-  }, []);
+    console.log(dumpsters);
+  }
   const getData = async () => {
     try {
         const value = await AsyncStorage.getItem('@user');

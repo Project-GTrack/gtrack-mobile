@@ -43,7 +43,8 @@ import axios from "axios";
 import MessageAlert from '../../helpers/MessageAlert';
 import ActivityIndicator from '../../helpers/ActivityIndicator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import * as yup from 'yup'
+const db=Firebase.app().database();
 const DriverReportPage = () => {
   const [images,setImages]=useState([]);
   const [path,setPath]=useState(null);
@@ -57,7 +58,7 @@ const DriverReportPage = () => {
     latitude: 0,
     longitude: 0,
   });
-  const [onChangeValue,setOnChangeValue]=useState(0);
+  const [onChangeValue,setOnChangeValue]=useState(1);
   const [uri,setURI]=useState("");
   useEffect(() => {
     getData();
@@ -107,6 +108,18 @@ const DriverReportPage = () => {
           console.log(e);
       }
     }
+    const reportValidationSchema = yup.object().shape({
+      subject: yup
+        .string()
+        .required('Subject is required'),
+      description: yup
+        .string()
+        .required('Description is required'),
+      images: yup
+        .array()
+        .min(1,"Attach atleast 1 image")
+        .required('Attach atleast 1 image'),
+  })
     
   
   // const pickImage = async () => {
@@ -132,19 +145,12 @@ const DriverReportPage = () => {
   const handleFormSubmit = async (values,{resetForm}) => {
     try{
       setLoading(true);
-      if(values.subject != "" && values.description != "" && images.length != 0 && initLoc != null && degree != null){
-        // let upload = await Firebase.app().storage("gs://gtrack-339307.appspot.com")
-        // .ref("/gtrack-mobile/concern/" + uri.split("/").pop()).put(image);
-        // let downURL = await Firebase.app().storage("gs://gtrack-339307.appspot.com")
-        // .ref("/gtrack-mobile/concern/" + uri.split("/").pop()).getDownloadURL();
-        // console.log(downURL);
-        Firebase.app().database('https://gtrack-339307-default-rtdb.asia-southeast1.firebasedatabase.app/')
-                .ref('Reports/'+user.user_id).set({
+      db.ref('Reports/'+user.user_id).set({
                   subject: values.subject,
                   description: values.description,
                   degree: degree.level,
                   active: 1,
-                  driver_id:user.user_id,
+                  sender:user.fname+" "+user.lname,
                   coordinates: {
                     latitude: initLoc.latitude,
                     longitude: initLoc.longitude,
@@ -155,28 +161,24 @@ const DriverReportPage = () => {
           .then(res => {
               if(res.data.success){
                 resetForm();
-                setOnChangeValue(0);
+                setOnChangeValue(1);
                 setImages([]);
                 setLoading(false);
                 setAlert({visible:true,message:res.data.message,colorScheme:"success",header:"Report Submission"});
+              }else{
+                setAlert({visible:true,message:res.data.message,colorScheme:"danger",header:"Error"})
               }
           })
-      }else{
-        resetForm();
-        setOnChangeValue(0);
-        setImages([]);
-        setLoading(false);
-        setAlert({visible:true,message:"Please fill out all the fields",colorScheme:"danger",header:"Empty Fields"});
-      }
       
     }catch(e){
       console.log(e);
     }
  
   }
-  const { handleChange, handleSubmit, values } = useFormik({
-    initialValues:{ subject:'', description:'' },
+  const { handleChange, handleSubmit, handleBlur, values, errors, touched, setFieldValue } = useFormik({
+    initialValues:{ subject:'', description:'', images: []},
     enableReinitialize:true,
+    validationSchema:reportValidationSchema,
     onSubmit: handleFormSubmit
 });
 const [alert,setAlert]=useState({
@@ -195,21 +197,28 @@ const [alert,setAlert]=useState({
       <ScrollView>
         <VStack px={4} pb={4} mt={5}>
           <FormControl paddingBottom={5}>
-            <Input bgColor="white" isRequired placeholder="Subject" onChangeText={handleChange('subject')}
-                value={values.subject}/>
+          {(errors.subject && touched.subject) &&
+                    <Text style={{ fontSize: 10, color: 'red' }}>{errors.subject}</Text>
+                }
+            <Input bgColor="white" onBlur={handleBlur('subject')} placeholder="Subject" onChangeText={handleChange('subject')}
+                value={values&&values.subject?values.subject:""}/>
           </FormControl>
           <FormControl paddingBottom={5}>
+          {(errors.description && touched.description) &&
+                    <Text style={{ fontSize: 10, color: 'red' }}>{errors.description}</Text>
+                }
             <TextArea
               h={200}
               bgColor={"white"}
               placeholder="Write description here ..."
+              onBlur={handleBlur('description')}
               style={{
                 textAlignVertical: "top",
                 fontSize: 14,
               }}
               p={3}
               onChangeText={handleChange('description')}
-                value={values.description}
+                value={values&&values.description?values.description:""}
             />
           </FormControl>
           <Divider />
@@ -256,7 +265,10 @@ const [alert,setAlert]=useState({
           <FormControl>
             <HStack mt={2}>
               <VStack minWidth="100">
-              <PickImage path={path} value={images} setValue={setImages} multiple={true}/>
+              {(errors.images && touched.images) &&
+                    <Text style={{ fontSize: 10, color: 'red' }}>{errors.images}</Text>
+                }
+              <PickImage path={path} value={images} setValue={setImages} multiple={true} setFieldValue={setFieldValue}/>
               <Center marginTop={3}>
                     <HStack>
                     {images.map((img,i)=>{
