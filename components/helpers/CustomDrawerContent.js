@@ -19,10 +19,13 @@ import { useDrawerStatus} from '@react-navigation/drawer';
 import { MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import moment from 'moment';
+import Firebase from '../helpers/Firebase.js';
 
+const database=Firebase.database();
 const CustomDrawerContent = ({navigation,user,getData}) => {
     const removeData = async () => {
         try {
+            await database.ref(`/PushTokens/${user.user_id}`).remove();
             const value = await AsyncStorage.getItem('@user');
             if(value){
                 await AsyncStorage.removeItem('@user');

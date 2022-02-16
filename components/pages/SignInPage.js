@@ -49,7 +49,7 @@ const SignInPage = ({navigation}) => {
     const setData = async (data,sched) => {
         try {
             const firstPair = ["@user", JSON.stringify(data)]
-            const secondPair = ["@schedule", JSON.stringify(sched)]
+            const secondPair = ["@schedule", JSON.stringify(sched?sched:{})]
             await AsyncStorage.multiSet([firstPair, secondPair])
             navigation.replace('Drawer');
         } catch (e) {

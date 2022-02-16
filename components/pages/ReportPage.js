@@ -82,6 +82,7 @@ const ReportPage = () => {
         await database.ref(`/Concerns/${concern.concern_id}`)
         .set({
             sender: `${user.fname} ${user.lname}`,
+            concern_id: concern.concern_id,
             subject: concern.subject,
             message: concern.message,
             classification: concern.classification,
