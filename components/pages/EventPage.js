@@ -69,9 +69,14 @@ const EventPage = () => {
       <View>
         {empty? <Text bold textAlign="center" fontSize={24} marginTop={250}>No Events As of Now</Text>:<ScrollView>
           {data.map((arr) => {
-            arr.eventLine.lineAttachment.map((atts) => {
-              img.push(atts.filename);
-            })
+            if(arr.hasOwnProperty("eventLine")){
+              if(arr.eventLine.hasOwnProperty("lineAttachment")){
+                arr.eventLine.lineAttachment.map((atts) => {
+                  img.push(atts.filename);
+                })
+              }
+            }
+            
             return (
               <VStack
                 key={arr.event_id}
@@ -83,8 +88,7 @@ const EventPage = () => {
                 borderRadius="sm"
                 backgroundColor="white"
               >
-               
-                <SliderBox
+               { img.length > 0 ? <SliderBox
                   images={img}
                   sliderBoxHeight={200}
                   parentWidth={336}
@@ -95,9 +99,9 @@ const EventPage = () => {
                   inactiveDotColor="#90A4AE"
                   paginationBoxVerticalPadding={10}
                   autoplay
-                />
-
-                <Button
+                />:<Text marginTop={25} marginLeft={79} italic>No images available</Text>}
+                
+                {img.length > 0 ? <Button
                   borderRadius={100}
                   height={50}
                   width={50}
@@ -106,14 +110,30 @@ const EventPage = () => {
                   backgroundColor="#10b981"
                   onPress={() => handleModal(arr.event_id)}
                   zIndex={999}
-                >
-                  <Icon
-                    as={<MaterialIcons name="pan-tool" />}
-                    color="white"
-                    size={23}
-                    marginLeft={-1}
-                  />
-                </Button>
+                ><Icon
+                as={<MaterialIcons name="pan-tool" />}
+                color="white"
+                size={23}
+                marginLeft={-1}
+              />
+            </Button>:<Button
+                borderRadius={100}
+                height={50}
+                width={50}
+                marginTop={-10}
+                marginLeft={260}
+                backgroundColor="#10b981"
+                onPress={() => handleModal(arr.event_id)}
+                zIndex={999}
+              ><Icon
+              as={<MaterialIcons name="pan-tool" />}
+              color="white"
+              size={23}
+              marginLeft={-1}
+            />
+          </Button>}
+                
+                  
                 <VStack px={4} pb={4}>
                   <Text bold fontSize={20}>
                     {arr.event_name}

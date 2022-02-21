@@ -31,6 +31,7 @@ import { Line } from "react-native-svg";
 import axios from "axios";
 import { SliderBox } from "react-native-image-slider-box";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { array } from "yup/lib/locale";
 
 const AnnouncementPage = () => {
   const [data, setData] = useState([]);
@@ -65,9 +66,13 @@ const AnnouncementPage = () => {
       ) : (
         <ScrollView>
           {data.map((arr) => {
-            arr.announcementLine.lineAttachment.map((atts) => {
-              img.push(atts.filename);
-            })
+            if(arr.hasOwnProperty("announcementLine")){
+              if(arr.announcementLine.hasOwnProperty("lineAttachment")){
+                arr.announcementLine.lineAttachment.map((atts) => {
+                  img.push(atts.filename);
+                })
+              }
+            }
             return (
               <VStack
                 key={arr.announcement_id}
@@ -110,7 +115,7 @@ const AnnouncementPage = () => {
                   </VStack>
                 </HStack>
                 <Text bold fontSize={21} px={4} pb={1}>{arr.title}</Text>
-                  <SliderBox
+                { img.length > 0 ? <SliderBox
                     images={img}
                     sliderBoxHeight={200}
                     parentWidth={336}
@@ -120,7 +125,8 @@ const AnnouncementPage = () => {
                     dotColor="#10b981"
                     inactiveDotColor="#90A4AE"
                     paginationBoxVerticalPadding={10}
-                  />
+                  />:<Text marginTop={25} marginLeft={100} italic>No images available</Text>}
+                  
                 <VStack px={4} pt={4} pb={5}>
                   <Text fontSize={16}>{arr.content}</Text>
                 </VStack>
