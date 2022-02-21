@@ -152,7 +152,7 @@ const SchedulePage = () => {
                                                     color={'#10b981'}
                                                 />
                                                 <Text>
-                                                    {item.start_time+"-"+item.end_time}
+                                                    {moment(item.start_time).format("hh:mm A")+"-"+moment(item.end_time).format("hh:mm A")}
                                                 </Text>
                                             </HStack>
                                             <HStack space={3}>

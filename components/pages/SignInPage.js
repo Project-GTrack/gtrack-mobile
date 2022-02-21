@@ -235,7 +235,7 @@ const SignInPage = ({navigation}) => {
                             value={values.email}
                         />
                         
-                        {(errors.email && touched.password) &&
+                        {(errors.password && touched.password) &&
                             <Text style={{ fontSize: 10, color: 'red' }}>{errors.password}</Text>
                         }
                         <Input size="md" type='password' width="300" placeholder="Password" isFullWidth={true}

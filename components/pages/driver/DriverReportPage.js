@@ -151,6 +151,7 @@ const DriverReportPage = () => {
                   degree: degree.level,
                   active: 1,
                   sender:user.fname+" "+user.lname,
+                  sender_image:user.image,
                   coordinates: {
                     latitude: initLoc.latitude,
                     longitude: initLoc.longitude,

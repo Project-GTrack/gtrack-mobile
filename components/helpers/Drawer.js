@@ -14,7 +14,7 @@ const Drawer = ({navigation}) => {
     const responseListener = useRef();
     const [user,setUser]=useState(null);
     const setFirebaseExpoPushToken=async (token)=>{
-        await database.ref(`/PushTokens/${user?user.user_id:''}`)
+        await database.ref(`/PushTokens/${user && user.user_id}`)
         .set({
             user_id: user?user.user_id:'',
             push_token:token
