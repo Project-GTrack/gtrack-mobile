@@ -1,41 +1,30 @@
 import React, { useEffect, useState } from "react";
 import {
   Text,
-  TextInput,
   Image,
   Button,
   Center,
   Input,
   Divider,
-  Link,
   Icon,
+  Badge,
   Box,
-  Stack,
-  Container,
-  Card,
-  Content,
-  CardItem,
-  Row,
+  Link,
   ScrollView,
   FormControl,
   VStack,
   HStack,
-  Avatar,
-  List,
   View,
   TextArea,
   Slider,
-  Column,
 } from "native-base";
 import { StyleSheet, LogBox } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import envs from "../../../config/env";
 import PickImage from "../../helpers/PickImage";
 import * as Location from "expo-location";
-import GtrackMainLogo from "../../../assets/gtrack-logo-1.png";
 import * as ImagePicker from "expo-image-picker";
 import { useFormik } from 'formik';
-import GoogleIcon from "../../../assets/google-icon.png";
 import Firebase from "../../helpers/Firebase";
 import { uuidGenerator } from '../../helpers/uuidGenerator.js';
 import moment from "moment";
@@ -142,6 +131,11 @@ const DriverReportPage = () => {
   //     console.log("Cancelled");
   //   }
   // }
+  const handleRemoveImage=(index)=>{
+    let imgTemp=[...images];
+    imgTemp.splice(index,1);
+    setImages([...imgTemp]);
+  }
   const handleFormSubmit = async (values,{resetForm}) => {
     try{
       setLoading(true);
@@ -271,15 +265,23 @@ const [alert,setAlert]=useState({
                 }
               <PickImage path={path} value={images} setValue={setImages} multiple={true} setFieldValue={setFieldValue}/>
               <Center marginTop={3}>
-                    <HStack>
+                    <HStack space={2}>
                     {images.map((img,i)=>{
-                        return  <Image key={i}
-                                    size={50}
-                                    resizeMode={"contain"}
-                                    source={{uri: img}}
-                                    alt="Concern Photo"
-                                    rounded={'full'}
-                                />
+                       return  (
+                        <Box rounded={'full'} key={i}>
+                            <Image
+                                size={50}
+                                resizeMode={"contain"}
+                                source={{uri: img}}
+                                alt="Concern Photo"
+                                rounded={'full'}
+                            />
+                            <Link onPress={()=>handleRemoveImage(i)} style={{position:'absolute',right:0,marginRight:-10,top:0,marginTop:-5}}>
+                                <Badge colorScheme="danger" rounded={'full'}>X</Badge>
+                            </Link>
+                        </Box>
+                        
+                    );
                         })
                     }
                     </HStack>
