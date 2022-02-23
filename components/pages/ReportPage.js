@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import {
     Image,
+    Badge,
     Button,
     Center,
     Text,
@@ -11,6 +12,8 @@ import {
     CheckIcon,
     TextArea,
     Stack,
+    Box,
+    Link,
     HStack
   } from "native-base";
 import { MaterialIcons } from "@expo/vector-icons"
@@ -90,6 +93,11 @@ const ReportPage = () => {
             active: 1
         })
     }
+    const handleRemoveImage=(index)=>{
+        let imgTemp=[...images];
+        imgTemp.splice(index,1);
+        setImages([...imgTemp]);
+    }
     const handleFormSubmit = async (values,{resetForm}) =>{
         axios.post(`${envs.BACKEND_URL}/mobile/concern/send`,{email:values.email,subject:values.subject,message:values.message,classification:values.classification,images:images})
         .then(res => {
@@ -148,16 +156,24 @@ const ReportPage = () => {
                 <PickImage path={path} value={images} setValue={setImages} multiple={true} setFieldValue={setFieldValue}/>
                 
                 <Center >
-                    <HStack>
+                    <HStack space={2}>
                     {images.map((img,i)=>{
-                        return  <Image key={i}
+                        return  (
+                            <Box rounded={'full'} key={i}>
+                                <Image
                                     size={50}
                                     resizeMode={"contain"}
                                     source={{uri: img}}
                                     alt="Concern Photo"
                                     rounded={'full'}
                                 />
-                        })
+                                <Link onPress={()=>handleRemoveImage(i)} style={{position:'absolute',right:0,marginRight:-10,top:0,marginTop:-5}}>
+                                    <Badge colorScheme="danger" rounded={'full'}>X</Badge>
+                                </Link>
+                            </Box>
+                            
+                        );
+                    })
                     }
                     </HStack>
                 </Center>
