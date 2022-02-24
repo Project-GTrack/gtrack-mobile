@@ -17,6 +17,7 @@ import {
   View,
   TextArea,
   Slider,
+  Avatar,
 } from "native-base";
 import { StyleSheet, LogBox } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -85,7 +86,7 @@ const DriverReportPage = () => {
       })
     }
   }, [onChangeValue])
-    const getData = async () => {
+  const getData = async () => {
       try {
           const value = await AsyncStorage.getItem('@user');
           if(value!==null){
@@ -96,8 +97,8 @@ const DriverReportPage = () => {
       }catch (e){
           console.log(e);
       }
-    }
-    const reportValidationSchema = yup.object().shape({
+  }
+  const reportValidationSchema = yup.object().shape({
       subject: yup
         .string()
         .required('Subject is required'),
@@ -109,28 +110,6 @@ const DriverReportPage = () => {
         .min(1,"Attach atleast 1 image")
         .required('Attach atleast 1 image'),
   })
-    
-  
-  // const pickImage = async () => {
-  //   // No permissions request is necessary for launching the image library
-  //   let result = await ImagePicker.launchImageLibraryAsync({
-  //     mediaTypes: ImagePicker.MediaTypeOptions.All,
-  //     allowsEditing: true,
-  //     aspect: [4, 3],
-  //     quality: 1,
-  //   });
-  //   console.log(result);
-  //   if(result.cancelled === false){
-  //     const img = await fetch(result.uri);
-  //     const bytes = await img.blob();
-  //     setURI(result.uri);
-  //     setImage(bytes)
-  //   }
-
-  //   if (result.cancelled) {
-  //     console.log("Cancelled");
-  //   }
-  // }
   const handleRemoveImage=(index)=>{
     let imgTemp=[...images];
     imgTemp.splice(index,1);
@@ -175,13 +154,13 @@ const DriverReportPage = () => {
     enableReinitialize:true,
     validationSchema:reportValidationSchema,
     onSubmit: handleFormSubmit
-});
-const [alert,setAlert]=useState({
-  visible:false,
-  message:null,
-  colorScheme:null,
-  header:null
-});
+  });
+  const [alert,setAlert]=useState({
+    visible:false,
+    message:null,
+    colorScheme:null,
+    header:null
+  });
   
   
 
@@ -269,13 +248,18 @@ const [alert,setAlert]=useState({
                     {images.map((img,i)=>{
                        return  (
                         <Box rounded={'full'} key={i}>
-                            <Image
+                          <Avatar 
+                            size="md"
+                            backgroundColor="white"
+                            source={{uri: img}}
+                          />
+                            {/* <Image
                                 size={50}
                                 resizeMode={"contain"}
                                 source={{uri: img}}
                                 alt="Concern Photo"
                                 rounded={'full'}
-                            />
+                            /> */}
                             <Link onPress={()=>handleRemoveImage(i)} style={{position:'absolute',right:0,marginRight:-10,top:0,marginTop:-5}}>
                                 <Badge colorScheme="danger" rounded={'full'}>X</Badge>
                             </Link>
