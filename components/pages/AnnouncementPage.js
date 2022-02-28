@@ -93,8 +93,8 @@ const AnnouncementPage = () => {
                   />
                   <VStack ml={2} space={2}>
                     <Text fontSize="lg" bold>
-                      {arr.announcementAdmin.fname}{" "}
-                      {arr.announcementAdmin.lname} |{" "}
+                      {arr.announcementAdmin.fname.charAt(0).toUpperCase()+arr.announcementAdmin.fname.slice(1)}{" "}
+                      {arr.announcementAdmin.lname.charAt(0).toUpperCase()+arr.announcementAdmin.lname.slice(1)} |{" "}
                       {arr.announcementAdmin.user_type} {"\n"}
                       <Text>{moment(arr.createdAt.substring(0,10)).format('MMMM D, Y')} at {(() => {
                           var ts = arr.createdAt.match(/\d\d:\d\d/).toString();
