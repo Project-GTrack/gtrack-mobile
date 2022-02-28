@@ -52,49 +52,66 @@ const InputGarbageWeightPage = () => {
   }, []);
 
   const getData = async () => {
+    await setLoading(true);
     try {
       const value = await AsyncStorage.getItem("@user");
       if (value !== null) {
-        setUser(JSON.parse(value));
+        var val = JSON.parse(value)
+        setUser(val);
+        if(val.hasOwnProperty("userSchedule")){
+          var street = val.userSchedule[0].street.charAt(0).toUpperCase() + val.userSchedule[0].street.slice(1);
+          var purok = val.userSchedule[0].purok.charAt(0).toUpperCase() + val.userSchedule[0].purok.slice(1);
+          var barangay = val.userSchedule[0].barangay.charAt(0).toUpperCase() + val.userSchedule[0].barangay.slice(1);
+          var temp = street+", "+purok+", "+barangay;
+          setRoute(temp);
+          setIsDisabled(false);
+        }else{
+          setIsDisabled(true);
+          setAlert({
+            visible: true,
+            message: "You have no schedule today",
+            colorScheme: "success",
+            header: "Collection Schedule",
+          });
+        }
       } else {
         setUser(null);
       }
     } catch (e) {
       console.log(e);
     }
+   await setLoading(false);
   };
-  useEffect(() => {
-    (async () => {
-      if (user !== null) {
-        setLoading(true);
-        await axios
-          .get(
-            `${envs.BACKEND_URL}/mobile/waste-collection/get-route/${user.user_id}`
-          )
-          .then((res) => {
-            if (res.data.success) {
-              setRoute(res.data.data);
-              setIsDisabled(false);
-            } else {
-              setIsDisabled(true);
-              setAlert({
-                visible: true,
-                message: res.data.message,
-                colorScheme: "success",
-                header: "Collection Schedule",
-              });
-            }
-          });
-          setLoading(false);
-      }
-    })();
-  }, [user]);
+  // useEffect(() => {
+  //   (async () => {
+  //     if (user !== null) {
+  //       await axios
+  //         .get(
+  //           `${envs.BACKEND_URL}/mobile/waste-collection/get-route/${user.user_id}`
+  //         )
+  //         .then((res) => {
+  //           if (res.data.success) {
+  //             setRoute(res.data.data);
+  //             setIsDisabled(false);
+  //           } else {
+  //             setIsDisabled(true);
+  //             setAlert({
+  //               visible: true,
+  //               message: res.data.message,
+  //               colorScheme: "success",
+  //               header: "Collection Schedule",
+  //             });
+  //           }
+  //         });
+  //         setLoading(false);
+  //     }
+  //   })();
+  // }, [user]);
   const collectionValidation = yup.object().shape({
     weight: yup.string().required("Weight Volume is required"),
     schedule: yup.object().shape({
       date: yup.string().required("Date is required"),
-      start_time: yup.string().required("Start time is required"),
-      end_time: yup.string().required("End time is required"),
+      time: yup.string().required("Time is required"),
     }),
   });
   const handleFormSubmit = async (values, { resetForm }) => {
@@ -104,9 +121,7 @@ const InputGarbageWeightPage = () => {
         `${envs.BACKEND_URL}/mobile/waste-collection/submit-collection/${user.user_id}`,
         {
           collection_weight_volume: values.weight,
-          date: moment(values.schedule.date).format("MM-DD-YY"),
-          start_time: moment(values.schedule.start_time).format("HH:mm:ss"),
-          end_time: moment(values.schedule.end_time).format("HH:mm:ss"),
+          collection_date: moment(values.schedule.date).format("YYYY-MM-DD")+" "+values.schedule.time.toString().substring(16,24),
           collection_route: route,
         }
       )
@@ -216,8 +231,7 @@ const InputGarbageWeightPage = () => {
         weight: "",
         schedule: {
           date: "",
-          start_time: "",
-          end_time: "",
+          time:""
         },
       },
       enableReinitialize: true,
@@ -231,17 +245,15 @@ const InputGarbageWeightPage = () => {
     if (currentDate !== undefined) {
       if (curShow === "date") {
         setFieldValue("schedule.date", moment(currentDate));
-      } else if (curShow === "StartTime") {
-        setFieldValue("schedule.start_time", moment(currentDate));
       } else {
-        setFieldValue("schedule.end_time", moment(currentDate));
+        setFieldValue("schedule.time", moment(currentDate));
       }
     }
   };
 
   const showMode = (currentMode) => {
     setShow(true);
-    if (currentMode === "StartTime" || currentMode === "EndTime") {
+    if (currentMode === "time") {
       setMode("time");
       setCurShow(currentMode);
     } else {
@@ -249,15 +261,12 @@ const InputGarbageWeightPage = () => {
       setCurShow(currentMode);
     }
   };
-  const showEndTimepicker = () => {
-    showMode("EndTime");
-  };
   const showDatepicker = () => {
     showMode("date");
   };
 
   const showStartTimepicker = () => {
-    showMode("StartTime");
+    showMode("time");
   };
   return (
     <>
@@ -288,7 +297,7 @@ const InputGarbageWeightPage = () => {
                   <VStack paddingRight={3}>
                     <Input
                       size="md"
-                      width={130}
+                      width={175}
                       bg={"white"}
                       value={
                         values.schedule.date != ""
@@ -305,39 +314,22 @@ const InputGarbageWeightPage = () => {
                     {errors.schedule && touched.schedule && (
                       <Text style={{ fontSize: 10, color: "red" }}>
                         {errors.schedule.date ||
-                          errors.schedule.start_time ||
-                          errors.schedule.end_time}
+                          errors.schedule.time}
                       </Text>
                     )}
                   </VStack>
                   <VStack paddingRight={2}>
                     <Input
                       size="md"
-                      isRequired
                       bg={"white"}
+                      width={120}
                       value={
-                        values.schedule.start_time != ""
-                          ? moment(values.schedule.start_time).format("h:mm A")
+                        values.schedule.time != ""
+                          ? moment(values.schedule.time).format("h:mm A")
                           : ""
                       }
-                      onChangeText={handleChange("schedule.start_time")}
-                      placeholder="Start Time"
-                      isReadOnly="true"
-                      isDisabled="true"
-                    />
-                  </VStack>
-                  <VStack>
-                    <Input
-                      size="md"
-                      isRequired
-                      bg={"white"}
-                      value={
-                        values.schedule.end_time != ""
-                          ? moment(values.schedule.end_time).format("h:mm A")
-                          : ""
-                      }
-                      onChangeText={handleChange("schedule.end_time")}
-                      placeholder="End Time"
+                      onChangeText={handleChange("schedule.time")}
+                      placeholder="Time"
                       isReadOnly="true"
                       isDisabled="true"
                     />
@@ -351,9 +343,8 @@ const InputGarbageWeightPage = () => {
                         onPress={showDatepicker}
                         colorScheme="success"
                         title="Show date picker!"
-                        isDisabled={isDisabled}
                       >
-                        Date
+                        Select Date
                       </Button>
                     </VStack>
                     <VStack paddingRight={2}>
@@ -361,19 +352,8 @@ const InputGarbageWeightPage = () => {
                         onPress={showStartTimepicker}
                         colorScheme="success"
                         title="Show time picker!"
-                        isDisabled={isDisabled}
                       >
-                        Start Time
-                      </Button>
-                    </VStack>
-                    <VStack paddingRight={2}>
-                      <Button
-                        onPress={showEndTimepicker}
-                        colorScheme="success"
-                        title="Show time picker!"
-                        isDisabled={isDisabled}
-                      >
-                        End Time
+                        Select Time
                       </Button>
                     </VStack>
                   </HStack>
@@ -434,7 +414,6 @@ const InputGarbageWeightPage = () => {
                   bg={"white"}
                   onChangeText={handleChange("weight")}
                   value={values.weight}
-                  isDisabled={isDisabled}
                 />
                 {errors.weight && touched.weight && (
                   <Text style={{ fontSize: 10, color: "red" }}>
