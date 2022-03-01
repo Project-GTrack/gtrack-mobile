@@ -1,41 +1,31 @@
 import React, { useEffect, useState } from "react";
 import {
   Text,
-  TextInput,
   Image,
   Button,
   Center,
   Input,
   Divider,
-  Link,
   Icon,
+  Badge,
   Box,
-  Stack,
-  Container,
-  Card,
-  Content,
-  CardItem,
-  Row,
+  Link,
   ScrollView,
   FormControl,
   VStack,
   HStack,
-  Avatar,
-  List,
   View,
   TextArea,
   Slider,
-  Column,
+  Avatar,
 } from "native-base";
 import { StyleSheet, LogBox } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import envs from "../../../config/env";
 import PickImage from "../../helpers/PickImage";
 import * as Location from "expo-location";
-import GtrackMainLogo from "../../../assets/gtrack-logo-1.png";
 import * as ImagePicker from "expo-image-picker";
 import { useFormik } from 'formik';
-import GoogleIcon from "../../../assets/google-icon.png";
 import Firebase from "../../helpers/Firebase";
 import { uuidGenerator } from '../../helpers/uuidGenerator.js';
 import moment from "moment";
@@ -96,7 +86,7 @@ const DriverReportPage = () => {
       })
     }
   }, [onChangeValue])
-    const getData = async () => {
+  const getData = async () => {
       try {
           const value = await AsyncStorage.getItem('@user');
           if(value!==null){
@@ -107,8 +97,8 @@ const DriverReportPage = () => {
       }catch (e){
           console.log(e);
       }
-    }
-    const reportValidationSchema = yup.object().shape({
+  }
+  const reportValidationSchema = yup.object().shape({
       subject: yup
         .string()
         .required('Subject is required'),
@@ -120,28 +110,11 @@ const DriverReportPage = () => {
         .min(1,"Attach atleast 1 image")
         .required('Attach atleast 1 image'),
   })
-    
-  
-  // const pickImage = async () => {
-  //   // No permissions request is necessary for launching the image library
-  //   let result = await ImagePicker.launchImageLibraryAsync({
-  //     mediaTypes: ImagePicker.MediaTypeOptions.All,
-  //     allowsEditing: true,
-  //     aspect: [4, 3],
-  //     quality: 1,
-  //   });
-  //   console.log(result);
-  //   if(result.cancelled === false){
-  //     const img = await fetch(result.uri);
-  //     const bytes = await img.blob();
-  //     setURI(result.uri);
-  //     setImage(bytes)
-  //   }
-
-  //   if (result.cancelled) {
-  //     console.log("Cancelled");
-  //   }
-  // }
+  const handleRemoveImage=(index)=>{
+    let imgTemp=[...images];
+    imgTemp.splice(index,1);
+    setImages([...imgTemp]);
+  }
   const handleFormSubmit = async (values,{resetForm}) => {
     try{
       setLoading(true);
@@ -181,13 +154,13 @@ const DriverReportPage = () => {
     enableReinitialize:true,
     validationSchema:reportValidationSchema,
     onSubmit: handleFormSubmit
-});
-const [alert,setAlert]=useState({
-  visible:false,
-  message:null,
-  colorScheme:null,
-  header:null
-});
+  });
+  const [alert,setAlert]=useState({
+    visible:false,
+    message:null,
+    colorScheme:null,
+    header:null
+  });
   
   
 
@@ -271,15 +244,28 @@ const [alert,setAlert]=useState({
                 }
               <PickImage path={path} value={images} setValue={setImages} multiple={true} setFieldValue={setFieldValue}/>
               <Center marginTop={3}>
-                    <HStack>
+                    <HStack space={2}>
                     {images.map((img,i)=>{
-                        return  <Image key={i}
-                                    size={50}
-                                    resizeMode={"contain"}
-                                    source={{uri: img}}
-                                    alt="Concern Photo"
-                                    rounded={'full'}
-                                />
+                       return  (
+                        <Box rounded={'full'} key={i}>
+                          <Avatar 
+                            size="md"
+                            backgroundColor="white"
+                            source={{uri: img}}
+                          />
+                            {/* <Image
+                                size={50}
+                                resizeMode={"contain"}
+                                source={{uri: img}}
+                                alt="Concern Photo"
+                                rounded={'full'}
+                            /> */}
+                            <Link onPress={()=>handleRemoveImage(i)} style={{position:'absolute',right:0,marginRight:-10,top:0,marginTop:-5}}>
+                                <Badge colorScheme="danger" rounded={'full'}>X</Badge>
+                            </Link>
+                        </Box>
+                        
+                    );
                         })
                     }
                     </HStack>

@@ -32,7 +32,6 @@ const EventPage = () => {
   useEffect(()=>{
     axios.get(`${envs.BACKEND_URL}/mobile/event/get-events`)
       .then((res) => {
-        console.log(res.data.data[0].eventLine.lineAttachment);
         temp=res.data.data;
         setInfo(temp);
         // for(var x =0; x < res.data.data.eventLine.lineAttachment.length; x++){
