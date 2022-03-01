@@ -60,7 +60,6 @@ const SignInPage = ({navigation}) => {
             const value = await AsyncStorage.getItem('@user');
             if(value!==null){
                 setUser(JSON.parse(value));
-                console.log(user);
             }else{
                 setUser(null);
             }

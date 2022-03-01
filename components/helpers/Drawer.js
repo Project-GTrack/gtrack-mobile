@@ -14,13 +14,6 @@ const Drawer = ({navigation}) => {
     // const notificationListener = useRef();
     const responseListener = useRef();
     const [user,setUser]=useState(null);
-    const setFirebaseExpoPushToken=async (token)=>{
-        await database.ref(`/PushTokens/${user && user.user_id}`)
-        .set({
-            user_id: user?user.user_id:'',
-            push_token:token
-        })
-    }
     const registerForPushNotificationsAsync = async () => {
         try {
             if (Device.isDevice) {
@@ -35,6 +28,13 @@ const Drawer = ({navigation}) => {
                     alert('Failed to get push token for push notification!');
                     return;
                 }
+                Notifications.setNotificationHandler({
+                    handleNotification: async () => ({
+                      shouldShowAlert: true,
+                      shouldPlaySound: false,
+                      shouldSetBadge: false,
+                    }),
+                });
                 const token = (await Notifications.getExpoPushTokenAsync()).data
                 setFirebaseExpoPushToken(token);
             } else {
@@ -52,11 +52,23 @@ const Drawer = ({navigation}) => {
             console.error(error)
         }
     }
+    const setFirebaseExpoPushToken=async (token)=>{
+        let value = await AsyncStorage.getItem('@user');
+        if(value){
+            value=JSON.parse(value);
+            await database.ref(`/PushTokens/${value.user_id}`)
+            .set({
+                user_id: value.user_id,
+                push_token:token
+            })
+        }
+    }
     const getData = async () => {
         try {
             const value = await AsyncStorage.getItem('@user');
             if(value!==null){
-                setUser(JSON.parse(value));
+                let temp=JSON.parse(value);
+                setUser(temp);
             }else{
                 setUser(null);
             }
@@ -64,15 +76,17 @@ const Drawer = ({navigation}) => {
             console.log(e);
         }
     }
+    // useEffect(() => {
+    //     getData();
+    // },[])
     useEffect(() => {
         LogBox.ignoreLogs(['Setting a timer']);
         getData();
         registerForPushNotificationsAsync();
         // This listener is fired whenever a notification is received while the app is foregrounded
         // notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
-        //     setNotification(notification);
+        //     console.log(notification);
         // });
-  
         // This listener is fired whenever a user taps on or interacts with a notification (works when app is foregrounded, backgrounded, or killed)
         responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
             navigation.navigate('Announcements')
