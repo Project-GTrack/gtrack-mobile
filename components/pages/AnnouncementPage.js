@@ -52,9 +52,9 @@ const AnnouncementPage = () => {
       .then((res) => {
         temp = res.data.data;
         setInfo(temp);
+        setRefreshing(false)
       })
       .catch((error) => console.log(error));
-    wait(2000).then(() => setRefreshing(false));
   },[]);
   useEffect(() => {
     axios
