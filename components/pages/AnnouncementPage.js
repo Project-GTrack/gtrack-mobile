@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Text,
   Image,
@@ -21,7 +21,7 @@ import {
   List,
   View,
 } from "native-base";
-import { StyleSheet } from "react-native";
+import { StyleSheet, RefreshControl } from "react-native";
 import envs from "../../config/env.js";
 import { MaterialIcons } from "@expo/vector-icons";
 import GtrackMainLogo from "../../assets/gtrack-logo-1.png";
@@ -33,11 +33,29 @@ import { SliderBox } from "react-native-image-slider-box";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { array } from "yup/lib/locale";
 
+const wait = timeout => {
+  return new Promise(resolve => setTimeout(resolve, timeout));
+};
+
 const AnnouncementPage = () => {
   const [data, setData] = useState([]);
   const [empty, setEmpty] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   let img = [];
   let temp = [];
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    axios
+      .get(
+        `${envs.BACKEND_URL}/mobile/announcement/get-announcements`
+      )
+      .then((res) => {
+        temp = res.data.data;
+        setInfo(temp);
+      })
+      .catch((error) => console.log(error));
+    wait(2000).then(() => setRefreshing(false));
+  },[]);
   useEffect(() => {
     axios
       .get(
@@ -51,26 +69,31 @@ const AnnouncementPage = () => {
      
   }, [setInfo]);
   const setInfo = (data) => {
+    console.log(data);
     if (data.length > 0) {
       setData(data);
+      setEmpty(false);
     } else {
       setEmpty(true);
     }
   };
   return (
     <View>
+      <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>}>
       {empty ? (
         <Text bold textAlign="center" fontSize={24} marginTop={250}>
           No Announcements As of Now
         </Text>
       ) : (
-        <ScrollView>
-          {data.map((arr) => {
+        
+          data.map((arr) => {
+            img = [];
             if(arr.hasOwnProperty("announcementLine")){
-              if(arr.announcementLine.hasOwnProperty("lineAttachment")){
+              if(arr.announcementLine.lineAttachment.length > 0){
                 arr.announcementLine.lineAttachment.map((atts) => {
                   img.push(atts.filename);
                 })
+                console.log(img);
               }
             }
             return (
@@ -87,16 +110,16 @@ const AnnouncementPage = () => {
                 <HStack alignItems="center" px={4} pt={4}>
                   <Avatar
                     borderWidth={1}
-                    size="lg"
+                    size="md"
                     backgroundColor="white"
                     source={{uri:arr.announcementAdmin.image}}
                   />
                   <VStack ml={2} space={2}>
-                    <Text fontSize="lg" bold>
+                    <Text fontSize="sm" bold>
                       {arr.announcementAdmin.fname.charAt(0).toUpperCase()+arr.announcementAdmin.fname.slice(1)}{" "}
                       {arr.announcementAdmin.lname.charAt(0).toUpperCase()+arr.announcementAdmin.lname.slice(1)} |{" "}
                       {arr.announcementAdmin.user_type} {"\n"}
-                      <Text>{moment(arr.createdAt).format('MMMM D, Y')} at {(() => {
+                      <Text fontSize="sm">{moment(arr.createdAt).format('MMMM D, Y')} at {(() => {
                           var ts = arr.createdAt.match(/\d\d:\d\d/).toString();
                           var H = +ts.substring(0, 2);
                           var h = (H % 12) || 12;
@@ -115,7 +138,7 @@ const AnnouncementPage = () => {
                   </VStack>
                 </HStack>
                 <Text bold fontSize={21} px={4} pb={1}>{arr.title}</Text>
-                { img.length > 0 ? <SliderBox
+                { arr.hasOwnProperty("announcementLine") && arr.announcementLine.lineAttachment.length > 0 ? <SliderBox
                     images={img}
                     sliderBoxHeight={200}
                     parentWidth={336}
@@ -125,16 +148,17 @@ const AnnouncementPage = () => {
                     dotColor="#10b981"
                     inactiveDotColor="#90A4AE"
                     paginationBoxVerticalPadding={10}
-                  />:<Text marginTop={25} marginLeft={100} italic>No images available</Text>}
+                  />:<></>}
                   
-                <VStack px={4} pt={4} pb={5}>
+                <VStack px={4} pt={arr.hasOwnProperty("announcementLine") && arr.announcementLine.lineAttachment.length > 0 ? 4:0} pb={5}>
                   <Text fontSize={16}>{arr.content}</Text>
                 </VStack>
               </VStack>
             );
-          })}
-        </ScrollView>
+          })
+        
       )}
+      </ScrollView>
     </View>
   );
 };

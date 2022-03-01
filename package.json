@@ -40,6 +40,7 @@
     "expo-permissions": "~12.1.1",
     "expo-random": "~11.2.0",
     "expo-status-bar": "~1.0.4",
+    "expo-web-browser": "9.2.0",
     "firebase": "8.2.3",
     "formik": "^2.2.9",
     "moment": "^2.29.1",
