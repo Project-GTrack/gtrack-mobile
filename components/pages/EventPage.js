@@ -150,7 +150,7 @@ const EventPage = () => {
                       width={50}
                       marginTop={-28}
                       marginLeft={260}
-                      backgroundColor="#10b981"
+                      colorScheme="success"
                       onPress={() => registerEvent(arr.registration_form_url)}
                       zIndex={999}
                     >
@@ -170,7 +170,7 @@ const EventPage = () => {
                       right={4}
                       top={2}
                       marginLeft={260}
-                      backgroundColor="#10b981"
+                      colorScheme="success"
                       onPress={() =>
                         registerEvent(arr.registration_form_url)
                       }
@@ -244,7 +244,7 @@ const EventPage = () => {
                     <Row marginLeft={2} padding={1}>
                       <Column>
                         <Icon
-                          as={<MaterialIcons name="person" />}
+                          as={<MaterialIcons name="contact-page" />}
                           color="#10b981"
                           size={21}
                           mt={"auto"}
