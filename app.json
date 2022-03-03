@@ -1,6 +1,7 @@
 {
   "expo": {
     "name": "gtrack-mobile",
+    "owner": "rjoliverio",
     "slug": "gtrack-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
