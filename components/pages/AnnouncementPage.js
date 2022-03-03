@@ -30,69 +30,187 @@ import moment from "moment";
 import { Line } from "react-native-svg";
 import axios from "axios";
 import { SliderBox } from "react-native-image-slider-box";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { array } from "yup/lib/locale";
+import { createShimmerPlaceholder } from "react-native-shimmer-placeholder";
+import { LinearGradient } from "expo-linear-gradient";
 
-const wait = timeout => {
-  return new Promise(resolve => setTimeout(resolve, timeout));
+const wait = (timeout) => {
+  return new Promise((resolve) => setTimeout(resolve, timeout));
 };
 
-const AnnouncementPage = () => {
-  const [data, setData] = useState([]);
-  const [empty, setEmpty] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
+const ShimmerPlaceholder = createShimmerPlaceholder(LinearGradient);
+
+const AnnouncementPage = ({announcements,setAnnouncements,refreshing,setRefreshing}) => {
   let img = [];
   let temp = [];
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     axios
-      .get(
-        `${envs.BACKEND_URL}/mobile/announcement/get-announcements`
-      )
+      .get(`${envs.BACKEND_URL}/mobile/announcement/get-announcements`)
       .then((res) => {
         temp = res.data.data;
-        setInfo(temp);
-        setRefreshing(false)
+        setAnnouncements(temp);
+        setRefreshing(false);
       })
       .catch((error) => console.log(error));
-  },[]);
+  }, []);
   useEffect(() => {
-    axios
-      .get(
-        `${envs.BACKEND_URL}/mobile/announcement/get-announcements`
-      )
-      .then((res) => {
-        temp = res.data.data;
-        setInfo(temp);
-      })
-      .catch((error) => console.log(error));
-     
-  }, [setInfo]);
-  const setInfo = (data) => {
-    console.log(data);
-    if (data.length > 0) {
-      setData(data);
-      setEmpty(false);
+    if (announcements.length > 0) {
+      setRefreshing(false);
     } else {
-      setEmpty(true);
+      wait(2000).then(() => setRefreshing(false));
     }
-  };
+  }, [announcements]);
   return (
     <View>
-      <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>}>
-      {empty ? (
-        <Text bold textAlign="center" fontSize={24} marginTop={250}>
-          No Announcements As of Now
-        </Text>
-      ) : (
-        
-          data.map((arr) => {
+      <ScrollView
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={["#10b981"]}
+          />
+        }
+      >
+        {refreshing ? (
+          announcements && announcements.length > 0 ? (
+            announcements.map((data, i) => {
+              return (
+                <VStack
+                  key={i}
+                  marginLeft={3}
+                  marginRight={3}
+                  marginTop={2}
+                  marginBottom={2}
+                  shadow={2}
+                  borderRadius="sm"
+                  backgroundColor="white"
+                >
+                  <HStack alignItems="center" px={4} pt={4}>
+                    <ShimmerPlaceholder
+                      width={50}
+                      height={50}
+                      shimmerStyle={{ borderRadius: 100 }}
+                    />
+                    <VStack ml={2} space={2}>
+                      <Text>
+                        <ShimmerPlaceholder
+                          shimmerStyle={{ borderRadius: 10, marginTop: 2 }}
+                          width={150}
+                        />{" "}
+                        {"\n"}
+                        <ShimmerPlaceholder
+                          shimmerStyle={{ borderRadius: 10, marginTop: 2 }}
+                          width={150}
+                        />
+                      </Text>
+                      <View
+                        style={{
+                          borderBottomColor: "black",
+                          borderBottomWidth: 1,
+                        }}
+                      />
+                    </VStack>
+                  </HStack>
+                  <Text bold fontSize={21} px={4} pb={1}>
+                    <ShimmerPlaceholder
+                      shimmerStyle={{ borderRadius: 10, marginTop: 2 }}
+                      width={150}
+                    />
+                  </Text>
+                  <ShimmerPlaceholder width={336} height={200} />
+
+                  <VStack px={4} pt={4} pb={5}>
+                    <ShimmerPlaceholder
+                      shimmerStyle={{ borderRadius: 10, marginTop: 2 }}
+                      width={300}
+                    />
+                    <ShimmerPlaceholder
+                      shimmerStyle={{ borderRadius: 10, marginTop: 6 }}
+                      width={300}
+                    />
+                    <ShimmerPlaceholder
+                      shimmerStyle={{ borderRadius: 10, marginTop: 6 }}
+                      width={300}
+                    />
+                  </VStack>
+                </VStack>
+              );
+            })
+          ) : (
+            <VStack
+              marginLeft={3}
+              marginRight={3}
+              marginTop={2}
+              marginBottom={2}
+              shadow={2}
+              borderRadius="sm"
+              backgroundColor="white"
+            >
+              <HStack alignItems="center" px={4} pt={4}>
+                <ShimmerPlaceholder
+                  width={50}
+                  height={50}
+                  shimmerStyle={{ borderRadius: 100 }}
+                />
+                <VStack ml={2} space={2}>
+                  <Text>
+                    <ShimmerPlaceholder
+                      shimmerStyle={{ borderRadius: 10, marginTop: 2 }}
+                      width={150}
+                    />{" "}
+                    {"\n"}
+                    <ShimmerPlaceholder
+                      shimmerStyle={{ borderRadius: 10, marginTop: 2 }}
+                      width={150}
+                    />
+                  </Text>
+                  <View
+                    style={{
+                      borderBottomColor: "black",
+                      borderBottomWidth: 1,
+                    }}
+                  />
+                </VStack>
+              </HStack>
+              <Text bold fontSize={21} px={4} pb={1}>
+                <ShimmerPlaceholder
+                  shimmerStyle={{ borderRadius: 10, marginTop: 2 }}
+                  width={150}
+                />
+              </Text>
+              <ShimmerPlaceholder width={336} height={200} />
+
+              <VStack px={4} pt={4} pb={5}>
+                <ShimmerPlaceholder
+                  shimmerStyle={{ borderRadius: 10, marginTop: 2 }}
+                  width={300}
+                />
+                <ShimmerPlaceholder
+                  shimmerStyle={{ borderRadius: 10, marginTop: 6 }}
+                  width={300}
+                />
+                <ShimmerPlaceholder
+                  shimmerStyle={{ borderRadius: 10, marginTop: 6 }}
+                  width={300}
+                />
+              </VStack>
+            </VStack>
+          )
+        ) : announcements.length === 0 ? (
+          <Text bold textAlign="center" fontSize={24} marginTop={250}>
+            No Announcements As of Now
+          </Text>
+        ) : (
+          announcements &&
+          announcements.map((arr) => {
             img = [];
-            if(arr.hasOwnProperty("announcementLine")){
-              if(arr.announcementLine.lineAttachment.length > 0){
+            if (arr.hasOwnProperty("announcementLine")) {
+              if (arr.announcementLine.lineAttachment.length > 0) {
                 arr.announcementLine.lineAttachment.map((atts) => {
                   img.push(atts.filename);
-                })
+                });
                 console.log(img);
               }
             }
@@ -112,22 +230,27 @@ const AnnouncementPage = () => {
                     borderWidth={1}
                     size="md"
                     backgroundColor="white"
-                    source={{uri:arr.announcementAdmin.image}}
+                    source={{ uri: arr.announcementAdmin.image }}
                   />
                   <VStack ml={2} space={2}>
                     <Text fontSize="sm" bold>
-                      {arr.announcementAdmin.fname.charAt(0).toUpperCase()+arr.announcementAdmin.fname.slice(1)}{" "}
-                      {arr.announcementAdmin.lname.charAt(0).toUpperCase()+arr.announcementAdmin.lname.slice(1)} |{" "}
-                      {arr.announcementAdmin.user_type} {"\n"}
-                      <Text fontSize="sm">{moment(arr.createdAt).format('MMMM D, Y')} at {(() => {
+                      {arr.announcementAdmin.fname.charAt(0).toUpperCase() +
+                        arr.announcementAdmin.fname.slice(1)}{" "}
+                      {arr.announcementAdmin.lname.charAt(0).toUpperCase() +
+                        arr.announcementAdmin.lname.slice(1)}{" "}
+                      | {arr.announcementAdmin.user_type} {"\n"}
+                      <Text fontSize="sm">
+                        {moment(arr.createdAt).format("MMMM D, Y")} at{" "}
+                        {(() => {
                           var ts = arr.createdAt.match(/\d\d:\d\d/).toString();
                           var H = +ts.substring(0, 2);
-                          var h = (H % 12) || 12;
-                          h = (h < 10)?("0"+h):h;
+                          var h = H % 12 || 12;
+                          h = h < 10 ? "0" + h : h;
                           var ampm = H < 12 ? " AM" : " PM";
                           ts = h + ts.substring(2, 5) + ampm;
                           return ts;
-                          })()}</Text>
+                        })()}
+                      </Text>
                     </Text>
                     <View
                       style={{
@@ -137,8 +260,12 @@ const AnnouncementPage = () => {
                     />
                   </VStack>
                 </HStack>
-                <Text bold fontSize={21} px={4} pb={1}>{arr.title}</Text>
-                { arr.hasOwnProperty("announcementLine") && arr.announcementLine.lineAttachment.length > 0 ? <SliderBox
+                <Text bold fontSize={21} px={4} pb={1}>
+                  {arr.title}
+                </Text>
+                {arr.hasOwnProperty("announcementLine") &&
+                arr.announcementLine.lineAttachment.length > 0 ? (
+                  <SliderBox
                     images={img}
                     sliderBoxHeight={200}
                     parentWidth={336}
@@ -148,16 +275,27 @@ const AnnouncementPage = () => {
                     dotColor="#10b981"
                     inactiveDotColor="#90A4AE"
                     paginationBoxVerticalPadding={10}
-                  />:<></>}
-                  
-                <VStack px={4} pt={arr.hasOwnProperty("announcementLine") && arr.announcementLine.lineAttachment.length > 0 ? 4:0} pb={5}>
+                  />
+                ) : (
+                  <></>
+                )}
+
+                <VStack
+                  px={4}
+                  pt={
+                    arr.hasOwnProperty("announcementLine") &&
+                    arr.announcementLine.lineAttachment.length > 0
+                      ? 4
+                      : 0
+                  }
+                  pb={5}
+                >
                   <Text fontSize={16}>{arr.content}</Text>
                 </VStack>
               </VStack>
             );
           })
-        
-      )}
+        )}
       </ScrollView>
     </View>
   );

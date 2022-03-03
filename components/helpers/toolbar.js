@@ -1,10 +1,11 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   Icon,
   Link,
 } from "native-base";
 import { MaterialIcons } from "@expo/vector-icons";
+import { StyleSheet, RefreshControl } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import AnnouncementPage from "../pages/AnnouncementPage";
 import EventPage from "../pages/EventPage";
@@ -13,10 +14,11 @@ import TrackCollectorPage from "../pages/TrackCollectorPage";
 import TopBar from "../pages/driver/helpers/TopBar";
 import DriverReportPage from "../pages/driver/DriverReportPage";
 import ReportPage from "../pages/ReportPage";
+import envs from "../../config/env.js";
 import ProfilePage from "../pages/ProfilePage";
 import InputGarbageWeightPage from "../pages/InputGarbageWeightPage";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useState } from "react/cjs/react.development";
+import axios from "axios";
 
 const Tab = createBottomTabNavigator();
 
@@ -27,9 +29,31 @@ const getData = async (setUser) => {
   }
 }
 const Toolbar = ({navigation}) => {
+  const [refreshing, setRefreshing] = useState(true);
+  const [announcements,setAnnouncements] = useState([]);
+  const [events,setEvents] = useState([]);
   const [user,setUser]=useState(null);
   useEffect(() => {
     getData(setUser);
+  }, []);
+  useEffect(() => {
+    axios
+      .get(
+        `${envs.BACKEND_URL}/mobile/announcement/get-announcements`
+      )
+      .then((res) => {
+        let temp = res.data.data;
+        setAnnouncements(temp);
+      })
+      .catch((error) => console.log(error));
+    axios
+      .get(`${envs.BACKEND_URL}/mobile/event/get-events`)
+      .then((res) => {
+        let temp = res.data.data;
+        setEvents(temp);
+      })
+      .catch((error) => console.log(error));
+     
   }, []);
   
   return (
@@ -43,7 +67,7 @@ const Toolbar = ({navigation}) => {
       >
         <Tab.Screen
           name="Announcements"
-          component={AnnouncementPage}
+          children={props => <AnnouncementPage announcements={announcements} setAnnouncements={setAnnouncements} refreshing={refreshing} setRefreshing={setRefreshing}/>}
           options={{
             headerStyle: {
               backgroundColor: "white",
@@ -75,7 +99,7 @@ const Toolbar = ({navigation}) => {
         />
         <Tab.Screen
           name="Events and Seminars"
-          component={EventPage}
+          children={props => <EventPage events={events} setEvents={setEvents} refreshing={refreshing} setRefreshing={setRefreshing}/>}
           options={{
             headerStyle: {
               backgroundColor: "white",
