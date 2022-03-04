@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Text, Image, Button, Center, Modal } from "native-base";
+import { Text, Image, Button, Center, Modal, View } from "native-base";
 import GreenTrash from "../../../assets/dumpster_complete_icon.png";
 import RedDump from "../../../assets/dumpster_marker_icon.png";
-import * as Location from "expo-location";
+// import * as Location from "expo-location";
 import envs from "../../../config/env";
-import MapView, { Marker } from "react-native-maps";
-import { Dimensions } from "react-native";
+import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import Firebase from "../../helpers/Firebase";
 import { uuidGenerator } from "../../helpers/uuidGenerator.js";
 import axios from "axios";
@@ -15,56 +14,32 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const db = Firebase.app().database();
 const MarkDumpsterPage = () => {
-  const { height, width } = Dimensions.get( 'window' );
   const [loading, setLoading] = useState(false);
-  const LATITUDE_DELTA=0.23;
   const [user,setUser]=useState({});
   const [dumpsters, setDumpsters] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  const [empty, setEmpty] = useState(true);
   const [data, setData] = useState({});
-  const [initLoc, setInitLoc] = useState({
-    latitude: 0,
-    longitude: 0,
-    latitudeDelta: LATITUDE_DELTA,
-    longitudeDelta: LATITUDE_DELTA * (width / height),
+  const [marginBottom,setMarginBottom]=useState(1);
+  const [alert, setAlert] = useState({
+    visible: false,
+    message: null,
+    colorScheme: null,
+    header: null,
   });
   useEffect(() => {
     axios
       .get(`${envs.BACKEND_URL}/mobile/dumpster/get-dumpsters`)
       .then((res) => {
         if (res.data.success) {
-          var temp = res.data.data;
           setToFirebase(res.data.data);
-          setEmpty(false);
         }
       });
   }, []);
   useEffect(() => {
-    (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        Linking.openURL("app-settings:");
-        return;
-      }
-      let location = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.BestForNavigation,
-        maximumAge: 10000,
-      });
-      setInitLoc((prevState) => ({
-        ...prevState,
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-      }));
-    })();
-  }, []);
-  useEffect(() => {
     getData();
-    console.log("YEAHHHH MANNN");
     getDumpsters();
   }, []);
   const getDumpsters = () =>{
-    
     db.ref("Dumpsters/").on("value", (snapshot) => {
       let temp = [];
       for (var x = 0; x < snapshot.val().length; x++) {
@@ -74,7 +49,6 @@ const MarkDumpsterPage = () => {
       }
       setDumpsters(temp);
     });
-    console.log(dumpsters);
   }
   const getData = async () => {
     try {
@@ -89,11 +63,13 @@ const MarkDumpsterPage = () => {
     }
   }
   const handleModal = (id) => {
-    dumpsters.map((dump) => {
-      if (dump.dumpster_id === id) {
-        setData(dump);
-      }
-    });
+    if(user.hasOwnProperty("userSchedule")){
+      dumpsters.map((dump) => {
+        if (dump.dumpster_id === id) {
+          setData(dump);
+        }
+      });
+    }
     setShowModal(true);
   };
   const setToFirebase = (data) => {
@@ -129,28 +105,22 @@ const MarkDumpsterPage = () => {
         }
       });
   };
-  const [alert, setAlert] = useState({
-    visible: false,
-    message: null,
-    colorScheme: null,
-    header: null,
-  });
   return (
     <>
+     <View>
       <MessageAlert alert={alert} setAlert={setAlert} />
-      <Center
-        style={{
-          alignSelf: "stretch",
-        }}
-      >
         <MapView
-          region={initLoc}
+          showsUserLocation={true}
+          showsMyLocationButton={true}
+          provider={PROVIDER_GOOGLE}
+          onMapReady={()=>setMarginBottom(0)}
           style={{
-            width: Dimensions.get("window").width,
-            height: Dimensions.get("window").height,
-          }}
+            width: '100%',
+            height: '100%',
+            marginBottom:marginBottom
+          }} 
         >
-          {dumpsters.length > 0 && !empty ? (
+          {dumpsters && dumpsters.length > 0 ? (
             dumpsters.map((dump) => {
               return (
                 <Marker
@@ -165,7 +135,7 @@ const MarkDumpsterPage = () => {
                     size={25}
                     resizeMode={"contain"}
                     source={dump.complete == 0 ? RedDump : GreenTrash}
-                    alt="Concern Photo"
+                    alt="Dumpster Marker"
                     rounded={"full"}
                   />
                   <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
@@ -173,11 +143,14 @@ const MarkDumpsterPage = () => {
                       <Modal.CloseButton />
                       <Modal.Header>Dumpster</Modal.Header>
                       <Modal.Body>
-                        {data.complete == 0 ? (
-                          <Text bold>Mark this Dumpster as Collected?</Text>
-                        ) : (
-                          <Text bold>Mark this Dumpster as NOT Collected?</Text>
-                        )}
+                        {user && user.hasOwnProperty("userSchedule") ? (
+                          data.complete == 0 ? (
+                            <Text bold>Mark this Dumpster as Collected?</Text>
+                          ) : (
+                            <Text bold>Mark this Dumpster as NOT Collected?</Text>
+                          )
+                        ):(<Text bold>You have no scheduled collection today</Text>)}
+                        
                       </Modal.Body>
                       <Modal.Footer>
                         <Button.Group space={2}>
@@ -190,21 +163,29 @@ const MarkDumpsterPage = () => {
                           >
                             Cancel
                           </Button>
-                          {data.complete == 0 ? (
-                            <Button
-                              colorScheme="success"
-                              onPress={() => handleSubmit(data.dumpster_id)}
-                            >
-                              Mark
-                            </Button>
-                          ) : (
-                            <Button
-                              colorScheme="danger"
-                              onPress={() => handleSubmit(data.dumpster_id)}
-                            >
-                              Unmark
-                            </Button>
-                          )}
+                          {user && user.hasOwnProperty("userSchedule") ? (
+                            data.complete == 0 ? (
+                              <Button
+                                colorScheme="success"
+                                onPress={() => handleSubmit(data.dumpster_id)}
+                              >
+                                Mark
+                              </Button>
+                            ) : (
+                              <Button
+                                colorScheme="danger"
+                                onPress={() => handleSubmit(data.dumpster_id)}
+                              >
+                                Unmark
+                              </Button>
+                            )
+                          ):(<Button
+                            colorScheme="primary"
+                            onPress={() => setShowModal(false)}
+                          >
+                            Okay
+                          </Button>)}
+                          
                         </Button.Group>
                       </Modal.Footer>
                     </Modal.Content>
@@ -216,8 +197,7 @@ const MarkDumpsterPage = () => {
             <></>
           )}
         </MapView>
-      </Center>
-
+      </View>
       {loading ? <ActivityIndicator /> : <></>}
     </>
   );
