@@ -158,7 +158,7 @@ const EventPage = ({ events, setEvents, refreshing, setRefreshing }) => {
                       </Row>
                     </VStack>
                     <VStack px={4} pb={4} marginTop={-5}>
-                      <Text bold fontSize={20}>
+                      <Text bold fontSize={16} mt={2}>
                         About the Event
                       </Text>
                       <ShimmerPlaceholder
@@ -260,7 +260,7 @@ const EventPage = ({ events, setEvents, refreshing, setRefreshing }) => {
                   </Row>
                 </VStack>
                 <VStack px={4} pb={4} marginTop={-5}>
-                  <Text bold fontSize={20}>
+                  <Text bold fontSize={16} mt={2}>
                     About the Event
                   </Text>
                   <ShimmerPlaceholder
@@ -307,18 +307,20 @@ const EventPage = ({ events, setEvents, refreshing, setRefreshing }) => {
                 >
                   {arr.hasOwnProperty("eventLine") &&
                   arr.eventLine.lineAttachment.length > 0 ? (
-                    <SliderBox
-                      images={img}
-                      sliderBoxHeight={200}
-                      parentWidth={336}
-                      onCurrentImagePressed={(index) =>
-                        console.warn(`image ${index} pressed`)
-                      }
-                      dotColor="#10b981"
-                      inactiveDotColor="#90A4AE"
-                      paginationBoxVerticalPadding={10}
-                      autoplay
-                    />
+                    <Center height={200}>
+                      <SliderBox
+                        images={img}
+                        sliderBoxHeight={200}
+                        parentWidth={336}
+                        // onCurrentImagePressed={(index) =>
+                        //   console.warn(`image ${index} pressed`)
+                        // }
+                        dotColor="#10b981"
+                        inactiveDotColor="#90A4AE"
+                        paginationBoxVerticalPadding={10}
+                        autoplay
+                      />
+                    </Center>
                   ) : (
                     <></>
                   )}
@@ -397,12 +399,12 @@ const EventPage = ({ events, setEvents, refreshing, setRefreshing }) => {
                       </Column>
                       <Column>
                         <Text fontSize={13} paddingLeft={3}>
-                          {moment(arr.startDate.substring(0, 10)).format(
-                            "MM/DD/YYYY hh:mm A"
+                          {moment(arr.startDate).format(
+                            "lll"
                           )}{" "}
                           -{" "}
-                          {moment(arr.endDate.substring(0, 10)).format(
-                            "MM/DD/YYYY hh:mm A"
+                          {moment(arr.endDate).format(
+                            "lll"
                           )}
                         </Text>
                       </Column>
@@ -437,7 +439,7 @@ const EventPage = ({ events, setEvents, refreshing, setRefreshing }) => {
                     </Row>
                   </VStack>
                   <VStack px={4} pb={4} marginTop={-5}>
-                    <Text bold fontSize={20}>
+                    <Text bold fontSize={16} mt={2}>
                       About the Event
                     </Text>
                     <Text marginLeft={5}>{arr.description}</Text>
