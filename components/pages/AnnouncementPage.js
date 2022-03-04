@@ -226,13 +226,25 @@ const AnnouncementPage = ({announcements,setAnnouncements,refreshing,setRefreshi
                 backgroundColor="white"
               >
                 <HStack alignItems="center" px={4} pt={4}>
-                  <Avatar
-                    borderWidth={1}
-                    size="md"
-                    backgroundColor="white"
-                    source={{ uri: arr.announcementAdmin.image }}
-                  />
-                  <VStack ml={2} space={2}>
+                  {arr.announcementAdmin.image?(
+                    <Avatar
+                      borderWidth={1}
+                      size="md"
+                      backgroundColor="white"
+                      source={{ uri: arr.announcementAdmin.image }}
+                    />
+                  ):(
+                    <Avatar 
+                      borderWidth={1}
+                      size="md"
+                      _text={{color:"white",fontSize:"lg",textTransform:"uppercase"}}
+                      backgroundColor="gray.400"
+                    >
+                      {arr.announcementAdmin.fname[0]+arr.announcementAdmin.lname[0]}
+                    </Avatar>
+                  )}
+                  
+                  <VStack ml={2} space={2} style={{alignSelf:'stretch',width:"80%"}}>
                     <Text fontSize="sm" bold>
                       {arr.announcementAdmin.fname.charAt(0).toUpperCase() +
                         arr.announcementAdmin.fname.slice(1)}{" "}
@@ -252,35 +264,37 @@ const AnnouncementPage = ({announcements,setAnnouncements,refreshing,setRefreshi
                         })()}
                       </Text>
                     </Text>
-                    <View
-                      style={{
-                        borderBottomColor: "black",
-                        borderBottomWidth: 1,
-                      }}
+                    <Divider style={{
+                        alignSelf:'stretch',
+                      }}  
+                      bgColor={"gray.400"}
                     />
                   </VStack>
                 </HStack>
-                <Text bold fontSize={21} px={4} pb={1}>
+                <Text bold fontSize={20} mt={1} px={4}>
                   {arr.title}
                 </Text>
+                <Text fontSize={16} px={4} mb={2}>{arr.content}</Text>
                 {arr.hasOwnProperty("announcementLine") &&
                 arr.announcementLine.lineAttachment.length > 0 ? (
-                  <SliderBox
-                    images={img}
-                    sliderBoxHeight={200}
-                    parentWidth={336}
-                    onCurrentImagePressed={(index) =>
-                      console.warn(`image ${index} pressed`)
-                    }
-                    dotColor="#10b981"
-                    inactiveDotColor="#90A4AE"
-                    paginationBoxVerticalPadding={10}
-                  />
+                  <Center height={200}>
+                    <SliderBox
+                      images={img}
+                      sliderBoxHeight={200}
+                      parentWidth={336}
+                      // onCurrentImagePressed={(index) =>
+                      //   console.warn(`image ${index} pressed`)
+                      // }
+                      dotColor="#10b981"
+                      inactiveDotColor="#90A4AE"
+                      paginationBoxVerticalPadding={10}
+                    />
+                  </Center>
                 ) : (
                   <></>
                 )}
 
-                <VStack
+                {/* <VStack
                   px={4}
                   pt={
                     arr.hasOwnProperty("announcementLine") &&
@@ -290,8 +304,7 @@ const AnnouncementPage = ({announcements,setAnnouncements,refreshing,setRefreshi
                   }
                   pb={5}
                 >
-                  <Text fontSize={16}>{arr.content}</Text>
-                </VStack>
+                </VStack> */}
               </VStack>
             );
           })

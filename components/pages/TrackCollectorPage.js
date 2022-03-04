@@ -1,22 +1,14 @@
 import React,{useEffect, useState, useCallback} from 'react'
 import {
     Text,
-    Image,
-    Button,
     Center,
-    Input,
-    Divider,
-    Link,
-    Box,
     Icon,
-    Stack,
     HStack
   } from "native-base";
 import { MaterialIcons } from "@expo/vector-icons"
 import { Linking, View } from 'react-native';
-import Geolocation from 'react-native-geolocation-service';
 import * as Location from 'expo-location';
-import MapView,{Marker,Callout} from 'react-native-maps';
+import MapView,{Marker,Callout,PROVIDER_GOOGLE} from 'react-native-maps';
 import { Dimensions } from 'react-native';
 import Firebase from '../helpers/Firebase.js';
 import { LogBox } from 'react-native';
@@ -91,6 +83,7 @@ const TrackCollectorPage = () => {
             // region={initLoc}
             showsUserLocation={true}
             showsMyLocationButton={true}
+            provider={PROVIDER_GOOGLE}
             onMapReady={()=>setMarginBottom(0)}
             style={{
                 width: '100%',

@@ -17,7 +17,7 @@ import GtrackMainLogo from "../../../assets/gtrack-logo-1.png";
 import GoogleIcon from "../../../assets/google-icon.png";
 import CollectorIcon from "../../../assets/collector_marker_icon.png"
 import * as Location from "expo-location";
-import MapView, { Marker } from "react-native-maps";
+import MapView, { Marker ,PROVIDER_GOOGLE} from "react-native-maps";
 import { Dimensions } from "react-native";
 import { getDatabase, ref, onValue, set } from 'firebase/database';
 import MessageAlert from "../../helpers/MessageAlert";
@@ -33,6 +33,7 @@ const TrackCollectorPage = () => {
     latitude: 0,
     longitude: 0,
   };
+  const [marginBottom,setMarginBottom]=useState(1);
   const isMarker = useRef(false);
   const [sched,setSched]=useState(null);
   const [watch,setWatch] = useState(null);
@@ -195,11 +196,16 @@ useEffect(() => {
       <MessageAlert alert={alert} setAlert={setAlert} />
       <View>
         <MapView
-        region={initLoc}
+          // region={initLoc}
+          showsUserLocation={true}
+          showsMyLocationButton={true}
+          provider={PROVIDER_GOOGLE}
+          onMapReady={()=>setMarginBottom(0)}
           style={{
-            width: Dimensions.get("window").width,
-            height: Dimensions.get("window").height,
-          }}
+            width: '100%',
+            height: '100%',
+            marginBottom:marginBottom
+          }} 
         >
           {marker ? (<Marker
                   coordinate={{
@@ -221,8 +227,8 @@ useEffect(() => {
             return (
               <Button
                 position="absolute"
-                right={5}
-                top={5}
+                right={16}
+                top={3}
                 colorScheme="success"
                 onPress={() => showLocation()}
               >

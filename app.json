@@ -1,6 +1,7 @@
 {
   "expo": {
     "name": "gtrack-mobile",
+    "owner": "rjoliverio",
     "slug": "gtrack-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -37,7 +38,12 @@
         "android.permission.WRITE_EXTERNAL_STORAGE",
         "android.permission.RECORD_AUDIO"
       ],
-      "package": "com.gtrack.mobile"
+      "package": "com.gtrack.mobile",
+      "config":{
+        "googleMaps":{
+          "apiKey":"AIzaSyABaj2DcYXA_CxCtEhZADCLG8ZabuqncoU"
+        }
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"

@@ -118,10 +118,14 @@ const DriverReportPage = () => {
   const handleFormSubmit = async (values,{resetForm}) => {
     try{
       setLoading(true);
-      db.ref('Reports/'+user.user_id).set({
+        axios.post(`${envs.BACKEND_URL}/mobile/report/submit-report/${user.user_id}`, {subject:values.subject,message:values.description,latitude:initLoc.latitude,longitude:initLoc.longitude,degree:degree.level,image:images})
+          .then(res => {
+              if(res.data.success){
+                db.ref('Reports/'+user.user_id).set({
                   subject: values.subject,
                   description: values.description,
                   degree: degree.level,
+                  report_id:res.data.data.report_id,
                   active: 1,
                   sender:user.fname+" "+user.lname,
                   sender_image:user.image,
@@ -131,9 +135,6 @@ const DriverReportPage = () => {
                   },
                   imageDownloadURL:images                
                 })
-        axios.post(`${envs.BACKEND_URL}/mobile/report/submit-report/${user.user_id}`, {subject:values.subject,message:values.description,latitude:initLoc.latitude,longitude:initLoc.longitude,degree:degree.level,image:images})
-          .then(res => {
-              if(res.data.success){
                 resetForm();
                 setOnChangeValue(1);
                 setImages([]);
