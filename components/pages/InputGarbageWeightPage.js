@@ -70,7 +70,7 @@ const InputGarbageWeightPage = () => {
           setAlert({
             visible: true,
             message: "You have no schedule today",
-            colorScheme: "success",
+            colorScheme: "primary",
             header: "Collection Schedule",
           });
         }

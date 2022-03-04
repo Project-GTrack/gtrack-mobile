@@ -21,6 +21,7 @@ const TrackCollectorPage = () => {
   const isMarker = useRef(false);
   const [sched,setSched]=useState(null);
   const [watch,setWatch] = useState(null);
+  const [isDisabled,setIsDisabled] = useState(false);
   const [marker, showMarker] = useState(false);
   const [initLoc, setInitLoc] = useState({
     latitude: 0,
@@ -34,18 +35,6 @@ const TrackCollectorPage = () => {
     colorScheme: null,
     header: null,
   });
-  const getData = async () => {
-    try {
-        const value = await AsyncStorage.getItem('@user');
-        if(value!==null){
-            setUser(JSON.parse(value));
-        }else{
-            setUser(null);
-        }
-    }catch (e){
-        console.log(e);
-    }
-  }
   // const getSched = async () => {
   //   try {
   //       const value = await AsyncStorage.getItem('@schedule');
@@ -98,34 +87,55 @@ const TrackCollectorPage = () => {
   //   })();
   // }, [marker]); 
   useEffect(() => {
-    (async () => {
       getData();
-      getLiveLocation()
-    })();
   },[])
-useEffect(() => {
-  LogBox.ignoreLogs(['Setting a timer']);
+  useEffect(() => {
+    LogBox.ignoreLogs(['Setting a timer']);
 
-    let interval;
-  if(marker){
-    interval = setInterval(() => {
-      getLiveLocation()
-  }, 6000);
-   db.ref('Drivers/'+user.user_id).set({
-      active: 1,
-      driver_id:user.user_id,
-      driver_name:user.fname+" "+user.lname,
-      latitude: initLoc.latitude,
-      longitude: initLoc.longitude,
-      garbage_type:user.userSchedule[0].garbage_type,
-      landmark:user.userSchedule[0].landmark,
-      barangay:user.userSchedule[0].barangay,
-    })
-    
+      let interval;
+    if(marker){
+      interval = setInterval(() => {
+        getLiveLocation()
+    }, 6000);
+    db.ref('Drivers/'+user.user_id).set({
+        active: 1,
+        driver_id:user.user_id,
+        driver_name:user.fname+" "+user.lname,
+        latitude: initLoc.latitude,
+        longitude: initLoc.longitude,
+        garbage_type:user.userSchedule[0].garbage_type,
+        landmark:user.userSchedule[0].landmark,
+        barangay:user.userSchedule[0].barangay,
+      })
+      
+    }
+    return () => clearInterval(interval);
+  
+  },[marker, initLoc])
+  const getData = async () => {
+    try {
+        const value = await AsyncStorage.getItem('@user');
+        if(value!==null){
+          var parsed = JSON.parse(value);
+          setUser(parsed);
+          if(parsed.hasOwnProperty("userSchedule")){
+            setIsDisabled(false);
+          }else{
+            setIsDisabled(true);
+              setAlert({
+                visible: true,
+                message: "You have no schedule today",
+                colorScheme: "primary",
+                header: "Collection Schedule",
+              });
+          }
+        }else{
+            setUser(null);
+        }
+    }catch (e){
+        console.log(e);
+    }
   }
-  return () => clearInterval(interval);
- 
-},[marker, initLoc])
   const getLiveLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== "granted") {
@@ -148,8 +158,9 @@ useEffect(() => {
   };
   return (
     <>
-      <MessageAlert alert={alert} setAlert={setAlert} />
+
       <View>
+      <MessageAlert alert={alert} setAlert={setAlert} />
         <MapView
           // region={initLoc}
           showsUserLocation={true}
@@ -186,7 +197,7 @@ useEffect(() => {
                 top={3}
                 colorScheme="success"
                 onPress={() => showLocation()}
-                isDisabled={user && user.hasOwnProperty("userSchedule") ? false:true}
+                isDisabled={isDisabled}
               >
                 Share Location
               </Button>
@@ -206,6 +217,7 @@ useEffect(() => {
           }
         })()}
       </View>
+    
     </>
   );
 };

@@ -41,40 +41,53 @@ const DriverReportPage = () => {
     latitude: 0,
     longitude: 0,
   });
+  const [isDisabled,setIsDisabled] = useState(false);
   const [alert,setAlert]=useState({
     visible:false,
     message:null,
     colorScheme:null,
     header:null,
-    getCoordinates:false,
   });
   useEffect(() => {
-    setLoading(true);
     getData();
-    setPath(`/gtrack-mobile/report/${uuidGenerator()}`);
-    (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        Linking.openURL("app-settings:");
-        return;
-      }
-      let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.BestForNavigation, maximumAge: 10000});
-      setInitLoc(prevState=>({...prevState,latitude:location.coords.latitude,longitude:location.coords.longitude}))
-      await setLoading(false);
-    })();
   }, [])
 
   const getData = async () => {
+    await setLoading(true);
       try {
           const value = await AsyncStorage.getItem('@user');
           if(value!==null){
-              setUser(JSON.parse(value));
+              var parsed = JSON.parse(value); 
+              setUser(parsed);
+              setPath(`/gtrack-mobile/report/${uuidGenerator()}`);
+              if(parsed.hasOwnProperty("userSchedule")){
+                setIsDisabled(false);
+                let { status } = await Location.requestForegroundPermissionsAsync();
+                if (status !== "granted") {
+                  Linking.openURL("app-settings:");
+                  return;
+                }
+                let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.BestForNavigation, maximumAge: 10000});
+                setInitLoc(prevState=>({...prevState,latitude:location.coords.latitude,longitude:location.coords.longitude}))
+              }else{
+                setIsDisabled(true);
+                setAlert({
+                  visible: true,
+                  message: "You have no schedule today",
+                  colorScheme: "primary",
+                  header: "Collection Schedule",
+                });
+              }
+    
+              
           }else{
               setUser(null);
           }
+          
       }catch (e){
           console.log(e);
       }
+      await setLoading(false);
   }
   const reportValidationSchema = yup.object().shape({
       subject: yup
@@ -217,7 +230,7 @@ const DriverReportPage = () => {
                   borderColor="black"
                   isReadOnly="true"
                   isDisabled="true"
-                  value={initLoc.latitude.toString()}
+                  value={initLoc && initLoc.latitude.toString()}
                 />
               </VStack>
               <VStack minWidth="100">
@@ -226,7 +239,7 @@ const DriverReportPage = () => {
                   borderColor="black"
                   isReadOnly="true"
                   isDisabled="true"
-                  value={initLoc.longitude.toString()}
+                  value={initLoc && initLoc.longitude.toString()}
                 />
               </VStack>
             </HStack>
@@ -276,7 +289,7 @@ const DriverReportPage = () => {
 
               }
               onPress={handleSubmit}
-              isDisabled={user && user.hasOwnProperty("userSchedule") ? false:true}
+              isDisabled={isDisabled}
             >
               Send Report
             </Button>

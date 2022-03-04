@@ -23,7 +23,7 @@ import {
 } from '@env'
 
 const devEnvironmentVariables = {
-    BACKEND_URL:"https://fluffy-eagle-39.loca.lt",
+    BACKEND_URL:DEV_BACKEND_URL,
     FB_API_KEY:DEV_FB_API_KEY,
     FB_AUTH_DOMAIN:DEV_FB_AUTH_DOMAIN,
     FB_DATABASE_URL:DEV_FB_DATABASE_URL,
