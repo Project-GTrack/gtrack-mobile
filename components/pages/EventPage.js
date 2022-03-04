@@ -91,87 +91,32 @@ const EventPage = ({ events, setEvents, refreshing, setRefreshing }) => {
                         shimmerStyle={{ borderRadius: 10, marginTop: 40 }}
                         width={260}
                       />
-                      <Row marginLeft={2} padding={1}>
-                        <Column>
-                          <Icon
-                            as={<MaterialIcons name="room" />}
-                            color="#10b981"
-                            size={21}
-                            mt={"auto"}
-                          />
-                        </Column>
-                        <Column>
-                          <ShimmerPlaceholder
-                            shimmerStyle={{ borderRadius: 10 }}
-                            width={150}
-                          />
-                        </Column>
-                      </Row>
-
-                      <Row marginLeft={2} padding={1}>
-                        <Column>
-                          <Icon
-                            as={<MaterialIcons name="date-range" />}
-                            color="#10b981"
-                            size={21}
-                            mt={"auto"}
-                          />
-                        </Column>
-                        <Column>
-                          <ShimmerPlaceholder
-                            shimmerStyle={{ borderRadius: 10 }}
-                            width={150}
-                          />
-                        </Column>
-                      </Row>
-                      <Row marginLeft={2} padding={1}>
-                        <Column>
-                          <Icon
-                            as={<MaterialIcons name="people" />}
-                            color="#10b981"
-                            size={21}
-                            mt={"auto"}
-                          />
-                        </Column>
-                        <Column>
-                          <ShimmerPlaceholder
-                            shimmerStyle={{ borderRadius: 10 }}
-                            width={150}
-                          />
-                        </Column>
-                      </Row>
-                      <Row marginLeft={2} padding={1}>
-                        <Column>
-                          <Icon
-                            as={<MaterialIcons name="contact-page" />}
-                            color="#10b981"
-                            size={21}
-                            mt={"auto"}
-                          />
-                        </Column>
-                        <Column>
-                          <ShimmerPlaceholder
-                            shimmerStyle={{ borderRadius: 10 }}
-                            width={150}
-                          />
-                        </Column>
-                      </Row>
+                      <ShimmerPlaceholder
+                        shimmerStyle={{ borderRadius: 10, marginTop: 10 }}
+                        width={150}
+                      />
+                       <ShimmerPlaceholder
+                        shimmerStyle={{ borderRadius: 10, marginTop: 10 }}
+                        width={300}
+                      />
+                      <ShimmerPlaceholder
+                        shimmerStyle={{ borderRadius: 10, marginTop: 10 }}
+                        width={50}
+                      />
+                
                     </VStack>
-                    <VStack px={4} pb={4} marginTop={-5}>
-                      <Text bold fontSize={16} mt={2}>
-                        About the Event
-                      </Text>
+                    <VStack px={4} pb={4} marginTop={3}>
                       <ShimmerPlaceholder
                         shimmerStyle={{ borderRadius: 10, marginTop: 2 }}
-                        width={300}
+                        width={80}
                       />
                       <ShimmerPlaceholder
-                        shimmerStyle={{ borderRadius: 10, marginTop: 6 }}
-                        width={300}
+                        shimmerStyle={{ borderRadius: 10, marginTop: 16 }}
+                        width={150}
                       />
                       <ShimmerPlaceholder
-                        shimmerStyle={{ borderRadius: 10, marginTop: 6 }}
-                        width={300}
+                        shimmerStyle={{ borderRadius: 10, marginTop: 8 }}
+                        width={120}
                       />
                     </VStack>
                   </VStack>
@@ -179,104 +124,49 @@ const EventPage = ({ events, setEvents, refreshing, setRefreshing }) => {
               })
             ) : (
               <VStack
-                marginLeft={3}
-                marginRight={3}
-                marginTop={2}
-                marginBottom={2}
-                shadow={2}
-                borderRadius="sm"
-                backgroundColor="white"
-              >
-                <ShimmerPlaceholder width={336} height={200} />
-                <VStack px={4} pb={4}>
-                  <ShimmerPlaceholder
-                    shimmerStyle={{ borderRadius: 10, marginTop: 40 }}
-                    width={260}
-                  />
-                  <Row marginLeft={2} padding={1}>
-                    <Column>
-                      <Icon
-                        as={<MaterialIcons name="room" />}
-                        color="#10b981"
-                        size={21}
-                        mt={"auto"}
-                      />
-                    </Column>
-                    <Column>
+                    marginLeft={3}
+                    marginRight={3}
+                    marginTop={2}
+                    marginBottom={2}
+                    shadow={2}
+                    borderRadius="sm"
+                    backgroundColor="white"
+                  >
+                    <ShimmerPlaceholder width={336} height={200} />
+                    <VStack px={4} pb={4}>
                       <ShimmerPlaceholder
-                        shimmerStyle={{ borderRadius: 10 }}
+                        shimmerStyle={{ borderRadius: 10, marginTop: 40 }}
+                        width={260}
+                      />
+                      <ShimmerPlaceholder
+                        shimmerStyle={{ borderRadius: 10, marginTop: 10 }}
                         width={150}
                       />
-                    </Column>
-                  </Row>
-
-                  <Row marginLeft={2} padding={1}>
-                    <Column>
-                      <Icon
-                        as={<MaterialIcons name="date-range" />}
-                        color="#10b981"
-                        size={21}
-                        mt={"auto"}
+                       <ShimmerPlaceholder
+                        shimmerStyle={{ borderRadius: 10, marginTop: 10 }}
+                        width={300}
                       />
-                    </Column>
-                    <Column>
                       <ShimmerPlaceholder
-                        shimmerStyle={{ borderRadius: 10 }}
+                        shimmerStyle={{ borderRadius: 10, marginTop: 10 }}
+                        width={50}
+                      />
+                
+                    </VStack>
+                    <VStack px={4} pb={4} marginTop={3}>
+                      <ShimmerPlaceholder
+                        shimmerStyle={{ borderRadius: 10, marginTop: 2 }}
+                        width={80}
+                      />
+                      <ShimmerPlaceholder
+                        shimmerStyle={{ borderRadius: 10, marginTop: 16 }}
                         width={150}
                       />
-                    </Column>
-                  </Row>
-                  <Row marginLeft={2} padding={1}>
-                    <Column>
-                      <Icon
-                        as={<MaterialIcons name="people" />}
-                        color="#10b981"
-                        size={21}
-                        mt={"auto"}
-                      />
-                    </Column>
-                    <Column>
                       <ShimmerPlaceholder
-                        shimmerStyle={{ borderRadius: 10 }}
-                        width={150}
+                        shimmerStyle={{ borderRadius: 10, marginTop: 8 }}
+                        width={120}
                       />
-                    </Column>
-                  </Row>
-                  <Row marginLeft={2} padding={1}>
-                    <Column>
-                      <Icon
-                        as={<MaterialIcons name="contact-page" />}
-                        color="#10b981"
-                        size={21}
-                        mt={"auto"}
-                      />
-                    </Column>
-                    <Column>
-                      <ShimmerPlaceholder
-                        shimmerStyle={{ borderRadius: 10 }}
-                        width={150}
-                      />
-                    </Column>
-                  </Row>
-                </VStack>
-                <VStack px={4} pb={4} marginTop={-5}>
-                  <Text bold fontSize={16} mt={2}>
-                    About the Event
-                  </Text>
-                  <ShimmerPlaceholder
-                    shimmerStyle={{ borderRadius: 10, marginTop: 2 }}
-                    width={300}
-                  />
-                  <ShimmerPlaceholder
-                    shimmerStyle={{ borderRadius: 10, marginTop: 6 }}
-                    width={300}
-                  />
-                  <ShimmerPlaceholder
-                    shimmerStyle={{ borderRadius: 10, marginTop: 6 }}
-                    width={300}
-                  />
-                </VStack>
-              </VStack>
+                    </VStack>
+                  </VStack>
             )
           ) : events.length === 0 ? (
             <Text bold textAlign="center" fontSize={24} marginTop={250}>

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
   Text,
-  Image,
   Button,
   Center,
   Input,
@@ -19,38 +18,38 @@ import {
   Slider,
   Avatar,
 } from "native-base";
-import { StyleSheet, LogBox } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import envs from "../../../config/env";
 import PickImage from "../../helpers/PickImage";
 import * as Location from "expo-location";
-import * as ImagePicker from "expo-image-picker";
 import { useFormik } from 'formik';
 import Firebase from "../../helpers/Firebase";
 import { uuidGenerator } from '../../helpers/uuidGenerator.js';
-import moment from "moment";
 import axios from "axios";
 import MessageAlert from '../../helpers/MessageAlert';
 import ActivityIndicator from '../../helpers/ActivityIndicator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as yup from 'yup'
+
 const db=Firebase.app().database();
 const DriverReportPage = () => {
   const [images,setImages]=useState([]);
   const [path,setPath]=useState(null);
   const [loading,setLoading]=useState(false);
-  const [degree,setDegree]=useState({
-    level:'',
-    color:'',
-  });
   const [user,setUser]=useState({});
   const [initLoc, setInitLoc] = useState({
     latitude: 0,
     longitude: 0,
   });
-  const [onChangeValue,setOnChangeValue]=useState(1);
-  const [uri,setURI]=useState("");
+  const [alert,setAlert]=useState({
+    visible:false,
+    message:null,
+    colorScheme:null,
+    header:null,
+    getCoordinates:false,
+  });
   useEffect(() => {
+    setLoading(true);
     getData();
     setPath(`/gtrack-mobile/report/${uuidGenerator()}`);
     (async () => {
@@ -61,31 +60,10 @@ const DriverReportPage = () => {
       }
       let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.BestForNavigation, maximumAge: 10000});
       setInitLoc(prevState=>({...prevState,latitude:location.coords.latitude,longitude:location.coords.longitude}))
+      await setLoading(false);
     })();
   }, [])
-  useEffect(() => {
-    if(onChangeValue == 0){
-      setDegree({
-        level: '',
-        color: 'emerald',
-      })
-    }else if(onChangeValue == 1){
-      setDegree({
-        level: 'Low',
-        color: 'emerald',
-      })
-    }else if( onChangeValue == 2){
-      setDegree({
-        level: 'Moderate',
-        color: 'yellow',
-      })
-    }else{
-      setDegree({
-        level: 'High',
-        color: 'red',
-      })
-    }
-  }, [onChangeValue])
+
   const getData = async () => {
       try {
           const value = await AsyncStorage.getItem('@user');
@@ -105,11 +83,15 @@ const DriverReportPage = () => {
       description: yup
         .string()
         .required('Description is required'),
+      degree: yup
+        .number()
+        .min(1,"Degree is required"),
       images: yup
         .array()
         .min(1,"Attach atleast 1 image")
         .required('Attach atleast 1 image'),
   })
+ 
   const handleRemoveImage=(index)=>{
     let imgTemp=[...images];
     imgTemp.splice(index,1);
@@ -118,13 +100,13 @@ const DriverReportPage = () => {
   const handleFormSubmit = async (values,{resetForm}) => {
     try{
       setLoading(true);
-        axios.post(`${envs.BACKEND_URL}/mobile/report/submit-report/${user.user_id}`, {subject:values.subject,message:values.description,latitude:initLoc.latitude,longitude:initLoc.longitude,degree:degree.level,image:images})
+        axios.post(`${envs.BACKEND_URL}/mobile/report/submit-report/${user.user_id}`, {subject:values.subject,message:values.description,latitude:initLoc.latitude,longitude:initLoc.longitude,degree:values.degree,image:images})
           .then(res => {
               if(res.data.success){
                 db.ref('Reports/'+user.user_id).set({
                   subject: values.subject,
                   description: values.description,
-                  degree: degree.level,
+                  degree: values.degree,
                   report_id:res.data.data.report_id,
                   active: 1,
                   sender:user.fname+" "+user.lname,
@@ -136,7 +118,6 @@ const DriverReportPage = () => {
                   imageDownloadURL:images                
                 })
                 resetForm();
-                setOnChangeValue(1);
                 setImages([]);
                 setLoading(false);
                 setAlert({visible:true,message:res.data.message,colorScheme:"success",header:"Report Submission"});
@@ -150,21 +131,12 @@ const DriverReportPage = () => {
     }
  
   }
-  const { handleChange, handleSubmit, handleBlur, values, errors, touched, setFieldValue } = useFormik({
-    initialValues:{ subject:'', description:'', images: []},
+  const { handleChange, handleSubmit, handleBlur, values, errors, isValid, touched, setFieldValue } = useFormik({
+    initialValues:{ subject:'', description:'', degree:0,images: []},
     enableReinitialize:true,
     validationSchema:reportValidationSchema,
     onSubmit: handleFormSubmit
   });
-  const [alert,setAlert]=useState({
-    visible:false,
-    message:null,
-    colorScheme:null,
-    header:null
-  });
-  
-  
-
   return (
     <>
     <View>
@@ -198,12 +170,34 @@ const DriverReportPage = () => {
           </FormControl>
           <Divider />
           <FormControl>
+          {(errors.degree && touched.degree) &&
+                    <Text style={{ fontSize: 10, color: 'red' }}>{errors.degree}</Text>
+                }
             <HStack>
               <VStack>
                 <FormControl.Label>Degree</FormControl.Label>
               </VStack>
               <VStack width="250">
-                <Slider colorScheme={degree.color} maxValue={3} value={onChangeValue} onChange={v => setOnChangeValue(Math.floor(v))}>
+                <Slider colorScheme={(()=>{
+                      var color;
+                      switch (values.degree) {
+                        case 0:
+                          color = 'emerald';
+                          break;
+                        case 1:
+                          color = 'emerald';
+                          break;
+                        case 2:
+                          color = 'yellow';
+                          break;
+                        case 3:
+                            color = 'red';
+                            break;
+                        default:
+                          break;
+                      }
+                      return color;
+                    })()} maxValue={3} value={values&&values.degree} onChange={v => setFieldValue("degree",Math.floor(v))}>
                   <Slider.Track>
                     <Slider.FilledTrack />
                   </Slider.Track>
@@ -254,13 +248,6 @@ const DriverReportPage = () => {
                             backgroundColor="white"
                             source={{uri: img}}
                           />
-                            {/* <Image
-                                size={50}
-                                resizeMode={"contain"}
-                                source={{uri: img}}
-                                alt="Concern Photo"
-                                rounded={'full'}
-                            /> */}
                             <Link onPress={()=>handleRemoveImage(i)} style={{position:'absolute',right:0,marginRight:-10,top:0,marginTop:-5}}>
                                 <Badge colorScheme="danger" rounded={'full'}>X</Badge>
                             </Link>
@@ -286,8 +273,10 @@ const DriverReportPage = () => {
                   color={"white"}
                   size={5}
                 />
+
               }
               onPress={handleSubmit}
+              isDisabled={user && user.hasOwnProperty("userSchedule") ? false:true}
             >
               Send Report
             </Button>
