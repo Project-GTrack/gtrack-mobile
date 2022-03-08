@@ -1,25 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
-  Text,
   Image,
   Button,
-  Center,
-  Input,
-  Divider,
-  Link,
-  Box,
-  Stack,
   View,
 } from "native-base";
-import { MaterialIcons } from "@expo/vector-icons";
-import { StyleSheet, TouchableOpacity } from "react-native";
-import GtrackMainLogo from "../../../assets/gtrack-logo-1.png";
-import GoogleIcon from "../../../assets/google-icon.png";
 import CollectorIcon from "../../../assets/collector_marker_icon.png"
 import * as Location from "expo-location";
 import MapView, { Marker ,PROVIDER_GOOGLE} from "react-native-maps";
 import { Dimensions } from "react-native";
-import { getDatabase, ref, onValue, set } from 'firebase/database';
 import MessageAlert from "../../helpers/MessageAlert";
 import { LogBox } from 'react-native';
 import Firebase from '../../helpers/Firebase';
@@ -29,14 +17,11 @@ const TrackCollectorPage = () => {
   const { height, width } = Dimensions.get( 'window' );
   const LATITUDE_DELTA=0.23;
   const [user,setUser]=useState(null);
-  let liveCoords = {
-    latitude: 0,
-    longitude: 0,
-  };
   const [marginBottom,setMarginBottom]=useState(1);
   const isMarker = useRef(false);
   const [sched,setSched]=useState(null);
   const [watch,setWatch] = useState(null);
+  const [isDisabled,setIsDisabled] = useState(false);
   const [marker, showMarker] = useState(false);
   const [initLoc, setInitLoc] = useState({
     latitude: 0,
@@ -50,18 +35,6 @@ const TrackCollectorPage = () => {
     colorScheme: null,
     header: null,
   });
-  const getData = async () => {
-    try {
-        const value = await AsyncStorage.getItem('@user');
-        if(value!==null){
-            setUser(JSON.parse(value));
-        }else{
-            setUser(null);
-        }
-    }catch (e){
-        console.log(e);
-    }
-  }
   // const getSched = async () => {
   //   try {
   //       const value = await AsyncStorage.getItem('@schedule');
@@ -114,51 +87,55 @@ const TrackCollectorPage = () => {
   //   })();
   // }, [marker]); 
   useEffect(() => {
-    (async () => {
       getData();
-      getLiveLocation()
-    })();
   },[])
-useEffect(() => {
-  LogBox.ignoreLogs(['Setting a timer']);
+  useEffect(() => {
+    LogBox.ignoreLogs(['Setting a timer']);
 
-    let interval;
-  if(marker){
-    interval = setInterval(() => {
-      getLiveLocation()
-  }, 6000);
-   db.ref('Drivers/'+user.user_id).set({
-      active: 1,
-      driver_id:user.user_id,
-      driver_name:user.fname+" "+user.lname,
-      latitude: initLoc.latitude,
-      longitude: initLoc.longitude,
-      garbage_type:user.userSchedule[0].garbage_type,
-      landmark:user.userSchedule[0].landmark,
-      barangay:user.userSchedule[0].barangay,
-    })
-    
+      let interval;
+    if(marker){
+      interval = setInterval(() => {
+        getLiveLocation()
+    }, 6000);
+    db.ref('Drivers/'+user.user_id).set({
+        active: 1,
+        driver_id:user.user_id,
+        driver_name:user.fname+" "+user.lname,
+        latitude: initLoc.latitude,
+        longitude: initLoc.longitude,
+        garbage_type:user.userSchedule[0].garbage_type,
+        landmark:user.userSchedule[0].landmark,
+        barangay:user.userSchedule[0].barangay,
+      })
+      
+    }
+    return () => clearInterval(interval);
+  
+  },[marker, initLoc])
+  const getData = async () => {
+    try {
+        const value = await AsyncStorage.getItem('@user');
+        if(value!==null){
+          var parsed = JSON.parse(value);
+          setUser(parsed);
+          if(parsed.hasOwnProperty("userSchedule")){
+            setIsDisabled(false);
+          }else{
+            setIsDisabled(true);
+              setAlert({
+                visible: true,
+                message: "You have no schedule today",
+                colorScheme: "primary",
+                header: "Collection Schedule",
+              });
+          }
+        }else{
+            setUser(null);
+        }
+    }catch (e){
+        console.log(e);
+    }
   }
-  return () => clearInterval(interval);
- 
-},[marker, initLoc])
-  // useEffect(() => {
-  //   (async () => {
-  //     let interval;
-  //     if(marker){
-  //       try{
-  //         interval = setInterval(() => {
-  //           getLiveLocation();
-  //         }, 2000);
-  //       }catch(e){
-  //         console.log(e);
-  //       }
-  //     }else{
-  //       clearInterval(interval);
-  //     }
-  //   })();
-  // }, [marker, initLoc]);
-
   const getLiveLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== "granted") {
@@ -170,19 +147,7 @@ useEffect(() => {
 }
   
   const showLocation = async () => {
-    console.log(user, user.hasOwnProperty("userSchedule"));
-    if(user.hasOwnProperty("userSchedule")){
       showMarker(true);
-    }else{
-      setAlert({
-        visible: true,
-        message: "You don't have a Scheduled Collection today",
-        colorScheme: "danger",
-        header: "No Schedule",
-      });
-    }
-   
-    
   };
   const stopSharing = async() => {
     // db.ref('Drivers/'+user.user_id).remove();
@@ -193,8 +158,9 @@ useEffect(() => {
   };
   return (
     <>
-      <MessageAlert alert={alert} setAlert={setAlert} />
+
       <View>
+      <MessageAlert alert={alert} setAlert={setAlert} />
         <MapView
           // region={initLoc}
           showsUserLocation={true}
@@ -223,7 +189,7 @@ useEffect(() => {
                 </Marker>):(<></>)}
         </MapView>
         {(() => {
-          if (marker === false) {
+          if (!marker) {
             return (
               <Button
                 position="absolute"
@@ -231,6 +197,7 @@ useEffect(() => {
                 top={3}
                 colorScheme="success"
                 onPress={() => showLocation()}
+                isDisabled={isDisabled}
               >
                 Share Location
               </Button>
@@ -239,8 +206,8 @@ useEffect(() => {
             return (
               <Button
                 position="absolute"
-                right={5}
-                top={5}
+                right={16}
+                top={3}
                 colorScheme="danger"
                 onPress={() => stopSharing()}
               >
@@ -250,6 +217,7 @@ useEffect(() => {
           }
         })()}
       </View>
+    
     </>
   );
 };
