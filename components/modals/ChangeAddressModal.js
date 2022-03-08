@@ -58,15 +58,15 @@ const ChangeAddressModal = ({alert,setAlert,user,showModal,setShowModal}) => {
         <Modal.Body>
           <FormControl>
             <FormControl.Label>Purok</FormControl.Label>
-            <Input value={values&&values.purok?values.purok:""} onChangeText={handleChange('purok')}/>
+            <Input autoCapitalize="words" value={values&&values.purok?values.purok:""} onChangeText={handleChange('purok')}/>
           </FormControl>
           <FormControl mt="3">
             <FormControl.Label>Street</FormControl.Label>
-            <Input value={values&&values.street?values.street:""} onChangeText={handleChange('street')}/>
+            <Input autoCapitalize="words" value={values&&values.street?values.street:""} onChangeText={handleChange('street')}/>
           </FormControl>
           <FormControl mt="3">
             <FormControl.Label>Barangay</FormControl.Label>
-            <Input value={values&&values.barangay?values.barangay:""} onChangeText={handleChange('barangay')}/>
+            <Input autoCapitalize="words" value={values&&values.barangay?values.barangay:""} onChangeText={handleChange('barangay')}/>
           </FormControl>
         </Modal.Body>
         <Modal.Footer>

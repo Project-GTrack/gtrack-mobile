@@ -154,6 +154,7 @@ const SignUpPage = ({navigation}) => {
         </Center>
         <Center
             px={3}
+            mb={2}
         >
             <Stack space={3} alignItems="center">
                 <Link onPress={handleGoogleClick} >
@@ -180,12 +181,12 @@ const SignUpPage = ({navigation}) => {
                         <Text style={{ fontSize: 10, color: 'red' }}>{errors.lname}</Text>
                     }
                     <HStack space={2}>
-                        <Input isRequired size="md" width="148" placeholder="First Name" 
+                        <Input autoCapitalize="words" isRequired size="md" width="148" placeholder="First Name" 
                             onChangeText={handleChange('fname')}
                             onBlur={handleBlur('fname')}
                             value={values.fname}
                         />
-                        <Input isRequired size="md" width="148" placeholder="Last Name" 
+                        <Input autoCapitalize="words" isRequired size="md" width="148" placeholder="Last Name" 
                             onChangeText={handleChange('lname')}
                             onBlur={handleBlur('lname')}
                             value={values.lname}
@@ -194,7 +195,7 @@ const SignUpPage = ({navigation}) => {
                     {(errors.email && touched.email) &&
                         <Text style={{ fontSize: 10, color: 'red' }}>{errors.email}</Text>
                     }
-                    <Input size="md" isRequired width="300" placeholder="Email Address" 
+                    <Input keyboardType="email-address" autoCapitalize="none" size="md" isRequired width="300" placeholder="Email Address" 
                         onChangeText={handleChange('email')}
                         onBlur={handleBlur('email')}
                         value={values.email}

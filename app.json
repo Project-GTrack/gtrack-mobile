@@ -1,16 +1,21 @@
 {
   "expo": {
-    "name": "gtrack-mobile",
+    "name": "GTrack",
     "owner": "rjoliverio",
     "slug": "gtrack-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/gtrack-icon.png",
     "scheme": "testing",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/gtrack-splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
+    },
+    "notification":{
+      "icon": "./assets/gtrack-notification-icon.png",
+      "androidMode": "default",
+      "androidCollapsedTitle": "Updates from GTrack"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -43,7 +48,8 @@
         "googleMaps":{
           "apiKey":"AIzaSyABaj2DcYXA_CxCtEhZADCLG8ZabuqncoU"
         }
-      }
+      },
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "favicon": "./assets/favicon.png"
