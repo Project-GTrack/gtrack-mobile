@@ -175,7 +175,7 @@ const DriverReportPage = () => {
           {(errors.subject && touched.subject) &&
                     <Text style={{ fontSize: 10, color: 'red' }}>{errors.subject}</Text>
                 }
-            <Input bgColor="white" onBlur={handleBlur('subject')} placeholder="Subject" onChangeText={handleChange('subject')}
+            <Input autoCapitalize="sentences" bgColor="white" onBlur={handleBlur('subject')} placeholder="Subject" onChangeText={handleChange('subject')}
                 value={values&&values.subject?values.subject:""}/>
           </FormControl>
           <FormControl paddingBottom={5}>
@@ -185,6 +185,7 @@ const DriverReportPage = () => {
             <TextArea
               h={200}
               bgColor={"white"}
+              autoCapitalize="sentences"
               placeholder="Write description here ..."
               onBlur={handleBlur('description')}
               style={{

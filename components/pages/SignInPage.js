@@ -205,6 +205,7 @@ const SignInPage = ({navigation}) => {
                 </Center>
                 <Center
                     px={3}
+                    mb={2}
                 >
                     <Stack space={3} alignItems="center">
                         <Link onPress={handleGoogleClick} >
@@ -228,7 +229,7 @@ const SignInPage = ({navigation}) => {
                         {(errors.email && touched.email) &&
                             <Text style={{ fontSize: 10, color: 'red' }}>{errors.email}</Text>
                         }
-                        <Input size="md" width="300" placeholder="Email Address" 
+                        <Input keyboardType="email-address" size="md" width="300" placeholder="Email Address" 
                             onChangeText={handleChange('email')}
                             onBlur={handleBlur('email')}
                             value={values.email}

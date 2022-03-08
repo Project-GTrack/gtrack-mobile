@@ -131,6 +131,7 @@ const ReportPage = () => {
                 <Input 
                     size="md" 
                     placeholder="Subject"
+                    autoCapitalize="sentences"
                     bg={'white'}
                     onBlur={handleBlur('subject')}
                     value={values&&values.subject?values.subject:""} onChangeText={handleChange('subject')}
@@ -141,6 +142,7 @@ const ReportPage = () => {
                 <TextArea
                     h={200}
                     bgColor={'white'}
+                    autoCapitalize="sentences"
                     placeholder="Write description here ..."
                     style={{
                       textAlignVertical:'top',

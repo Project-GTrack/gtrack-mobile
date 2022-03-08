@@ -97,11 +97,11 @@ const GeneralInformationModal = ({alert,setAlert,user,showModal,setShowModal}) =
                   <Text style={{ fontSize: 10, color: 'red' }}>{errors.lname}</Text>
                 }
                 <HStack space={1}>
-                  <Input value={values&&values.fname?values.fname:""} placeholder="First Name" onChangeText={handleChange('fname')} style={{alignSelf:'stretch',width:'50%'}}/>
-                  <Input value={values&&values.lname?values.lname:""} placeholder="Last Name" onChangeText={handleChange('lname')} style={{alignSelf:'stretch',width:'50%'}}/>
+                  <Input autoCapitalize="words" value={values&&values.fname?values.fname:""} placeholder="First Name" onChangeText={handleChange('fname')} style={{alignSelf:'stretch',width:'50%'}}/>
+                  <Input autoCapitalize="words" value={values&&values.lname?values.lname:""} placeholder="Last Name" onChangeText={handleChange('lname')} style={{alignSelf:'stretch',width:'50%'}}/>
                 </HStack>
-                <Input value={values&&values.email?values.email:""} placeholder="email" onChangeText={handleChange('email')} isDisabled mt={2} style={{alignSelf:'stretch'}}/>
-                <Input value={values&&values.contact_no?values.contact_no:""} placeholder="Contact Number" onChangeText={handleChange('contact_no')} mt={2} style={{alignSelf:'stretch'}}/>
+                <Input keyboardType="email-address" value={values&&values.email?values.email:""} placeholder="email" onChangeText={handleChange('email')} isDisabled mt={2} style={{alignSelf:'stretch'}}/>
+                <Input keyboardType="numeric" value={values&&values.contact_no?values.contact_no:""} placeholder="Contact Number" onChangeText={handleChange('contact_no')} mt={2} style={{alignSelf:'stretch'}}/>
                 <Select
                   accessibilityLabel="Choose Gender"
                   placeholder="Choose Gender"

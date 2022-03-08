@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "338822963792",
+    "firebase_url": "https://gtrack-339307-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "gtrack-339307",
+    "storage_bucket": "gtrack-339307.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:338822963792:android:297f12f6ee3ec12a2d2755",
+        "android_client_info": {
+          "package_name": "com.gtrack.mobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "338822963792-j3nfeli55ciud6bmaapki6est9ubivnr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.gtrack.mobile",
+            "certificate_hash": "77235efbc14977a14f3771aa357844fe7594c405"
+          }
+        },
+        {
+          "client_id": "338822963792-0hf18pi79v288nk53f0va3ke2hn6li94.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAiAq3R1LCT55_SIQ2j4wk-CxPi-gAU4SU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "338822963792-0hf18pi79v288nk53f0va3ke2hn6li94.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
