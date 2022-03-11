@@ -10,6 +10,7 @@ import SignUpPage from "./components/pages/SignUpPage";
 import Toolbar from "./components/helpers/Toolbar";
 import Drawer from "./components/helpers/Drawer";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import ForgotPasswordPage from "./components/pages/ForgotPasswordPage.js";
 
 const Stack = createNativeStackNavigator();
 
@@ -40,6 +41,12 @@ export default function App() {
           <Stack.Screen
             name="SignUpPage"
             component={SignUpPage}
+            // options={{ title: 'Welcome' }}
+            options={{headerShown: false}}
+          />
+          <Stack.Screen
+            name="ForgotPasswordPage"
+            component={ForgotPasswordPage}
             // options={{ title: 'Welcome' }}
             options={{headerShown: false}}
           />

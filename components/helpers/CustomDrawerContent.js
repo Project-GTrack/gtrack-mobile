@@ -22,9 +22,13 @@ import moment from 'moment';
 import Firebase from '../helpers/Firebase.js';
 
 const database=Firebase.database();
+const auth=Firebase.auth();
 const CustomDrawerContent = ({navigation,user,getData}) => {
     const removeData = async () => {
         try {
+            if(auth.currentUser){
+                await auth.signOut();
+            }
             await database.ref(`/PushTokens/${user.user_id}`).remove();
             const value = await AsyncStorage.getItem('@user');
             if(value){
