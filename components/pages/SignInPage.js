@@ -96,29 +96,35 @@ const SignInPage = ({navigation}) => {
         ]
         );
     }
-    const handleFirebase = async(values,resetForm)=>{
+    const handleFirebase = async(data,values,resetForm)=>{
         await auth.signInWithEmailAndPassword(values.email, values.password)
         .then(function() {
-            auth.onAuthStateChanged(function(user) {
-                if (user && user.emailVerified) {
-                    setLoading(false);
-                    resetForm({email: '',password:''});
-                    axios.post(`${envs.BACKEND_URL}/mobile/verify_email`, {email:values.email})
-                    .then(res=>{
-                        if(res.data.success){
-                            setData(res.data.data);
-                        }else{
-                            setAlert({visible:true,message:res.data.message,colorScheme:"danger",header:"Error"});
-                        }
-                    })
+            setLoading(false);
+            if(auth.currentUser.emailVerified){
+                resetForm();
+                setData(data);
+            }else{
+                createAlert(auth);
+            }
+            // auth.onAuthStateChanged(function(user) {
+            //     setLoading(false);
+            //     if (user && user.emailVerified) {
                     
-                }else if(user && !user.emailVerified){
-                    setLoading(false);
-                    createAlert(auth);
-                    // auth.currentUser.sendEmailVerification();
-                    // setAlert({visible:true,message:"Email not verified. We sent you another verification link.",colorScheme:"danger",header:"Email Verification"});
-                }
-            });
+            //         // axios.post(`${envs.BACKEND_URL}/mobile/verify_email`, {email:values.email})
+            //         // .then(res=>{
+            //         //     if(res.data.success){
+            //         //         setData(res.data.data);
+            //         //     }else{
+            //         //         setAlert({visible:true,message:res.data.message,colorScheme:"danger",header:"Error"});
+            //         //     }
+            //         // })
+                    
+            //     }else if(user && !user.emailVerified){
+            //         createAlert(auth);
+            //         // auth.currentUser.sendEmailVerification();
+            //         // setAlert({visible:true,message:"Email not verified. We sent you another verification link.",colorScheme:"danger",header:"Email Verification"});
+            //     }
+            // });
         })
         .catch(function(error) {
             setLoading(false);
@@ -129,13 +135,17 @@ const SignInPage = ({navigation}) => {
         setLoading(true);
         axios.post(`${envs.BACKEND_URL}/mobile/login`, {email:values.email,password:values.password})
         .then(res => {
-            if(res.data.success && res.data.verified){
-                setLoading(false);
-                resetForm();
-                setData(res.data.data);
-            }else if(!res.data.success && !res.data.verified){
-                setLoading(false);
-                handleFirebase(values,resetForm);
+            if(res.data.success){
+                handleFirebase(res.data.data,values,resetForm);
+                // setLoading(false);
+                // setData(res.data.data);
+            // if(res.data.success && res.data.verified){
+            //     setLoading(false);
+            //     resetForm();
+            //     setData(res.data.data);
+            // }else if(!res.data.success && !res.data.verified){
+            //     setLoading(false);
+            //     handleFirebase(values,resetForm);
                 // setAlert({visible:true,message:res.data.message,colorScheme:"danger",header:"Error"})
             }else{
                 setLoading(false);
@@ -177,6 +187,7 @@ const SignInPage = ({navigation}) => {
             isFocused=null;
         }
     },[user]);
+
     const handleGoogleClick = async () => {
         setLoading(true);
         promptAsync();
@@ -229,7 +240,7 @@ const SignInPage = ({navigation}) => {
                         {(errors.email && touched.email) &&
                             <Text style={{ fontSize: 10, color: 'red' }}>{errors.email}</Text>
                         }
-                        <Input keyboardType="email-address" size="md" width="300" placeholder="Email Address" 
+                        <Input keyboardType="email-address" autoCapitalize="none" size="md" width="300" placeholder="Email Address" 
                             onChangeText={handleChange('email')}
                             onBlur={handleBlur('email')}
                             value={values.email}
@@ -257,7 +268,17 @@ const SignInPage = ({navigation}) => {
                             Click Here
                         </Link>
                         </HStack>
-                        
+                        <Link
+                            onPress={() =>
+                                navigation.navigate('ForgotPasswordPage')
+                            } 
+                            isUnderlined 
+                            _text={{
+                                color: "primary.500",
+                            }}
+                        >
+                            Forgot Password?
+                        </Link>
                         <Button width="300" colorScheme="success" 
                             onPress={handleSubmit}
                             disabled={!isValid}
