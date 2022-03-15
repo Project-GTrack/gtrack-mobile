@@ -48,19 +48,25 @@ const ChangePasswordModal = ({alert,setAlert,user,showModal,setShowModal}) => {
     return encryptedPassword;
   }
   const handleFirebase = async(values,resetForm,data,message)=>{
-    await auth.signInWithEmailAndPassword(values.email, values.old_password)
-    .then(function(user) {
-        if(user){
-          auth.currentUser.updatePassword(values.new_password).then(function(){
-            resetForm();
-            setData(data)
-            setAlert({visible:true,message:message,colorScheme:"success",header:"Success"});
-          });
-        }
-    })
-    .catch(function(error) {
-        setAlert({visible:true,message:error.message,colorScheme:"danger",header:`Error`});
-    });
+    if(auth.currentUser){
+      await auth.currentUser.updatePassword(values.new_password);
+      resetForm();
+      setData(data)
+      setAlert({visible:true,message:message,colorScheme:"success",header:"Success"});
+    }
+    // await auth.signInWithEmailAndPassword(values.email, values.old_password)
+    // .then(function(user) {
+    //     if(user){
+    //       auth.currentUser.updatePassword(values.new_password).then(function(){
+    //         resetForm();
+    //         setData(data)
+    //         setAlert({visible:true,message:message,colorScheme:"success",header:"Success"});
+    //       });
+    //     }
+    // })
+    // .catch(function(error) {
+    //     setAlert({visible:true,message:error.message,colorScheme:"danger",header:`Error`});
+    // });
 }
   const handleFormSubmit = async (values,{resetForm}) =>{
     const decrypted=decryptPassword(user.password);
