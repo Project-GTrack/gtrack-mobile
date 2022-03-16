@@ -34,7 +34,7 @@
     "android": {
       "useNextNotificationsApi": true,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/gtrack-adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
       "permissions": [
