@@ -16,7 +16,8 @@ import Firebase from '../helpers/Firebase';
 import * as yup from 'yup'
 
 const auth = Firebase.auth();
-const ChangePasswordModal = ({alert,setAlert,user,showModal,setShowModal}) => {
+const ChangePasswordModal = ({setAlert,user,showModal,setShowModal}) => {
+  const [loading,setLoading]=useState(false);
   const [initialValues, setInitialValues] = useState(null);
   const changePassValidationSchema = yup.object().shape({
     old_password: yup
@@ -25,7 +26,7 @@ const ChangePasswordModal = ({alert,setAlert,user,showModal,setShowModal}) => {
     new_password: yup
       .string()
       .min(8, ({ min }) => `Password must be at least ${min} characters`)
-      .required('Confirm password is required'),
+      .required('New password is required'),
     repeat_password: yup
       .string()
       .oneOf([yup.ref('new_password')], 'Passwords do not match')
@@ -69,12 +70,13 @@ const ChangePasswordModal = ({alert,setAlert,user,showModal,setShowModal}) => {
     // });
 }
   const handleFormSubmit = async (values,{resetForm}) =>{
+    setLoading(true);
     const decrypted=decryptPassword(user.password);
-    console.log(decrypted);
     if(decrypted===values.old_password){
       const encrypted=encryptPassword(values.new_password)
       axios.post(`${envs.BACKEND_URL}/mobile/profile/change_password`, {email:values.email,password:encrypted})
       .then(res => {
+        setLoading(false);
           if(res.data.success){
             setShowModal(false);
             handleFirebase(values,resetForm,res.data.data,res.data.message);
@@ -101,7 +103,7 @@ const ChangePasswordModal = ({alert,setAlert,user,showModal,setShowModal}) => {
     };
     
   }, [user]);
-  const { handleChange, handleSubmit, values, errors, isValid, touched } = useFormik({
+  const { handleChange, handleBlur, handleSubmit, values, errors, isValid, touched } = useFormik({
     initialValues:initialValues,
     enableReinitialize:true,
     validationSchema:changePassValidationSchema,
@@ -118,21 +120,21 @@ const ChangePasswordModal = ({alert,setAlert,user,showModal,setShowModal}) => {
             }
             <FormControl>
               <FormControl.Label>Current password</FormControl.Label>
-              <Input type="password" value={values&&values.old_password?values.old_password:""} onChangeText={handleChange('old_password')}/>
+              <Input type="password" onBlur={handleBlur('old_password')} value={values&&values.old_password?values.old_password:""} onChangeText={handleChange('old_password')}/>
             </FormControl>
             {(errors.new_password && touched.new_password) &&
               <Text style={{ fontSize: 10, color: 'red' }}>{errors.new_password}</Text>
             }
             <FormControl mt="3">
               <FormControl.Label>New Password</FormControl.Label>
-              <Input type="password" value={values&&values.new_password?values.new_password:""} onChangeText={handleChange('new_password')}/>
+              <Input type="password" onBlur={handleBlur('new_password')} value={values&&values.new_password?values.new_password:""} onChangeText={handleChange('new_password')}/>
             </FormControl>
             {(errors.repeat_password && touched.repeat_password) &&
               <Text style={{ fontSize: 10, color: 'red' }}>{errors.repeat_password}</Text>
             }
             <FormControl mt="3">
               <FormControl.Label>Repeat New Password</FormControl.Label>
-              <Input type="password" value={values&&values.repeat_password?values.repeat_password:""} onChangeText={handleChange('repeat_password')}/>
+              <Input type="password" onBlur={handleBlur('repeat_password')} value={values&&values.repeat_password?values.repeat_password:""} onChangeText={handleChange('repeat_password')}/>
             </FormControl>
           </Modal.Body>
           <Modal.Footer>
@@ -148,6 +150,8 @@ const ChangePasswordModal = ({alert,setAlert,user,showModal,setShowModal}) => {
               </Button>
               <Button
                 onPress={handleSubmit}
+                isLoading={loading}
+                isLoadingText="Updating"
                 disabled={!isValid}
               >
                 Update

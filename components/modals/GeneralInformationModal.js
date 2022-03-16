@@ -19,7 +19,8 @@ import envs from '../../config/env.js'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as yup from 'yup'
 
-const GeneralInformationModal = ({alert,setAlert,user,showModal,setShowModal}) => {
+const GeneralInformationModal = ({setAlert,user,showModal,setShowModal}) => {
+  const [loading,setLoading]=useState(false);
   const [initialValues,setInitialValues]=useState(null);
   const [show, setShow] = useState(false);
   const [date, setDate] = useState(new Date(moment()));
@@ -49,8 +50,10 @@ const GeneralInformationModal = ({alert,setAlert,user,showModal,setShowModal}) =
     }
   }
   const handleFormSubmit = async (values) =>{
+    setLoading(true);
     axios.post(`${envs.BACKEND_URL}/mobile/profile/general_info`, {email:values.email,lname:values.lname,fname:values.fname,contact_no:values.contact_no!==""?values.contact_no:null,gender:values.gender!==""?values.gender:null,birthday:date})
     .then(res => {
+        setLoading(false);
         if(res.data.success){
           setShowModal(false);
           setData(res.data.data)
@@ -164,6 +167,8 @@ const GeneralInformationModal = ({alert,setAlert,user,showModal,setShowModal}) =
               Cancel
             </Button>
             <Button
+              isLoading={loading}
+              isLoadingText="Updating"
               onPress={handleSubmit}
               disabled={!isValid}
             >

@@ -11,7 +11,8 @@ import { useFormik } from 'formik';
 import envs from '../../config/env.js'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const ChangeAddressModal = ({alert,setAlert,user,showModal,setShowModal}) => {
+const ChangeAddressModal = ({setAlert,user,showModal,setShowModal}) => {
+  const [loading,setLoading]=useState(false);
   const [initialValues, setInitialValues] = useState(null);
   const setData = async (data) => {
     try {
@@ -22,8 +23,10 @@ const ChangeAddressModal = ({alert,setAlert,user,showModal,setShowModal}) => {
     }
   }
   const handleFormSubmit = async (values) =>{
+    setLoading(true);
     axios.post(`${envs.BACKEND_URL}/mobile/profile/address`, {email:values.email,purok:values.purok!==""?values.purok:null,street:values.street!==""?values.street:null,barangay:values.barangay!==""?values.barangay:null})
     .then(res => {
+        setLoading(false);
         if(res.data.success){
           setShowModal(false);
           setData(res.data.data)
@@ -81,6 +84,8 @@ const ChangeAddressModal = ({alert,setAlert,user,showModal,setShowModal}) => {
               Cancel
             </Button>
             <Button
+              isLoading={loading}
+              isLoadingText="Updating"
               onPress={handleSubmit}
             >
               Update

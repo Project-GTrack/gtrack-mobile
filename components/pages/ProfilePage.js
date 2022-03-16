@@ -7,7 +7,6 @@ import {
     Box,
     VStack
   } from "native-base";
-import * as ImagePicker from 'expo-image-picker';
 import GeneralInformationModal from '../modals/GeneralInformationModal';
 import ChangePasswordModal from '../modals/ChangePasswordModal';
 import MessageAlert from '../helpers/MessageAlert';
@@ -131,9 +130,9 @@ const ProfilePage = () => {
                 >
                     Change Password
                 </Button>
-                <GeneralInformationModal alert={alert} setAlert={setAlert} user={user} showModal={showGIModal} setShowModal={setShowGIModal}/>
-                <ChangePasswordModal alert={alert} setAlert={setAlert} user={user} showModal={showCPModal} setShowModal={setShowCPModal}/>
-                <ChangeAddressModal alert={alert} setAlert={setAlert} user={user} showModal={showCAModal} setShowModal={setShowCAModal}/>
+                <GeneralInformationModal setAlert={setAlert} user={user} showModal={showGIModal} setShowModal={setShowGIModal}/>
+                <ChangePasswordModal setAlert={setAlert} user={user} showModal={showCPModal} setShowModal={setShowCPModal}/>
+                <ChangeAddressModal setAlert={setAlert} user={user} showModal={showCAModal} setShowModal={setShowCAModal}/>
             </VStack>
         </Center>
     )
