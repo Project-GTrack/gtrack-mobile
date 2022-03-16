@@ -24,8 +24,8 @@ const TrackCollectorPage = () => {
   const [isDisabled,setIsDisabled] = useState(false);
   const [marker, showMarker] = useState(false);
   const [initLoc, setInitLoc] = useState({
-    latitude: 0,
-    longitude: 0,
+    latitude: 10.4659,
+    longitude: 123.9806,
     latitudeDelta: LATITUDE_DELTA,
     longitudeDelta: LATITUDE_DELTA * (width / height),
   });
@@ -163,6 +163,7 @@ const TrackCollectorPage = () => {
       <MessageAlert alert={alert} setAlert={setAlert} />
         <MapView
           // region={initLoc}
+          initialRegion={initLoc}
           showsUserLocation={true}
           showsMyLocationButton={true}
           provider={PROVIDER_GOOGLE}

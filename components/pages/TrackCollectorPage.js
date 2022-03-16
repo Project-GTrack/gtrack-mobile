@@ -20,8 +20,8 @@ const TrackCollectorPage = () => {
     const LATITUDE_DELTA=0.23;
     const [marginBottom,setMarginBottom]=useState(1);
     const [initLoc,setInitLoc]=useState({
-        latitude: 0,
-        longitude: 0,
+        latitude: 10.4659,
+        longitude: 123.9806,
         latitudeDelta: LATITUDE_DELTA,
         longitudeDelta: LATITUDE_DELTA * (width / height)});
     const [drivers,setDrivers]=useState(null);
@@ -81,6 +81,7 @@ const TrackCollectorPage = () => {
         >
             <MapView
             // region={initLoc}
+            initialRegion={initLoc}
             showsUserLocation={true}
             showsMyLocationButton={true}
             provider={PROVIDER_GOOGLE}
