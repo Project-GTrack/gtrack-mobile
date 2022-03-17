@@ -24,14 +24,16 @@ const TrackCollectorPage = () => {
         longitude: 123.9806,
         latitudeDelta: LATITUDE_DELTA,
         longitudeDelta: LATITUDE_DELTA * (width / height)});
-    const [drivers,setDrivers]=useState(null);
-    const [dumpsters,setDumpsters]=useState(null);
+    const [drivers,setDrivers]=useState([]);
+    const [dumpsters,setDumpsters]=useState([]);
     const getFirebaseDrivers = () => {
         database.ref(`Drivers/`).on('value', function (snapshot) {
             if(snapshot.val()){
                 var snap=snapshot.val();
                 var temp=Object.keys(snap).map((key) => snap[key]);
                 setDrivers(temp);
+            }else{
+                setDrivers([]);
             }
         });
      }
@@ -41,6 +43,8 @@ const TrackCollectorPage = () => {
                 var snap=snapshot.val();
                 var temp=Object.keys(snap).map((key) => snap[key]);
                 setDumpsters(temp);
+            }else{
+                setDumpsters([]);
             }
         });
      }
