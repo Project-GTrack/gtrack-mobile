@@ -27,26 +27,19 @@ const MarkDumpsterPage = () => {
     header: null,
   });
   useEffect(() => {
+    getData();
     axios
       .get(`${envs.BACKEND_URL}/mobile/dumpster/get-dumpsters`)
       .then((res) => {
         if (res.data.success) {
           setToFirebase(res.data.data);
+          getDumpsters();
         }
       });
   }, []);
-  useEffect(() => {
-    getData();
-    getDumpsters();
-  }, []);
-  const getDumpsters = () =>{
-    db.ref("Dumpsters/").on("value", (snapshot) => {
-      let temp = [];
-      for (var x = 0; x < snapshot.val().length; x++) {
-        if (snapshot.val()[x] != undefined) {
-          temp.push(snapshot.val()[x]);
-        }
-      }
+  const getDumpsters = async () =>{
+    await db.ref("Dumpsters/").on("value", (snapshot) => {
+      let temp=Object.keys(snapshot.val()).map(key => snapshot.val()[key]);
       setDumpsters(temp);
     });
   }
