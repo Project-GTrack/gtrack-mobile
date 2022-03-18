@@ -21,19 +21,19 @@ import ActivityIndicator from '../helpers/ActivityIndicator';
 import CryptoES from "crypto-es";
 import envs from '../../config/env.js'
 import axios from 'axios';
-import * as Google from 'expo-auth-session/providers/google';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as yup from 'yup'
+import * as GoogleSignIn from 'expo-google-sign-in';
 
 const auth = Firebase.auth();
 const SignUpPage = ({navigation}) => {
     const [loading,setLoading]=useState(false);
-    const [request, response, promptAsync,user] = Google.useAuthRequest({
-        expoClientId: envs.EXPO_CLIENT_ID,
-        // iosClientId: 'GOOGLE_GUID.apps.googleusercontent.com',
-        androidClientId: envs.ANDROID_CLIENT_ID,
-        // webClientId: 'GOOGLE_GUID.apps.googleusercontent.com',
-    });
+    // const [request, response, promptAsync] = Google.useAuthRequest({
+    //     expoClientId: envs.EXPO_CLIENT_ID,
+    //     // iosClientId: 'GOOGLE_GUID.apps.googleusercontent.com',
+    //     androidClientId: envs.ANDROID_CLIENT_ID,
+    //     // webClientId: 'GOOGLE_GUID.apps.googleusercontent.com',
+    // });
     const signupValidationSchema = yup.object().shape({
         fname: yup
           .string()
@@ -63,32 +63,77 @@ const SignUpPage = ({navigation}) => {
             setAlert({visible:true,message:e,colorScheme:"danger",header:"Error"});
         }
     }
-    const getUserInfo= async (token) =>{
-        axios.get(` https://www.googleapis.com/oauth2/v3/userinfo?access_token=${token}`)
+    // const getUserInfo= async (token) =>{
+    //     axios.get(` https://www.googleapis.com/oauth2/v3/userinfo?access_token=${token}`)
+    //     .then(res => {
+    //         axios.post(`${envs.BACKEND_URL}/mobile/register`, {email:res.data.email,lname:res.data.family_name,fname:res.data.given_name,image:res.data.picture,google_auth:true})
+    //         .then(res => {
+    //             if(res.data.success){
+    //                 setLoading(false);
+    //                 setData(res.data.data);
+    //                 // setAlert({visible:true,message:"You are logged in.",colorScheme:"success",header:"Success"});
+    //             }else{
+    //                 setLoading(false);
+    //                 setAlert({visible:true,message:"Account already existed.",colorScheme:"danger",header:"Error"});
+    //             }
+    //         })
+    //     })
+    // }
+    
+    const signOutAsync = async () => {
+        await GoogleSignIn.signOutAsync();
+    };
+    
+    const getUserInfo= async (user) =>{
+        axios.post(`${envs.BACKEND_URL}/mobile/register`, {email:user.email,lname:user.lastName,fname:user.firstName,image:user.photoURL,google_auth:true})
         .then(res => {
-            axios.post(`${envs.BACKEND_URL}/mobile/register`, {email:res.data.email,lname:res.data.family_name,fname:res.data.given_name,image:res.data.picture,google_auth:true})
-            .then(res => {
-                if(res.data.success){
-                    setLoading(false);
-                    setData(res.data.data);
-                    // setAlert({visible:true,message:"You are logged in.",colorScheme:"success",header:"Success"});
-                }else{
-                    setLoading(false);
-                    setAlert({visible:true,message:"Account already existed.",colorScheme:"danger",header:"Error"});
-                }
-            })
+            if(res.data.success){
+                setLoading(false);
+                setData(res.data.data);
+                // setAlert({visible:true,message:"You are logged in.",colorScheme:"success",header:"Success"});
+            }else{
+                setLoading(false);
+                signOutAsync();
+                setAlert({visible:true,message:"Account already existed.",colorScheme:"danger",header:"Error"});
+            }
         })
     }
-    useEffect(() => {
-        // initAsync();
-        if (response?.type === 'success') {
-            const { authentication} = response;
-            getUserInfo(authentication.accessToken);
+    // const _syncUserWithStateAsync = async () => {
+    //     const user = await GoogleSignIn.signInSilentlyAsync();
+    // };
+    
+    const signInAsync = async () => {
+        try {
+          await GoogleSignIn.askForPlayServicesAsync();
+          const { type, user } = await GoogleSignIn.signInAsync();
+          if (type === 'success') {
+            // _syncUserWithStateAsync();
+            getUserInfo(user);
+          }else{
+            setLoading(false);
+          }
+        } catch ({ message }) {
+            setAlert({visible:true,message:message,colorScheme:"danger",header:`Error`});
         }
-    },[response]);
+      };
+    const initAsync = async () => {
+        await GoogleSignIn.initAsync({
+          // You may ommit the clientId when the firebase `googleServicesFile` is configured
+          clientId: envs.ANDROID_CLIENT_ID,
+        });
+        // _syncUserWithStateAsync();
+    };
+    useEffect(() => {
+        initAsync();
+        // if (response?.type === 'success') {
+        //     const { authentication} = response;
+        //     getUserInfo(authentication.accessToken);
+        // }
+    },[]);
     const handleGoogleClick = async () => {
         setLoading(true);
-        promptAsync();
+        // promptAsync();
+        signInAsync()
     }
     const handleFirebase =async (values,resetForm) =>{
         await auth.createUserWithEmailAndPassword(values.email, values.password)

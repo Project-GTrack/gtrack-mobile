@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Text, Image, Button, Modal, View } from "native-base";
 import GreenTrash from "../../../assets/dumpster_complete_icon.png";
 import RedDump from "../../../assets/dumpster_marker_icon.png";
-// import * as Location from "expo-location";
 import envs from "../../../config/env";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import Firebase from "../../helpers/Firebase";

@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
 import {
-  Button,
   Icon,
   Link,
 } from "native-base";
 import { MaterialIcons } from "@expo/vector-icons";
-import { StyleSheet, RefreshControl } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import AnnouncementPage from "../pages/AnnouncementPage";
 import EventPage from "../pages/EventPage";

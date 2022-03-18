@@ -1,16 +1,5 @@
 import React from 'react';
 import {
-    Text,
-    Image,
-    Button,
-    Center,
-    Input,
-    Divider,
-    Link,
-    Box,
-    Stack,
-    ScrollView,
-    HStack,
     Spinner
 } from "native-base";
 import { View} from 'react-native'

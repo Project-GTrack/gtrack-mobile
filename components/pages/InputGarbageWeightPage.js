@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect} from "react";
 import {
   Text,
   Image,
@@ -6,21 +6,15 @@ import {
   Center,
   Input,
   ScrollView,
-  Select,
   Icon,
-  CheckIcon,
-  TextArea,
   Stack,
   VStack,
   View,
   HStack,
 } from "native-base";
 import { MaterialIcons } from "@expo/vector-icons";
-import * as ImagePicker from "expo-image-picker";
 import GtrackMainLogo from "../../assets/gtrack-logo-1.png";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { fontSize, padding } from "styled-system";
-import { Platform } from "react-native";
 import { useFormik } from "formik";
 import axios from "axios";
 import envs from "../../config/env.js";
@@ -30,7 +24,6 @@ import moment from "moment";
 import Firebase from "../helpers/Firebase";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as yup from "yup";
-import { string } from "yup/lib/locale";
 
 const db = Firebase.app().database();
 const InputGarbageWeightPage = () => {
