@@ -7,18 +7,27 @@ import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import Firebase from "../../helpers/Firebase";
 import { uuidGenerator } from "../../helpers/uuidGenerator.js";
 import axios from "axios";
+import { Dimensions } from "react-native";
 import MessageAlert from "../../helpers/MessageAlert";
 import ActivityIndicator from "../../helpers/ActivityIndicator";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const db = Firebase.app().database();
 const MarkDumpsterPage = () => {
+  const { height, width } = Dimensions.get( 'window' );
+  const LATITUDE_DELTA=0.23;
   const [loading, setLoading] = useState(false);
   const [user,setUser]=useState({});
   const [dumpsters, setDumpsters] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [data, setData] = useState({});
   const [marginBottom,setMarginBottom]=useState(1);
+  const [initLoc, setInitLoc] = useState({
+    latitude: 10.4659,
+    longitude: 123.9806,
+    latitudeDelta: LATITUDE_DELTA,
+    longitudeDelta: LATITUDE_DELTA * (width / height),
+  });
   const [alert, setAlert] = useState({
     visible: false,
     message: null,
@@ -27,14 +36,7 @@ const MarkDumpsterPage = () => {
   });
   useEffect(() => {
     getData();
-    axios
-      .get(`${envs.BACKEND_URL}/mobile/dumpster/get-dumpsters`)
-      .then((res) => {
-        if (res.data.success) {
-          setToFirebase(res.data.data);
-          getDumpsters();
-        }
-      });
+    getDumpsters();
   }, []);
   const getDumpsters = async () =>{
     await db.ref("Dumpsters/").on("value", (snapshot) => {
@@ -64,21 +66,6 @@ const MarkDumpsterPage = () => {
     }
     setShowModal(true);
   };
-  const setToFirebase = (data) => {
-    for (var x = 0; x < data.length; x++) {
-      db.ref("Dumpsters/" + data[x].dumpster_id).set({
-        dumpster_id: data[x].dumpster_id,
-        street: data[x].street,
-        purok: data[x].purok,
-        barangay: data[x].barangay,
-        town: data[x].town,
-        postal_code: data[x].postal_code,
-        latitude: data[x].latitude,
-        longitude: data[x].longitude,
-        complete: data[x].complete,
-      });
-    }
-  };
   const handleSubmit = async (data) => {
     setShowModal(false);
     setLoading(true);
@@ -102,6 +89,7 @@ const MarkDumpsterPage = () => {
      <View>
       <MessageAlert alert={alert} setAlert={setAlert} />
         <MapView
+          initialRegion={initLoc}
           showsUserLocation={true}
           showsMyLocationButton={true}
           provider={PROVIDER_GOOGLE}
