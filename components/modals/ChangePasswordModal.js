@@ -5,7 +5,6 @@ import {
   FormControl,
   Text,
   Input,
-  Center
 } from "native-base"
 import axios from 'axios';
 import { useFormik } from 'formik';

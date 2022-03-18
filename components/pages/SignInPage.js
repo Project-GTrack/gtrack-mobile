@@ -14,9 +14,6 @@ import {
   } from "native-base";
 import GtrackMainLogo from '../../assets/gtrack-logo-1.png'
 import GoogleIcon from '../../assets/google-icon.png'
-// import * as GoogleSignIn from 'expo-google-sign-in';
-// import * as Google from 'expo-auth-session/providers/google';
-import * as Google from 'expo-auth-session/providers/google';
 import axios from 'axios';
 import { useFormik } from 'formik';
 import Firebase from '../helpers/Firebase';
@@ -26,6 +23,7 @@ import envs from '../../config/env.js'
 import { Alert } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as yup from 'yup'
+import * as GoogleSignIn from 'expo-google-sign-in';
 
 const auth = Firebase.auth();
 const SignInPage = ({navigation}) => {
@@ -40,12 +38,12 @@ const SignInPage = ({navigation}) => {
           .string()
           .required('Password is required'),
     })
-    const [request, response, promptAsync] = Google.useAuthRequest({
-        expoClientId: envs.EXPO_CLIENT_ID,
-        // iosClientId: 'GOOGLE_GUID.apps.googleusercontent.com',
-        androidClientId: envs.ANDROID_CLIENT_ID,
-        // webClientId: 'GOOGLE_GUID.apps.googleusercontent.com',
-    });
+    // const [request, response, promptAsync] = Google.useAuthRequest({
+    //     expoClientId: envs.EXPO_CLIENT_ID,
+    //     // iosClientId: 'GOOGLE_GUID.apps.googleusercontent.com',
+    //     androidClientId: envs.ANDROID_CLIENT_ID,
+    //     // webClientId: 'GOOGLE_GUID.apps.googleusercontent.com',
+    // });
     const setData = async (data) => {
         try {
             const jsonValue = JSON.stringify(data)
@@ -67,21 +65,21 @@ const SignInPage = ({navigation}) => {
             console.log(e);
         }
     }
-    const getUserInfo= async (token) =>{
-        axios.get(`https://www.googleapis.com/oauth2/v3/userinfo?access_token=${token}`)
-        .then(res => {
-            axios.post(`${envs.BACKEND_URL}/mobile/login`, {email:res.data.email,lname:res.data.family_name,fname:res.data.given_name,image:res.data.picture,google_auth:true})
-            .then(res => {
-                if(res.data.success){
-                    setLoading(false);
-                    setData(res.data.data);
-                }else{
-                    setLoading(false);
-                    setAlert({visible:true,message:res.data.message,colorScheme:"danger",header:"Error"});
-                }
-            })
-        })
-    }
+    // const getUserInfo= async (token) =>{
+    //     axios.get(`https://www.googleapis.com/oauth2/v3/userinfo?access_token=${token}`)
+    //     .then(res => {
+    //         axios.post(`${envs.BACKEND_URL}/mobile/login`, {email:res.data.email,lname:res.data.family_name,fname:res.data.given_name,image:res.data.picture,google_auth:true})
+    //         .then(res => {
+    //             if(res.data.success){
+    //                 setLoading(false);
+    //                 setData(res.data.data);
+    //             }else{
+    //                 setLoading(false);
+    //                 setAlert({visible:true,message:res.data.message,colorScheme:"danger",header:"Error"});
+    //             }
+    //         })
+    //     })
+    // }
     const createAlert = (auth) =>{
         Alert.alert(
         "Error",
@@ -169,15 +167,58 @@ const SignInPage = ({navigation}) => {
     //     const value = await AsyncStorage.getItem('@user');
     //     return value!==null?JSON.parse(value):null;
     // }
-    useEffect(() => {
-        if (response?.type === 'success') {
-            const { authentication} = response;
-            getUserInfo(authentication.accessToken);
-        }else{
-            setLoading(false);
-        }
-    }, [response]);
+    // useEffect(() => {
+    //     if (response?.type === 'success') {
+    //         const { authentication} = response;
+    //         getUserInfo(authentication.accessToken);
+    //     }else{
+    //         setLoading(false);
+    //     }
+    // }, [response]);
+    const signOutAsync = async () => {
+        await GoogleSignIn.signOutAsync();
+    };
+    const getUserInfo= async (user) =>{
+        axios.post(`${envs.BACKEND_URL}/mobile/login`, {email:user.email,lname:user.lastName,fname:user.firstName,image:user.photoURL,google_auth:true})
+        .then(res => {
+            if(res.data.success){
+                setLoading(false);
+                setData(res.data.data);
+            }else{
+                setLoading(false);
+                signOutAsync();
+                setAlert({visible:true,message:res.data.message,colorScheme:"danger",header:"Error"});
+            }
+        })
+    }
+    // const _syncUserWithStateAsync = async () => {
+    //     const user = await GoogleSignIn.signInSilentlyAsync();
+    // };
     
+    const signInAsync = async () => {
+        try {
+          await GoogleSignIn.askForPlayServicesAsync();
+          const { type, user } = await GoogleSignIn.signInAsync();
+          if (type === 'success') {
+            // _syncUserWithStateAsync();
+            getUserInfo(user);
+          }else{
+            setLoading(false);
+          }
+        } catch ({ message }) {
+            setAlert({visible:true,message:message,colorScheme:"danger",header:`Error`});
+        }
+      };
+    const initAsync = async () => {
+        await GoogleSignIn.initAsync({
+          // You may ommit the clientId when the firebase `googleServicesFile` is configured
+          clientId: envs.ANDROID_CLIENT_ID,
+        });
+        // _syncUserWithStateAsync();
+    };
+    useEffect(() => {
+        initAsync()
+    }, []);
     useEffect(() => {
         isFocused = navigation.addListener('focus',getData);
         if(user){
@@ -190,7 +231,8 @@ const SignInPage = ({navigation}) => {
 
     const handleGoogleClick = async () => {
         setLoading(true);
-        promptAsync();
+        // promptAsync();
+        signInAsync();
     }
     return (
         <>

@@ -1,8 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
 import {
-  Modal,
-  FormControl,
-  Input,
   Center,
   Text,
   Row,
@@ -10,17 +7,13 @@ import {
   VStack,
   Button,
   View,
-  HStack,
   Column,
   Icon,
 } from "native-base";
 import { RefreshControl } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import envs from "../../config/env.js";
-import GtrackMainLogo from "../../assets/gtrack-logo-1.png";
-import GoogleIcon from "../../assets/google-icon.png";
 import { SliderBox } from "react-native-image-slider-box";
-import EventModal from "../modals/EventModal";
 import moment from "moment";
 // import * as Linking from 'expo-linking';
 import * as WebBrowser from "expo-web-browser";

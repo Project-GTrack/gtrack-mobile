@@ -14,9 +14,6 @@ import {
   } from "native-base";
 import GtrackMainLogo from '../../assets/gtrack-logo-1.png'
 import GoogleIcon from '../../assets/google-icon.png'
-// import * as GoogleSignIn from 'expo-google-sign-in';
-// import * as Google from 'expo-auth-session/providers/google';
-import * as Google from 'expo-auth-session/providers/google';
 import axios from 'axios';
 import { useFormik } from 'formik';
 import Firebase from '../helpers/Firebase';

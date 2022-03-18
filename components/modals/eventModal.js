@@ -3,26 +3,14 @@ import {
   Modal,
   FormControl,
   Input,
-  Center,
   Text,
-  Row,
-  ScrollView,
-  VStack,
   Button,
   View,
-  Column,
-  Icon,
 } from "native-base";
-import { StyleSheet, TouchableOpacity } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
-import GtrackMainLogo from "../../assets/gtrack-logo-1.png";
 import { useFormik } from 'formik';
 import axios from 'axios';
 import envs from '../../config/env.js';
 import MessageAlert from '../helpers/MessageAlert';
-import ActivityIndicator from '../helpers/ActivityIndicator';
-import GoogleIcon from "../../assets/google-icon.png";
-import { SliderBox } from "react-native-image-slider-box";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const EventModal = (props) => {

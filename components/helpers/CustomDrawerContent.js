@@ -20,6 +20,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import moment from 'moment';
 import Firebase from '../helpers/Firebase.js';
+import * as GoogleSignIn from 'expo-google-sign-in';
 
 const database=Firebase.database();
 const auth=Firebase.auth();
@@ -28,6 +29,9 @@ const CustomDrawerContent = ({navigation,user,getData}) => {
         try {
             if(auth.currentUser){
                 await auth.signOut();
+            }
+            if(GoogleSignIn.isSignedInAsync()){
+                await GoogleSignIn.signOutAsync();
             }
             await database.ref(`/PushTokens/${user.user_id}`).remove();
             const value = await AsyncStorage.getItem('@user');
@@ -123,7 +127,7 @@ const CustomDrawerContent = ({navigation,user,getData}) => {
                     size={28}
                     mx={3}
                 />
-                <Text fontSize={16}>{user&&user.email?user.email:"Not set"}</Text>
+                <Text fontSize={16} w={"50%"}>{user&&user.email?user.email:"Not set"}</Text>
             </HStack>
             </VStack>
             <Center>
