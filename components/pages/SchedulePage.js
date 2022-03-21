@@ -10,7 +10,7 @@ import {
     Box,
     ScrollView
   } from "native-base";
-import {Calendar, CalendarList, Agenda} from 'react-native-calendars';
+import {Calendar} from 'react-native-calendars';
 import { MaterialIcons } from "@expo/vector-icons";
 import envs from '../../config/env.js'
 import axios from 'axios';
