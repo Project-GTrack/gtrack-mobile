@@ -33,27 +33,23 @@ const TrackCollectorPage = () => {
     header: null,
   });
   useEffect(() => {
-      getData();
-  },[])
-  useEffect(() => {
     LogBox.ignoreLogs(['Setting a timer']);
-
-      let interval;
+    getData();
+    let interval;
     if(marker){
       interval = setInterval(() => {
-        getLiveLocation()
-    }, 6000);
-    db.ref('Drivers/'+user.user_id).set({
-        active: 1,
-        driver_id:user.user_id,
-        driver_name:user.fname+" "+user.lname,
-        latitude: initLoc.latitude,
-        longitude: initLoc.longitude,
-        garbage_type:user.userSchedule[0].garbage_type,
-        landmark:user.userSchedule[0].landmark,
-        barangay:user.userSchedule[0].barangay,
-      })
-      
+        getLiveLocation();
+        db.ref('Drivers/'+user.user_id).set({
+          active: 1,
+          driver_id:user.user_id,
+          driver_name:user.fname+" "+user.lname,
+          latitude: initLoc.latitude,
+          longitude: initLoc.longitude,
+          garbage_type:user.userSchedule[0].garbage_type,
+          landmark:user.userSchedule[0].landmark,
+          barangay:user.userSchedule[0].barangay,
+        })  
+      }, 6000);
     }
     return () => clearInterval(interval);
   
@@ -89,17 +85,15 @@ const TrackCollectorPage = () => {
       return;
     }
       let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.BestForNavigation, maximumAge: 10000});
-      setInitLoc(prevState => ({...prevState,latitude:location.coords.latitude,longitude:location.coords.longitude}))       
+      setInitLoc(prevState => ({...prevState,latitude:location.coords.latitude,longitude:location.coords.longitude}))     
+     
 }
   
   const showLocation = async () => {
       showMarker(true);
   };
   const stopSharing = async() => {
-    // db.ref('Drivers/'+user.user_id).remove();
-    // watch.remove();
     showMarker(false);
-    //getLiveLocation();
     await db.ref('Drivers/').child(user.user_id).remove();
   };
   return (
