@@ -4,23 +4,20 @@ import {
     Image,
     Button,
     Center,
-    Input,
     Divider,
-    Link,
     Box,
     Stack,
     HStack,
     Icon,
     VStack,
-    Avatar
   } from "native-base";
-import UserAvatar from '../../assets/user-avatar.png'
 import { useDrawerStatus} from '@react-navigation/drawer';
 import { MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import moment from 'moment';
 import Firebase from '../helpers/Firebase.js';
-import * as GoogleSignIn from 'expo-google-sign-in';
+import * as Google from 'expo-google-app-auth';
+import envs from '../../config/env.js'
 
 const database=Firebase.database();
 const auth=Firebase.auth();
@@ -30,9 +27,18 @@ const CustomDrawerContent = ({navigation,user,getData}) => {
             if(auth.currentUser){
                 await auth.signOut();
             }
-            if(GoogleSignIn.isSignedInAsync()){
-                await GoogleSignIn.signOutAsync();
+            const accessToken = await AsyncStorage.getItem('@accessToken');
+            if(accessToken){
+                await Google.logOutAsync({ 
+                    accessToken:accessToken,
+                    clientId:  envs.EXPO_ANDROID_CLIENT_ID,
+                    androidStandaloneAppClientId:  envs.ANDROID_CLIENT_ID,
+                });
+                await AsyncStorage.removeItem('@accessToken');
             }
+            // if(GoogleSignIn.isSignedInAsync()){
+            //     await GoogleSignIn.signOutAsync();
+            // }
             await database.ref(`/PushTokens/${user.user_id}`).remove();
             const value = await AsyncStorage.getItem('@user');
             if(value){

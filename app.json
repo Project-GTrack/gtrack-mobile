@@ -50,6 +50,9 @@
       "config":{
         "googleMaps":{
           "apiKey":"AIzaSyABaj2DcYXA_CxCtEhZADCLG8ZabuqncoU"
+        },
+        "googleSignIn":{
+          "certificateHash":"77:23:5E:FB:C1:49:77:A1:4F:37:71:AA:35:78:44:FE:75:94:C4:05"
         }
       },
       "googleServicesFile": "./google-services.json"

@@ -23,7 +23,9 @@ import envs from '../../config/env.js'
 import { Alert } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as yup from 'yup'
-import * as GoogleSignIn from 'expo-google-sign-in';
+import * as Google from 'expo-google-app-auth';
+import * as firebase from "firebase";
+import 'firebase/auth';
 
 const auth = Firebase.auth();
 const SignInPage = ({navigation}) => {
@@ -38,17 +40,19 @@ const SignInPage = ({navigation}) => {
           .string()
           .required('Password is required'),
     })
-    // const [request, response, promptAsync] = Google.useAuthRequest({
-    //     expoClientId: envs.EXPO_CLIENT_ID,
-    //     // iosClientId: 'GOOGLE_GUID.apps.googleusercontent.com',
-    //     androidClientId: envs.ANDROID_CLIENT_ID,
-    //     // webClientId: 'GOOGLE_GUID.apps.googleusercontent.com',
-    // });
     const setData = async (data) => {
         try {
             const jsonValue = JSON.stringify(data)
             await AsyncStorage.setItem('@user', jsonValue)
             navigation.replace('Drawer');
+        } catch (e) {
+            setAlert({visible:true,message:e,colorScheme:"danger",header:"Error"});
+        }
+    }
+    const setAccessToken = async (data) => {
+        try {
+            const jsonValue = JSON.stringify(data)
+            await AsyncStorage.setItem('@accessToken', jsonValue)
         } catch (e) {
             setAlert({visible:true,message:e,colorScheme:"danger",header:"Error"});
         }
@@ -65,21 +69,6 @@ const SignInPage = ({navigation}) => {
             console.log(e);
         }
     }
-    // const getUserInfo= async (token) =>{
-    //     axios.get(`https://www.googleapis.com/oauth2/v3/userinfo?access_token=${token}`)
-    //     .then(res => {
-    //         axios.post(`${envs.BACKEND_URL}/mobile/login`, {email:res.data.email,lname:res.data.family_name,fname:res.data.given_name,image:res.data.picture,google_auth:true})
-    //         .then(res => {
-    //             if(res.data.success){
-    //                 setLoading(false);
-    //                 setData(res.data.data);
-    //             }else{
-    //                 setLoading(false);
-    //                 setAlert({visible:true,message:res.data.message,colorScheme:"danger",header:"Error"});
-    //             }
-    //         })
-    //     })
-    // }
     const createAlert = (auth) =>{
         Alert.alert(
         "Error",
@@ -104,25 +93,6 @@ const SignInPage = ({navigation}) => {
             }else{
                 createAlert(auth);
             }
-            // auth.onAuthStateChanged(function(user) {
-            //     setLoading(false);
-            //     if (user && user.emailVerified) {
-                    
-            //         // axios.post(`${envs.BACKEND_URL}/mobile/verify_email`, {email:values.email})
-            //         // .then(res=>{
-            //         //     if(res.data.success){
-            //         //         setData(res.data.data);
-            //         //     }else{
-            //         //         setAlert({visible:true,message:res.data.message,colorScheme:"danger",header:"Error"});
-            //         //     }
-            //         // })
-                    
-            //     }else if(user && !user.emailVerified){
-            //         createAlert(auth);
-            //         // auth.currentUser.sendEmailVerification();
-            //         // setAlert({visible:true,message:"Email not verified. We sent you another verification link.",colorScheme:"danger",header:"Email Verification"});
-            //     }
-            // });
         })
         .catch(function(error) {
             setLoading(false);
@@ -135,16 +105,6 @@ const SignInPage = ({navigation}) => {
         .then(res => {
             if(res.data.success){
                 handleFirebase(res.data.data,values,resetForm);
-                // setLoading(false);
-                // setData(res.data.data);
-            // if(res.data.success && res.data.verified){
-            //     setLoading(false);
-            //     resetForm();
-            //     setData(res.data.data);
-            // }else if(!res.data.success && !res.data.verified){
-            //     setLoading(false);
-            //     handleFirebase(values,resetForm);
-                // setAlert({visible:true,message:res.data.message,colorScheme:"danger",header:"Error"})
             }else{
                 setLoading(false);
                 setAlert({visible:true,message:res.data.message,colorScheme:"danger",header:"Error"})
@@ -163,62 +123,72 @@ const SignInPage = ({navigation}) => {
         colorScheme:null,
         header:null
     });
-    // const getData = async () => {
-    //     const value = await AsyncStorage.getItem('@user');
-    //     return value!==null?JSON.parse(value):null;
-    // }
-    // useEffect(() => {
-    //     if (response?.type === 'success') {
-    //         const { authentication} = response;
-    //         getUserInfo(authentication.accessToken);
-    //     }else{
-    //         setLoading(false);
-    //     }
-    // }, [response]);
-    const signOutAsync = async () => {
-        await GoogleSignIn.signOutAsync();
+    const signOutAsync = async (accessToken) => {
+        // await GoogleSignIn.signOutAsync();
+        await Google.logOutAsync({ 
+            accessToken:accessToken,
+            clientId:  envs.EXPO_ANDROID_CLIENT_ID,
+            androidStandaloneAppClientId:  envs.ANDROID_CLIENT_ID,
+        });
     };
-    const getUserInfo= async (user) =>{
-        axios.post(`${envs.BACKEND_URL}/mobile/login`, {email:user.email,lname:user.lastName,fname:user.firstName,image:user.photoURL,google_auth:true})
+    
+    const handleFirebaseGoogle= async (idToken,accessToken,res) => {
+        const credential = firebase.auth.GoogleAuthProvider.credential(
+            idToken,
+            accessToken
+        );
+        await auth.signInWithCredential(credential);
+        setAccessToken(accessToken);
+        setData(res.data.data);
+    }
+
+    const getUserInfo= async (user,accessToken,idToken) =>{
+        axios.post(`${envs.BACKEND_URL}/mobile/login`, {email:user.email,lname:user.familyName,fname:user.givenName,image:user.photoUrl,google_auth:true})
         .then(res => {
             if(res.data.success){
                 setLoading(false);
-                setData(res.data.data);
+                handleFirebaseGoogle(idToken,accessToken,res);
             }else{
                 setLoading(false);
-                signOutAsync();
+                signOutAsync(accessToken);
                 setAlert({visible:true,message:res.data.message,colorScheme:"danger",header:"Error"});
             }
         })
     }
-    // const _syncUserWithStateAsync = async () => {
-    //     const user = await GoogleSignIn.signInSilentlyAsync();
-    // };
     
     const signInAsync = async () => {
-        try {
-          await GoogleSignIn.askForPlayServicesAsync();
-          const { type, user } = await GoogleSignIn.signInAsync();
-          if (type === 'success') {
-            // _syncUserWithStateAsync();
-            getUserInfo(user);
-          }else{
-            setLoading(false);
-          }
-        } catch ({ message }) {
-            setAlert({visible:true,message:message,colorScheme:"danger",header:`Error`});
-        }
-      };
-    const initAsync = async () => {
-        await GoogleSignIn.initAsync({
-          // You may ommit the clientId when the firebase `googleServicesFile` is configured
-          clientId: envs.ANDROID_CLIENT_ID,
+    //     try {
+    //       await GoogleSignIn.askForPlayServicesAsync();
+    //       const { type, user } = await GoogleSignIn.signInAsync();
+    //       if (type === 'success') {
+    //         getUserInfo(user);
+    //       }else{
+    //         setLoading(false);
+    //       }
+    //     } catch ({ message }) {
+    //         setAlert({visible:true,message:message,colorScheme:"danger",header:`Error`});
+    //     }
+        const { type, accessToken, user,idToken } = await Google.logInAsync({
+            clientId:  envs.EXPO_ANDROID_CLIENT_ID,
+            androidStandaloneAppClientId:  envs.ANDROID_CLIENT_ID,
         });
-        // _syncUserWithStateAsync();
+        
+        if (type === 'success') {
+            /* `accessToken` is now valid and can be used to get data from the Google API with HTTP requests */
+            getUserInfo(user,accessToken,idToken);
+        }else{
+            setLoading(false);
+        }
     };
-    useEffect(() => {
-        initAsync()
-    }, []);
+    // const initAsync = async () => {
+    //     await GoogleSignIn.initAsync({
+    //       // You may ommit the clientId when the firebase `googleServicesFile` is configured
+    //       clientId: envs.ANDROID_CLIENT_ID,
+    //     });
+    // };
+    // useEffect(() => {
+    //     initAsync()
+    // }, []);
     useEffect(() => {
         isFocused = navigation.addListener('focus',getData);
         if(user){
@@ -231,7 +201,6 @@ const SignInPage = ({navigation}) => {
 
     const handleGoogleClick = async () => {
         setLoading(true);
-        // promptAsync();
         signInAsync();
     }
     return (

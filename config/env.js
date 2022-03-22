@@ -9,6 +9,7 @@ import {
     DEV_SECRET_KEY,
     DEV_ANDROID_CLIENT_ID,
     DEV_EXPO_CLIENT_ID,
+    DEV_EXPO_ANDROID_CLIENT_ID,
 
     PROD_BACKEND_URL,
     PROD_FB_API_KEY,
@@ -20,6 +21,7 @@ import {
     PROD_SECRET_KEY,
     PROD_ANDROID_CLIENT_ID,
     PROD_EXPO_CLIENT_ID,
+    PROD_EXPO_ANDROID_CLIENT_ID,
 } from '@env'
 
 const devEnvironmentVariables = {
@@ -33,6 +35,7 @@ const devEnvironmentVariables = {
     SECRET_KEY:DEV_SECRET_KEY,
     ANDROID_CLIENT_ID:DEV_ANDROID_CLIENT_ID,
     EXPO_CLIENT_ID:DEV_EXPO_CLIENT_ID,
+    EXPO_ANDROID_CLIENT_ID:DEV_EXPO_ANDROID_CLIENT_ID,
 };
 
 const prodEnvironmentVariables = {
@@ -46,6 +49,7 @@ const prodEnvironmentVariables = {
     SECRET_KEY:PROD_SECRET_KEY,
     ANDROID_CLIENT_ID:PROD_ANDROID_CLIENT_ID,
     EXPO_CLIENT_ID:PROD_EXPO_CLIENT_ID,
+    EXPO_ANDROID_CLIENT_ID:PROD_EXPO_ANDROID_CLIENT_ID,
 };
 
 export default __DEV__?devEnvironmentVariables:prodEnvironmentVariables;
