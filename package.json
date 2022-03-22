@@ -33,7 +33,7 @@
     "expo-crypto": "~9.2.0",
     "expo-dev-client": "~0.7.2",
     "expo-device": "~3.3.0",
-    "expo-google-sign-in": "~9.2.1",
+    "expo-google-app-auth": "~8.2.5",
     "expo-image-picker": "~10.2.2",
     "expo-linear-gradient": "9.2.0",
     "expo-location": "~12.1.2",
