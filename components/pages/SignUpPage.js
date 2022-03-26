@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from 'react'
+import React, { useState,useRef } from 'react'
 import {
     Text,
     Image,
@@ -29,6 +29,10 @@ import 'firebase/auth';
 
 const auth = Firebase.auth();
 const SignUpPage = ({navigation}) => {
+    const lnameRef=useRef();
+    const emailRef=useRef();
+    const passwordRef=useRef();
+    const passwordRepeatRef=useRef();
     const [loading,setLoading]=useState(false);
     const signupValidationSchema = yup.object().shape({
         fname: yup
@@ -228,12 +232,19 @@ const SignUpPage = ({navigation}) => {
                     <HStack space={2}>
                         <Input autoCapitalize="words" isRequired size="md" width="148" placeholder="First Name" 
                             onChangeText={handleChange('fname')}
+                            returnKeyType="next" 
                             onBlur={handleBlur('fname')}
+                            blurOnSubmit={false}
+                            onSubmitEditing={() => lnameRef.current.focus()} 
                             value={values.fname}
                         />
                         <Input autoCapitalize="words" isRequired size="md" width="148" placeholder="Last Name" 
                             onChangeText={handleChange('lname')}
                             onBlur={handleBlur('lname')}
+                            returnKeyType="next" 
+                            ref={lnameRef}
+                            blurOnSubmit={false}
+                            onSubmitEditing={() => emailRef.current.focus()} 
                             value={values.lname}
                         />
                     </HStack>
@@ -243,6 +254,10 @@ const SignUpPage = ({navigation}) => {
                     <Input keyboardType="email-address" autoCapitalize="none" size="md" isRequired width="300" placeholder="Email Address" 
                         onChangeText={handleChange('email')}
                         onBlur={handleBlur('email')}
+                        returnKeyType="next" 
+                        ref={emailRef}
+                        blurOnSubmit={false}
+                        onSubmitEditing={() => passwordRef.current.focus()} 
                         value={values.email}
                     />
                     {(errors.password && touched.password) &&
@@ -251,6 +266,10 @@ const SignUpPage = ({navigation}) => {
                     <Input size="md" isRequired type='password' width="300" placeholder="Password" isFullWidth={true}
                         onChangeText={handleChange('password')}
                         onBlur={handleBlur('password')}
+                        returnKeyType="next" 
+                        ref={passwordRef}
+                        blurOnSubmit={false}
+                        onSubmitEditing={() => passwordRepeatRef.current.focus()} 
                         value={values.password}
                     />
                     {(errors.passwordRepeat && touched.passwordRepeat) &&
@@ -259,6 +278,7 @@ const SignUpPage = ({navigation}) => {
                     <Input size="md" isRequired type='password' width="300" placeholder="Repeat Password" isFullWidth={true}
                         onChangeText={handleChange('passwordRepeat')}
                         onBlur={handleBlur('passwordRepeat')}
+                        ref={passwordRepeatRef}
                         value={values.passwordRepeat}
                     />
                     <HStack>

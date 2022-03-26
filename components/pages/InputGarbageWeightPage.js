@@ -403,6 +403,7 @@ const InputGarbageWeightPage = () => {
                 <Input
                   size="md"
                   placeholder="Input Weight Volume Here..."
+                  keyboardType="numeric"
                   type="text"
                   bg={"white"}
                   onChangeText={handleChange("weight")}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Text,
   Button,
@@ -33,6 +33,7 @@ import * as yup from 'yup'
 
 const db=Firebase.app().database();
 const DriverReportPage = () => {
+  const descriptionRef=useRef();
   const [images,setImages]=useState([]);
   const [path,setPath]=useState(null);
   const [loading,setLoading]=useState(false);
@@ -160,8 +161,17 @@ const DriverReportPage = () => {
           {(errors.subject && touched.subject) &&
                     <Text style={{ fontSize: 10, color: 'red' }}>{errors.subject}</Text>
                 }
-            <Input autoCapitalize="sentences" bgColor="white" onBlur={handleBlur('subject')} placeholder="Subject" onChangeText={handleChange('subject')}
-                value={values&&values.subject?values.subject:""}/>
+            <Input 
+              autoCapitalize="sentences" 
+              bgColor="white" 
+              returnKeyType="next" 
+              blurOnSubmit={false}
+              onSubmitEditing={() => descriptionRef.current.focus()}
+              onBlur={handleBlur('subject')} 
+              placeholder="Subject" 
+              onChangeText={handleChange('subject')}
+              value={values&&values.subject?values.subject:""}
+            />
           </FormControl>
           <FormControl paddingBottom={5}>
           {(errors.description && touched.description) &&
@@ -170,6 +180,7 @@ const DriverReportPage = () => {
             <TextArea
               h={200}
               bgColor={"white"}
+              ref={descriptionRef}
               autoCapitalize="sentences"
               placeholder="Write description here ..."
               onBlur={handleBlur('description')}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import {
     Text,
     Image,
@@ -29,6 +29,7 @@ import 'firebase/auth';
 
 const auth = Firebase.auth();
 const SignInPage = ({navigation}) => {
+    const passwordRef = useRef();
     const [loading,setLoading]=useState(false);
     const [user,setUser]=useState(null);
     const signinValidationSchema = yup.object().shape({
@@ -51,8 +52,7 @@ const SignInPage = ({navigation}) => {
     }
     const setAccessToken = async (data) => {
         try {
-            const jsonValue = JSON.stringify(data)
-            await AsyncStorage.setItem('@accessToken', jsonValue)
+            await AsyncStorage.setItem('@accessToken', data)
         } catch (e) {
             setAlert({visible:true,message:e,colorScheme:"danger",header:"Error"});
         }
@@ -251,7 +251,14 @@ const SignInPage = ({navigation}) => {
                         {(errors.email && touched.email) &&
                             <Text style={{ fontSize: 10, color: 'red' }}>{errors.email}</Text>
                         }
-                        <Input keyboardType="email-address" autoCapitalize="none" size="md" width="300" placeholder="Email Address" 
+                        <Input 
+                            keyboardType="email-address" 
+                            returnKeyType="next" 
+                            autoCapitalize="none" 
+                            size="md" width="300" 
+                            placeholder="Email Address"
+                            blurOnSubmit={false}
+                            onSubmitEditing={() => passwordRef.current.focus()} 
                             onChangeText={handleChange('email')}
                             onBlur={handleBlur('email')}
                             value={values.email}
@@ -263,6 +270,7 @@ const SignInPage = ({navigation}) => {
                         <Input size="md" type='password' width="300" placeholder="Password" isFullWidth={true}
                             onChangeText={handleChange('password')}
                             onBlur={handleBlur('password')}
+                            ref={passwordRef}
                             value={values.password}
                         />
                         <HStack>
