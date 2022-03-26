@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import {
     Image,
     Badge,
@@ -29,6 +29,7 @@ import * as yup from 'yup'
 
 const database=Firebase.database();
 const ReportPage = () => {
+    const messageRef=useRef();
     const [initialValues, setInitialValues] = useState(null);
     const [user,setUser]=useState(null);
     const [path,setPath]=useState(null);
@@ -131,6 +132,9 @@ const ReportPage = () => {
                 <Input 
                     size="md" 
                     placeholder="Subject"
+                    returnKeyType="next" 
+                    blurOnSubmit={false}
+                    onSubmitEditing={() => messageRef.current.focus()} 
                     autoCapitalize="sentences"
                     bg={'white'}
                     onBlur={handleBlur('subject')}
@@ -149,6 +153,7 @@ const ReportPage = () => {
                       fontSize:14,
                     }}
                     onBlur={handleBlur('message')}
+                    ref={messageRef}
                     p={3}
                     value={values&&values.message?values.message:""} onChangeText={handleChange('message')}
                 />

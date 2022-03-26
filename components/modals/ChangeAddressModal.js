@@ -1,4 +1,4 @@
-import React, { useEffect,useState } from "react"
+import React, { useEffect,useState,useRef } from "react"
 import {
   Button,
   Modal,
@@ -11,6 +11,8 @@ import envs from '../../config/env.js'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ChangeAddressModal = ({setAlert,user,showModal,setShowModal}) => {
+  const streetRef=useRef();
+  const barangayRef=useRef();
   const [loading,setLoading]=useState(false);
   const [initialValues, setInitialValues] = useState(null);
   const setData = async (data) => {
@@ -60,15 +62,35 @@ const ChangeAddressModal = ({setAlert,user,showModal,setShowModal}) => {
         <Modal.Body>
           <FormControl>
             <FormControl.Label>Purok</FormControl.Label>
-            <Input autoCapitalize="words" value={values&&values.purok?values.purok:""} onChangeText={handleChange('purok')}/>
+            <Input 
+              autoCapitalize="words" 
+              value={values&&values.purok?values.purok:""} 
+              returnKeyType="next" 
+              blurOnSubmit={false}
+              onSubmitEditing={() => streetRef.current.focus()}
+              onChangeText={handleChange('purok')}
+            />
           </FormControl>
           <FormControl mt="3">
             <FormControl.Label>Street</FormControl.Label>
-            <Input autoCapitalize="words" value={values&&values.street?values.street:""} onChangeText={handleChange('street')}/>
+            <Input 
+              autoCapitalize="words" 
+              value={values&&values.street?values.street:""} 
+              returnKeyType="next" 
+              blurOnSubmit={false}
+              onSubmitEditing={() => barangayRef.current.focus()}
+              ref={streetRef}
+              onChangeText={handleChange('street')}
+            />
           </FormControl>
           <FormControl mt="3">
             <FormControl.Label>Barangay</FormControl.Label>
-            <Input autoCapitalize="words" value={values&&values.barangay?values.barangay:""} onChangeText={handleChange('barangay')}/>
+            <Input 
+              autoCapitalize="words" 
+              ref={barangayRef}
+              value={values&&values.barangay?values.barangay:""} 
+              onChangeText={handleChange('barangay')}
+            />
           </FormControl>
         </Modal.Body>
         <Modal.Footer>

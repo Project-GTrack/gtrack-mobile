@@ -22,11 +22,20 @@ import envs from '../../config/env.js'
 const database=Firebase.database();
 const auth=Firebase.auth();
 const CustomDrawerContent = ({navigation,user,getData}) => {
-    const removeData = async () => {
+    const removeUserData=async()=>{
         try {
-            if(auth.currentUser){
-                await auth.signOut();
+            const value = await AsyncStorage.getItem('@user');
+            if(value){
+                await AsyncStorage.removeItem('@user');
+                navigation.replace('SignInPage');
             }
+        }
+        catch(e) {
+            console.log(e);
+        }
+    }
+    const removeGoogleData=async()=>{
+        try {
             const accessToken = await AsyncStorage.getItem('@accessToken');
             if(accessToken){
                 await Google.logOutAsync({ 
@@ -34,20 +43,31 @@ const CustomDrawerContent = ({navigation,user,getData}) => {
                     clientId:  envs.EXPO_ANDROID_CLIENT_ID,
                     androidStandaloneAppClientId:  envs.ANDROID_CLIENT_ID,
                 });
-                await AsyncStorage.removeItem('@accessToken');
             }
-            // if(GoogleSignIn.isSignedInAsync()){
-            //     await GoogleSignIn.signOutAsync();
-            // }
-            await database.ref(`/PushTokens/${user.user_id}`).remove();
-            const value = await AsyncStorage.getItem('@user');
-            if(value){
-                await AsyncStorage.removeItem('@user');
-                navigation.replace('SignInPage');
-            }
-        } catch(e) {
+        }
+        catch(e) {
             console.log(e);
         }
+    }
+    const removeAccessToken=async()=>{
+        try {
+            const accessToken = await AsyncStorage.getItem('@accessToken');
+            if(accessToken){
+                await AsyncStorage.removeItem('@accessToken');
+            }
+        }
+        catch(e) {
+            console.log(e);
+        }
+    }
+    const removeData = async () => {
+            if(auth.currentUser){
+                await auth.signOut();
+            }
+            removeGoogleData();
+            removeAccessToken();
+            await database.ref(`/PushTokens/${user.user_id}`).remove();
+            removeUserData();
     }
     const drawerStatus=()=>{
         return useDrawerStatus()==='open'?true:false;
@@ -133,7 +153,7 @@ const CustomDrawerContent = ({navigation,user,getData}) => {
                     size={28}
                     mx={3}
                 />
-                <Text fontSize={16} w={"50%"}>{user&&user.email?user.email:"Not set"}</Text>
+                <Text fontSize={16} w={"80%"}>{user&&user.email?user.email:"Not set"}</Text>
             </HStack>
             </VStack>
             <Center>

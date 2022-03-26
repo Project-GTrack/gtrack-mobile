@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useRef } from "react"
 import {
   Button,
   Modal,
@@ -16,6 +16,8 @@ import * as yup from 'yup'
 
 const auth = Firebase.auth();
 const ChangePasswordModal = ({setAlert,user,showModal,setShowModal}) => {
+  const newPasswordRef=useRef();
+  const repeatPasswordRef=useRef();
   const [loading,setLoading]=useState(false);
   const [initialValues, setInitialValues] = useState(null);
   const changePassValidationSchema = yup.object().shape({
@@ -119,21 +121,44 @@ const ChangePasswordModal = ({setAlert,user,showModal,setShowModal}) => {
             }
             <FormControl>
               <FormControl.Label>Current password</FormControl.Label>
-              <Input type="password" onBlur={handleBlur('old_password')} value={values&&values.old_password?values.old_password:""} onChangeText={handleChange('old_password')}/>
+              <Input 
+                type="password" 
+                returnKeyType="next" 
+                blurOnSubmit={false}
+                onSubmitEditing={() => newPasswordRef.current.focus()}
+                onBlur={handleBlur('old_password')} 
+                value={values&&values.old_password?values.old_password:""} 
+                onChangeText={handleChange('old_password')}
+              />
             </FormControl>
             {(errors.new_password && touched.new_password) &&
               <Text style={{ fontSize: 10, color: 'red' }}>{errors.new_password}</Text>
             }
             <FormControl mt="3">
               <FormControl.Label>New Password</FormControl.Label>
-              <Input type="password" onBlur={handleBlur('new_password')} value={values&&values.new_password?values.new_password:""} onChangeText={handleChange('new_password')}/>
+              <Input 
+                type="password" 
+                onBlur={handleBlur('new_password')} 
+                returnKeyType="next" 
+                blurOnSubmit={false}
+                onSubmitEditing={() => repeatPasswordRef.current.focus()}
+                ref={newPasswordRef}
+                value={values&&values.new_password?values.new_password:""} 
+                onChangeText={handleChange('new_password')}
+              />
             </FormControl>
             {(errors.repeat_password && touched.repeat_password) &&
               <Text style={{ fontSize: 10, color: 'red' }}>{errors.repeat_password}</Text>
             }
             <FormControl mt="3">
               <FormControl.Label>Repeat New Password</FormControl.Label>
-              <Input type="password" onBlur={handleBlur('repeat_password')} value={values&&values.repeat_password?values.repeat_password:""} onChangeText={handleChange('repeat_password')}/>
+              <Input 
+                type="password" 
+                onBlur={handleBlur('repeat_password')} 
+                ref={repeatPasswordRef}
+                value={values&&values.repeat_password?values.repeat_password:""} 
+                onChangeText={handleChange('repeat_password')}
+              />
             </FormControl>
           </Modal.Body>
           <Modal.Footer>

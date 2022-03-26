@@ -1,4 +1,4 @@
-import React,{useEffect, useState} from "react"
+import React,{useEffect, useState, useRef} from "react"
 import {
   Button,
   Modal,
@@ -20,6 +20,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as yup from 'yup'
 
 const GeneralInformationModal = ({setAlert,user,showModal,setShowModal}) => {
+  const lnameRef=useRef();
+  const contactNoRef=useRef();
   const [loading,setLoading]=useState(false);
   const [initialValues,setInitialValues]=useState(null);
   const [show, setShow] = useState(false);
@@ -100,11 +102,38 @@ const GeneralInformationModal = ({setAlert,user,showModal,setShowModal}) => {
                   <Text style={{ fontSize: 10, color: 'red' }}>{errors.lname}</Text>
                 }
                 <HStack space={1}>
-                  <Input autoCapitalize="words" value={values&&values.fname?values.fname:""} placeholder="First Name" onChangeText={handleChange('fname')} style={{alignSelf:'stretch',width:'50%'}}/>
-                  <Input autoCapitalize="words" value={values&&values.lname?values.lname:""} placeholder="Last Name" onChangeText={handleChange('lname')} style={{alignSelf:'stretch',width:'50%'}}/>
+                  <Input 
+                    autoCapitalize="words" 
+                    value={values&&values.fname?values.fname:""} 
+                    placeholder="First Name" 
+                    returnKeyType="next" 
+                    blurOnSubmit={false}
+                    onSubmitEditing={() => lnameRef.current.focus()}
+                    onChangeText={handleChange('fname')} 
+                    style={{alignSelf:'stretch',width:'50%'}}
+                  />
+                  <Input 
+                    autoCapitalize="words" 
+                    value={values&&values.lname?values.lname:""} 
+                    placeholder="Last Name" 
+                    returnKeyType="next" 
+                    blurOnSubmit={false}
+                    onSubmitEditing={() => contactNoRef.current.focus()}
+                    ref={lnameRef}
+                    onChangeText={handleChange('lname')} 
+                    style={{alignSelf:'stretch',width:'50%'}}
+                  />
                 </HStack>
                 <Input keyboardType="email-address" value={values&&values.email?values.email:""} placeholder="email" onChangeText={handleChange('email')} isDisabled mt={2} style={{alignSelf:'stretch'}}/>
-                <Input keyboardType="numeric" value={values&&values.contact_no?values.contact_no:""} placeholder="Contact Number" onChangeText={handleChange('contact_no')} mt={2} style={{alignSelf:'stretch'}}/>
+                <Input 
+                  keyboardType="numeric" 
+                  value={values&&values.contact_no?values.contact_no:""} 
+                  placeholder="Contact Number" 
+                  ref={contactNoRef}
+                  onChangeText={handleChange('contact_no')} 
+                  mt={2} 
+                  style={{alignSelf:'stretch'}}
+                />
                 <Select
                   accessibilityLabel="Choose Gender"
                   placeholder="Choose Gender"
