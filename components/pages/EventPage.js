@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useEffect, useCallback } from "react";
 import {
   Center,
   Text,
@@ -15,17 +15,13 @@ import { MaterialIcons } from "@expo/vector-icons";
 import envs from "../../config/env.js";
 import { SliderBox } from "react-native-image-slider-box";
 import moment from "moment";
-// import * as Linking from 'expo-linking';
 import * as WebBrowser from "expo-web-browser";
 import axios from "axios";
-import { createShimmerPlaceholder } from "react-native-shimmer-placeholder";
-import { LinearGradient } from "expo-linear-gradient";
+import Shimmer from "../helpers/Shimmer.js";
 
 const wait = (timeout) => {
   return new Promise((resolve) => setTimeout(resolve, timeout));
 };
-
-const ShimmerPlaceholder = createShimmerPlaceholder(LinearGradient);
 
 const EventPage = ({ events, setEvents, refreshing, setRefreshing }) => {
   let img = [];
@@ -50,7 +46,6 @@ const EventPage = ({ events, setEvents, refreshing, setRefreshing }) => {
   }, [events]);
   const registerEvent = async (url) => {
     let res = await WebBrowser.openBrowserAsync(url);
-    console.log(res);
   };
   return (
     <>
@@ -68,98 +63,11 @@ const EventPage = ({ events, setEvents, refreshing, setRefreshing }) => {
             events && events.length > 0 ? (
               events.map((data, i) => {
                 return (
-                  <VStack
-                    key={i}
-                    marginLeft={3}
-                    marginRight={3}
-                    marginTop={2}
-                    marginBottom={2}
-                    shadow={2}
-                    borderRadius="sm"
-                    backgroundColor="white"
-                  >
-                    <ShimmerPlaceholder width={336} height={200} />
-                    <VStack px={4} pb={4}>
-                      <ShimmerPlaceholder
-                        shimmerStyle={{ borderRadius: 10, marginTop: 40 }}
-                        width={260}
-                      />
-                      <ShimmerPlaceholder
-                        shimmerStyle={{ borderRadius: 10, marginTop: 10 }}
-                        width={150}
-                      />
-                       <ShimmerPlaceholder
-                        shimmerStyle={{ borderRadius: 10, marginTop: 10 }}
-                        width={300}
-                      />
-                      <ShimmerPlaceholder
-                        shimmerStyle={{ borderRadius: 10, marginTop: 10 }}
-                        width={50}
-                      />
-                
-                    </VStack>
-                    <VStack px={4} pb={4} marginTop={3}>
-                      <ShimmerPlaceholder
-                        shimmerStyle={{ borderRadius: 10, marginTop: 2 }}
-                        width={80}
-                      />
-                      <ShimmerPlaceholder
-                        shimmerStyle={{ borderRadius: 10, marginTop: 16 }}
-                        width={150}
-                      />
-                      <ShimmerPlaceholder
-                        shimmerStyle={{ borderRadius: 10, marginTop: 8 }}
-                        width={120}
-                      />
-                    </VStack>
-                  </VStack>
+                  <Shimmer key={i} type="events"/>
                 );
               })
             ) : (
-              <VStack
-                    marginLeft={3}
-                    marginRight={3}
-                    marginTop={2}
-                    marginBottom={2}
-                    shadow={2}
-                    borderRadius="sm"
-                    backgroundColor="white"
-                  >
-                    <ShimmerPlaceholder width={336} height={200} />
-                    <VStack px={4} pb={4}>
-                      <ShimmerPlaceholder
-                        shimmerStyle={{ borderRadius: 10, marginTop: 40 }}
-                        width={260}
-                      />
-                      <ShimmerPlaceholder
-                        shimmerStyle={{ borderRadius: 10, marginTop: 10 }}
-                        width={150}
-                      />
-                       <ShimmerPlaceholder
-                        shimmerStyle={{ borderRadius: 10, marginTop: 10 }}
-                        width={300}
-                      />
-                      <ShimmerPlaceholder
-                        shimmerStyle={{ borderRadius: 10, marginTop: 10 }}
-                        width={50}
-                      />
-                
-                    </VStack>
-                    <VStack px={4} pb={4} marginTop={3}>
-                      <ShimmerPlaceholder
-                        shimmerStyle={{ borderRadius: 10, marginTop: 2 }}
-                        width={80}
-                      />
-                      <ShimmerPlaceholder
-                        shimmerStyle={{ borderRadius: 10, marginTop: 16 }}
-                        width={150}
-                      />
-                      <ShimmerPlaceholder
-                        shimmerStyle={{ borderRadius: 10, marginTop: 8 }}
-                        width={120}
-                      />
-                    </VStack>
-                  </VStack>
+             <Shimmer type="events"/>
             )
           ) : events.length === 0 ? (
             <Text bold textAlign="center" fontSize={24} marginTop={250}>
@@ -282,13 +190,11 @@ const EventPage = ({ events, setEvents, refreshing, setRefreshing }) => {
                       </Column>
                       <Column>
                         <Text fontSize={13} paddingLeft={3}>
-                          {moment(arr.startDate).format(
-                            "lll"
-                          )}{" "}
+                          {moment(arr.startDate).format("MMM DD, YYYY")}{" "}
+                          {moment(arr.startDate.substring(11,16), ["HH:mm A"]).format("h:mm A")}{" "}
                           -{" "}
-                          {moment(arr.endDate).format(
-                            "lll"
-                          )}
+                          {moment(arr.endDate).format("MMM DD, YYYY")}{" "}
+                          {moment(arr.endDate.substring(11,16), ["HH:mm A"]).format("h:mm A")}
                         </Text>
                       </Column>
                     </Row>
