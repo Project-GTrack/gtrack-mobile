@@ -75,31 +75,6 @@ const InputGarbageWeightPage = () => {
     }
    await setLoading(false);
   };
-  // useEffect(() => {
-  //   (async () => {
-  //     if (user !== null) {
-  //       await axios
-  //         .get(
-  //           `${envs.BACKEND_URL}/mobile/waste-collection/get-route/${user.user_id}`
-  //         )
-  //         .then((res) => {
-  //           if (res.data.success) {
-  //             setRoute(res.data.data);
-  //             setIsDisabled(false);
-  //           } else {
-  //             setIsDisabled(true);
-  //             setAlert({
-  //               visible: true,
-  //               message: res.data.message,
-  //               colorScheme: "success",
-  //               header: "Collection Schedule",
-  //             });
-  //           }
-  //         });
-  //         setLoading(false);
-  //     }
-  //   })();
-  // }, [user]);
   const collectionValidation = yup.object().shape({
     weight: yup.string().required("Weight Volume is required"),
     schedule: yup.object().shape({
@@ -114,7 +89,7 @@ const InputGarbageWeightPage = () => {
         `${envs.BACKEND_URL}/mobile/waste-collection/submit-collection/${user.user_id}`,
         {
           collection_weight_volume: values.weight,
-          collection_date: moment(values.schedule.date).format("YYYY-MM-DD")+" "+values.schedule.time.toString().substring(16,24),
+          collection_date: moment(moment(values.schedule.date).format("YYYY-MM-DD").toString()+" "+moment(values.schedule.time.toString().substring(16,24), ["HH:mm:ss"]).format("HH:mm:ss")).toISOString(),
           collection_route: route,
         }
       )
@@ -152,71 +127,6 @@ const InputGarbageWeightPage = () => {
           });
         }
       });
-    // if (values.weight !== "" && route != "" && date != "" && startTime != "") {
-    //   setLoading(true);
-    //   axios
-    //     .post(
-    //       `${envs.BACKEND_URL}/mobile/waste-collection/submit-collection/${user.user_id}`,
-    //       {
-    //         collection_weight_volume: values.weight,
-    //         date: moment(date).format("MM-DD-YY"),
-    //         start_time: moment(startTime).format("HH:mm:ss"),
-    //         end_time: moment(endTime).format("HH:mm:ss"),
-    //         collection_route: route,
-    //       }
-    //     )
-    //     .then((res) => {
-    //       if (res.data.success) {
-    //         db.ref("Dumpsters/").once("value", (snapshot) => {
-    //           for (var x = 0; x < snapshot.val().length; x++) {
-    //             if (snapshot.val()[x] != undefined) {
-    //               if (
-    //                 snapshot.val()[x].driver_id != undefined &&
-    //                 snapshot.val()[x].driver_id === user.user_id
-    //               ) {
-    //                 db.ref("Dumpsters/" + snapshot.val()[x].dumpster_id).update(
-    //                   { complete: 0 }
-    //                 );
-    //                 db.ref("Dumpsters/" + snapshot.val()[x].dumpster_id)
-    //                   .child("driver_id")
-    //                   .remove();
-    //                 axios.put(
-    //                   `${envs.BACKEND_URL}/mobile/dumpster/update-dumpster/${
-    //                     snapshot.val()[x].dumpster_id
-    //                   }`
-    //                 );
-    //               }
-    //             }
-    //           }
-    //         });
-    //         resetForm();
-    //         setDate("");
-    //         setStartTime("");
-    //         setEndTime("");
-    //         setRoute("");
-    //         setLoading(false);
-    //         setAlert({
-    //           visible: true,
-    //           message: res.data.message,
-    //           colorScheme: "success",
-    //           header: "Waste Collection Report",
-    //         });
-    //       }
-    //     });
-    // } else {
-    //   resetForm();
-    //   setDate("");
-    //   setStartTime("");
-    //   setEndTime("");
-    //   setRoute("");
-    //   setLoading(false);
-    //   setAlert({
-    //     visible: true,
-    //     message: "Please fill out all the fields",
-    //     colorScheme: "danger",
-    //     header: "Empty Fields",
-    //   });
-    // }
   };
   const { handleChange, handleSubmit, values, errors, touched, setFieldValue } =
     useFormik({
@@ -243,24 +153,16 @@ const InputGarbageWeightPage = () => {
       }
     }
   };
-
-  const showMode = (currentMode) => {
+  const showPicker = (mode) => {
     setShow(true);
-    if (currentMode === "time") {
+    if (mode === "time") {
       setMode("time");
-      setCurShow(currentMode);
+      setCurShow(mode);
     } else {
-      setMode(currentMode);
-      setCurShow(currentMode);
+      setMode(mode);
+      setCurShow(mode);
     }
-  };
-  const showDatepicker = () => {
-    showMode("date");
-  };
-
-  const showStartTimepicker = () => {
-    showMode("time");
-  };
+  }
   return (
     <>
       <View>
@@ -333,7 +235,7 @@ const InputGarbageWeightPage = () => {
                   <HStack>
                     <VStack paddingRight={15} marginLeft={2}>
                       <Button
-                        onPress={showDatepicker}
+                        onPress={() => showPicker("date")}
                         colorScheme="success"
                         title="Show date picker!"
                       >
@@ -342,7 +244,7 @@ const InputGarbageWeightPage = () => {
                     </VStack>
                     <VStack paddingRight={2}>
                       <Button
-                        onPress={showStartTimepicker}
+                        onPress={() => showPicker("time")}
                         colorScheme="success"
                         title="Show time picker!"
                       >
@@ -372,34 +274,6 @@ const InputGarbageWeightPage = () => {
                   isReadOnly="true"
                   isDisabled="true"
                 />
-                {/* <Select
-                selectedValue={route}
-                accessibilityLabel="Choose Collection Route"
-                placeholder="Choose Collection Route"
-                _selectedItem={{
-                  bg: "success.500",
-                  endIcon: <CheckIcon size="5" />,
-                }}
-                dropdownIcon={
-                  <Icon
-                    as={<MaterialIcons name="unfold-more" />}
-                    color={"#10b981"}
-                    size={7}
-                  />
-                }
-                style={{
-                  borderWidth: 1,
-                  borderColor: "#10b981",
-                }}
-                onValueChange={(itemValue) => setRoute(itemValue)}
-              >
-                <Select.Item
-                  label="Municipal Grounds"
-                  value="Municipal Grounds"
-                />
-                <Select.Item label="Market" value="Market" />
-                <Select.Item label="School SCI-TECH" value="School SCI-TECH" />
-              </Select> */}
                 <Input
                   size="md"
                   placeholder="Input Weight Volume Here..."
