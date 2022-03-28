@@ -90,8 +90,9 @@ const CustomDrawerContent = ({navigation,user,getData}) => {
                     >
                         {user&&user.image?(
                             <Image
-                                size={120}
-                                resizeMode={"contain"}
+                                size="full"
+                                key={user.image}
+                                resizeMode={"cover"}
                                 source={{uri:user.image}}
                                 alt="User Avatar"
                                 rounded={'full'}

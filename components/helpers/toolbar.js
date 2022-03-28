@@ -17,6 +17,7 @@ import ProfilePage from "../pages/ProfilePage";
 import InputGarbageWeightPage from "../pages/InputGarbageWeightPage";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from "axios";
+import ImageBrowserScreen from "./ImageBrowserScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -226,9 +227,10 @@ const Toolbar = ({navigation}) => {
         />)}
         {user && user.user_type==="Driver"?(
           <Tab.Screen
-          name="Report/Concern"
+          name="Report"
           component={DriverReportPage}
           options={{
+            headerTitle:"Report",
             headerStyle: {
               backgroundColor: "white",
             },
@@ -258,9 +260,10 @@ const Toolbar = ({navigation}) => {
           }}
         />
         ):(<Tab.Screen
-          name="Report/Concern"
+          name="Concern"
           component={ReportPage}
           options={{
+            headerTitle:"Concern",
             headerStyle: {
               backgroundColor: "white",
             },
@@ -324,7 +327,6 @@ const Toolbar = ({navigation}) => {
             }}
           />
         ):(<></>)}
-        
         <Tab.Screen
           name="Profile"
           component={ProfilePage}
@@ -355,6 +357,15 @@ const Toolbar = ({navigation}) => {
               />
               </Link>
             )
+          }}
+        />
+        <Tab.Screen
+          name='ImageBrowser'
+          component={ImageBrowserScreen}
+          options={{
+            title: 'Selected 0 files',
+            tabBarButton: () => null,
+            unmountOnBlur:true
           }}
         />
       </Tab.Navigator>
