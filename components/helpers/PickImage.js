@@ -9,7 +9,7 @@ import { uuidGenerator } from './uuidGenerator.js';
 import Firebase from '../helpers/Firebase';
 import { LogBox } from 'react-native';
 const storage=Firebase.storage();
-const PickImage = ({multiple,path,value,setValue,setFieldValue}) => {
+const PickImage = ({multiple,path,setValue,setFieldValue,navigation,fromPage,setLoading,loading}) => {
     useEffect(() => {
         LogBox.ignoreLogs(['Setting a timer']);
     }, []);
@@ -41,23 +41,28 @@ const PickImage = ({multiple,path,value,setValue,setFieldValue}) => {
     }
     const handlePickImage = async () => {
         // No permissions request is necessary for launching the image library
-        let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.All,
-            aspect: [4, 3],
-            quality: 1,
-            allowsMultipleSelection: multiple,
-        });
-        if(!result.cancelled){
-            if(multiple){
-                await uploadMultipleImageAsync(value,setValue,result,path);
-            }else{
-                await uploadSingleImageAsync(setValue,result,path);
-            }
-        }
         
+            if(multiple){
+                // await uploadMultipleImageAsync(value,setValue,result,path);
+                setValue([]);
+                navigation.navigate('ImageBrowser', {path: path,fromPage:fromPage});
+            }else{
+                let result = await ImagePicker.launchImageLibraryAsync({
+                    mediaTypes: ImagePicker.MediaTypeOptions.All,
+                    aspect: [4, 3],
+                    quality: 1,
+                    allowsMultipleSelection: multiple,
+                });
+                if(!result.cancelled){
+                    setLoading(true);
+                    await uploadSingleImageAsync(setValue,result,path);
+                }
+            }
     };
     return (
         <Button mt={3} colorScheme="success" onPress={handlePickImage} 
+            isLoading={loading}
+            isLoadingText="Uploading"
             leftIcon={ <Icon
                 as={<MaterialIcons name="attachment" />}
                 color={'white'}

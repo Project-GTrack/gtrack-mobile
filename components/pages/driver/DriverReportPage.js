@@ -32,7 +32,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as yup from 'yup'
 
 const db=Firebase.app().database();
-const DriverReportPage = () => {
+const DriverReportPage = ({navigation,route}) => {
   const descriptionRef=useRef();
   const [images,setImages]=useState([]);
   const [path,setPath]=useState(null);
@@ -52,7 +52,17 @@ const DriverReportPage = () => {
   useEffect(() => {
     getData();
   }, [])
-
+  useEffect(() => {
+    if(route.params&&route.params.photos){
+        setImages(route.params.photos);
+        setFieldValue("images",route.params.photos);
+        delete route.params.photos;
+    }
+    return ()=>{
+        setImages([]);
+        setFieldValue("images",[]);
+    }
+  }, [route.params]);
   const getData = async () => {
     await setLoading(true);
       try {
@@ -107,9 +117,11 @@ const DriverReportPage = () => {
   })
  
   const handleRemoveImage=(index)=>{
-    let imgTemp=[...images];
-    imgTemp.splice(index,1);
+    let imgTemp=[];
+    imgTemp=images;
+    imgTemp.splice(index,1); 
     setImages([...imgTemp]);
+    setFieldValue("images",[...imgTemp]);
   }
   const handleFormSubmit = async (values,{resetForm}) => {
     try{
@@ -262,14 +274,14 @@ const DriverReportPage = () => {
               {(errors.images && touched.images) &&
                     <Text style={{ fontSize: 10, color: 'red' }}>{errors.images}</Text>
                 }
-              <PickImage path={path} value={images} setValue={setImages} multiple={true} setFieldValue={setFieldValue}/>
+              <PickImage navigation={navigation} fromPage={'Report'} path={path} value={images} setValue={setImages} multiple={true} setFieldValue={setFieldValue}/>
               <Center marginTop={3}>
                     <HStack space={2}>
                     {images.map((img,i)=>{
                        return  (
-                        <Box rounded={'full'} key={i}>
+                        <Box rounded={'full'} key={img}>
                           <Avatar 
-                            size="md"
+                            size="lg"
                             backgroundColor="white"
                             source={{uri: img}}
                           />
