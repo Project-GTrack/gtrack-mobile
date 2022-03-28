@@ -1,14 +1,21 @@
 {
   "expo": {
-    "name": "gtrack-mobile",
+    "name": "GTrack",
+    "owner": "rjoliverio",
     "slug": "gtrack-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/gtrack-icon.png",
+    "scheme": "testing",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/gtrack-splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
+    },
+    "notification":{
+      "icon": "./assets/gtrack-notification-icon.png",
+      "androidMode": "default",
+      "androidCollapsedTitle": "Updates from GTrack"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -17,16 +24,49 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "The app accesses your photos to let you share them with your friends.",
+        "NSCameraUsageDescription": "Allow $(PRODUCT_NAME) to access your camera",
+        "NSMicrophoneUsageDescription": "Allow $(PRODUCT_NAME) to access your microphone"
+      }
     },
     "android": {
+      "useNextNotificationsApi": true,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/gtrack-adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_BACKGROUND_LOCATION"
+      ],
+      "package": "com.gtrack.mobile",
+      "config":{
+        "googleMaps":{
+          "apiKey":"AIzaSyABaj2DcYXA_CxCtEhZADCLG8ZabuqncoU"
+        },
+        "googleSignIn":{
+          "certificateHash":"77:23:5E:FB:C1:49:77:A1:4F:37:71:AA:35:78:44:FE:75:94:C4:05"
+        }
+      },
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app accesses your photos to let you share them with your friends."
+        }
+      ]
+    ]
   }
 }
