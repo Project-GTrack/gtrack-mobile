@@ -69,7 +69,7 @@ const PickImage = ({multiple,path,setValue,setFieldValue,navigation,fromPage,set
                 size={5}
             />} 
         >
-            Attach files/photos
+            Attach photo/s
         </Button>
     );
 };
