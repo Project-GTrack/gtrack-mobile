@@ -4,7 +4,6 @@ import {
     Center,
     VStack,
     HStack,
-    Container,
     Divider,
     Icon,
     Box,
@@ -167,25 +166,23 @@ const SchedulePage = () => {
                                                 />
                                                 <VStack>
                                                 <Text>
-                                                    [{item.details.barangay}] Garbage Collection Day
+                                                    [{item.details.landmark}] Garbage Collection Day
                                                 </Text>
                                                 <Text>
-                                                    {item.details.landmark}
+                                                    {item.details.purok+" "+item.details.street+" "+item.details.barangay}
                                                 </Text>
                                                 </VStack>
                                             </HStack>
-                                            {user&&user.user_type==="Driver" && 
-                                                <HStack space={3}>
-                                                    <Icon
-                                                        as={<MaterialIcons name="local-shipping" />}
-                                                        size={25}
-                                                        color={'#10b981'}
-                                                    />
-                                                    <Text>
-                                                        {item.details.scheduleDriver.fname+" "+item.details.scheduleDriver.lname}
-                                                    </Text>
-                                                </HStack>
-                                            }
+                                            <HStack space={3}>
+                                                <Icon
+                                                    as={<MaterialIcons name="local-shipping" />}
+                                                    size={25}
+                                                    color={'#10b981'}
+                                                />
+                                                <Text>
+                                                    {item.details.scheduleDriver.fname+" "+item.details.scheduleDriver.lname}
+                                                </Text>
+                                            </HStack>
                                             <HStack space={3}>
                                                 <Icon
                                                     as={<MaterialIcons name="schedule" />}
@@ -193,7 +190,7 @@ const SchedulePage = () => {
                                                     color={'#10b981'}
                                                 />
                                                 <Text>
-                                                    {moment(item.start_time).format("hh:mm A")+"-"+moment(item.end_time).format("hh:mm A")}
+                                                    {moment(item.start_time).format("hh:mm A")+" - "+moment(item.end_time).format("hh:mm A")}
                                                 </Text>
                                             </HStack>
                                             <HStack space={3}>
