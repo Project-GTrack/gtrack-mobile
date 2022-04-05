@@ -129,7 +129,7 @@ const DriverReportPage = ({navigation,route}) => {
         axios.post(`${envs.BACKEND_URL}/mobile/report/submit-report/${user.user_id}`, {subject:values.subject,message:values.description,latitude:initLoc.latitude,longitude:initLoc.longitude,degree:values.degree,image:images})
           .then(res => {
               if(res.data.success){
-                db.ref('Reports/'+user.user_id).set({
+                db.ref('Reports/'+res.data.data.report_id).set({
                   subject: values.subject,
                   description: values.description,
                   degree: values.degree,

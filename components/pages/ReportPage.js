@@ -202,8 +202,8 @@ const ReportPage = ({navigation,route}) => {
                     <Text style={{ fontSize: 10, color: 'red' }}>{errors.classification}</Text>
                 }
                 <Select
-                    accessibilityLabel="Choose report category"
-                    placeholder="Choose report category"
+                    accessibilityLabel="Choose concern classification"
+                    placeholder="Choose concern classification"
                     _selectedItem={{
                         bg: "success.500",
                         endIcon: <CheckIcon size="5" />,
@@ -225,6 +225,9 @@ const ReportPage = ({navigation,route}) => {
                     <Select.Item label="Violation" value="Violation" />
                     <Select.Item label="Delay" value="Delay" />
                     <Select.Item label="Pile-up" value="Pile-up" />
+                    <Select.Item label="General Concern" value="General Concern" />
+                    <Select.Item label="Request" value="Request" />
+                    <Select.Item label="Others" value="Others" />
                 </Select>
             </Stack>
             <Button colorScheme='danger' mt={10} mb={2}
@@ -240,7 +243,7 @@ const ReportPage = ({navigation,route}) => {
                 onPress={handleSubmit}
                 disabled={!isValid}
             >
-                Send Report
+                Send Concern
             </Button>
         </Center>
         </ScrollView>
