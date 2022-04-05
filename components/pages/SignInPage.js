@@ -83,6 +83,10 @@ const SignInPage = ({navigation}) => {
         ]
         );
     }
+    const handleCreateFirebase=async(email,password)=>{
+        await auth.createUserWithEmailAndPassword(email,password);
+        createAlert(auth);
+    }
     const handleFirebase = async(data,values,resetForm)=>{
         await auth.signInWithEmailAndPassword(values.email, values.password)
         .then(function() {
@@ -96,7 +100,11 @@ const SignInPage = ({navigation}) => {
         })
         .catch(function(error) {
             setLoading(false);
-            setAlert({visible:true,message:error.message,colorScheme:"danger",header:`Error`});
+            if(error.code=="auth/user-not-found"){
+                handleCreateFirebase(values.email, values.password);
+            }else{
+                setAlert({visible:true,message:error.message,colorScheme:"danger",header:`Error`});
+            }
         });
     }
     const handleFormSubmit = async (values,{resetForm}) =>{
