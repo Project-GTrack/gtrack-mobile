@@ -39,14 +39,17 @@ const MarkDumpsterPage = () => {
     getDumpsters();
   }, []);
   const getDumpsters = async () =>{
-    await db.ref("Dumpsters/").on("value", (snapshot) => {
-      if(snapshot.val()){
-        let temp=Object.keys(snapshot.val()).map(key => snapshot.val()[key]);
-        setDumpsters(temp);
-      }else{
-        setDumpsters([]);
-      }
-    });
+  
+      await db.ref("Dumpsters/").on("value", (snapshot) => {
+        if(snapshot.val()){
+          let temp=Object.keys(snapshot.val()).map(key => snapshot.val()[key]);
+          setDumpsters(temp);
+        }else{
+          setDumpsters([]);
+        }
+      });
+    
+    
   }
   const getData = async () => {
     try {
@@ -134,7 +137,10 @@ const MarkDumpsterPage = () => {
                             <Text bold>Mark this Dumpster as NOT Collected?</Text>
                           )
                         ):(<Text bold>You have no scheduled collection today</Text>)}
-                        
+
+                        <Text marginTop={3}>Street: {data.street}</Text>
+                        <Text >Purok: {data.purok}</Text>
+                        <Text >Barangay: {data.barangay}</Text>
                       </Modal.Body>
                       <Modal.Footer>
                         <Button.Group space={2}>
