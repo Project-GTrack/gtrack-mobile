@@ -18,10 +18,15 @@ import { useFormik } from 'formik';
 import envs from '../../config/env.js'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as yup from 'yup'
+import Firebase from '../helpers/Firebase';
+import * as firebase from "firebase";
+import 'firebase/auth';
 
+const auth = Firebase.auth();
 const GeneralInformationModal = ({setAlert,user,showModal,setShowModal}) => {
   const lnameRef=useRef();
   const contactNoRef=useRef();
+  const emailRef=useRef();
   const [loading,setLoading]=useState(false);
   const [initialValues,setInitialValues]=useState(null);
   const [show, setShow] = useState(false);
@@ -38,6 +43,10 @@ const GeneralInformationModal = ({setAlert,user,showModal,setShowModal}) => {
     lname: yup
       .string()
       .required('Last Name is Required'),
+    email: yup
+      .string()
+      .email('Please enter a valid email')
+      .required('Last Name is Required'),
     contact_no: yup
       .string()
       .min(11,`Must be 11 digits starting with 09`)
@@ -51,18 +60,37 @@ const GeneralInformationModal = ({setAlert,user,showModal,setShowModal}) => {
         setAlert({visible:true,message:e,colorScheme:"danger",header:"Error"});
     }
   }
+  const handleFirebase =async (values,res) =>{
+    if(auth.currentUser){
+      await auth.currentUser.updateEmail(values.email).then(() => {
+        setShowModal(false);
+        setLoading(false);
+        setData(res.data.data);
+        setAlert({visible:true,message:"Profile is updated. Verify your new email when you login",colorScheme:"success",header:"Success"});
+      }).catch((error) => {
+        setAlert({visible:true,message:error.message,colorScheme:"danger",header:"Error"});
+      });
+    }else{
+      console.log('USER NOT LOGGED IN');
+    }
+  }
   const handleFormSubmit = async (values) =>{
     setLoading(true);
-    axios.post(`${envs.BACKEND_URL}/mobile/profile/general_info`, {email:values.email,lname:values.lname,fname:values.fname,contact_no:values.contact_no!==""?values.contact_no:null,gender:values.gender!==""?values.gender:null,birthday:date})
+    axios.post(`${envs.BACKEND_URL}/mobile/profile/general_info`, {email:initialValues.email,newEmail:values.email,lname:values.lname,fname:values.fname,contact_no:values.contact_no!==""?values.contact_no:null,gender:values.gender!==""?values.gender:null,birthday:date})
     .then(res => {
-        setLoading(false);
         if(res.data.success){
-          setShowModal(false);
-          setData(res.data.data)
-          setAlert({visible:true,message:res.data.message,colorScheme:"success",header:"Success"});
+          if(initialValues.email!=values.email){
+            handleFirebase(values,res);
+          }else{
+            setShowModal(false);
+            setLoading(false);
+            setData(res.data.data);
+            setAlert({visible:true,message:res.data.message,colorScheme:"success",header:"Success"});
+          }
         }else{
+          setLoading(false);
           setShowModal(false)
-          setAlert({visible:true,message:"Update Unsuccessful.",colorScheme:"danger",header:"Error"})
+          setAlert({visible:true,message:res.data.message,colorScheme:"danger",header:"Error"})
         }
     })
   }
@@ -118,13 +146,27 @@ const GeneralInformationModal = ({setAlert,user,showModal,setShowModal}) => {
                     placeholder="Last Name" 
                     returnKeyType="next" 
                     blurOnSubmit={false}
-                    onSubmitEditing={() => contactNoRef.current.focus()}
+                    onSubmitEditing={() => emailRef.current.focus()}
                     ref={lnameRef}
                     onChangeText={handleChange('lname')} 
                     style={{alignSelf:'stretch',width:'50%'}}
                   />
                 </HStack>
-                <Input keyboardType="email-address" value={values&&values.email?values.email:""} placeholder="email" onChangeText={handleChange('email')} isDisabled mt={2} style={{alignSelf:'stretch'}}/>
+                {(errors.email && touched.email) &&
+                  <Text style={{ fontSize: 10, color: 'red' }}>{errors.email}</Text>
+                }
+                <Input 
+                  keyboardType="email-address" 
+                  value={values&&values.email?values.email:""} 
+                  placeholder="Email" 
+                  returnKeyType="next" 
+                  blurOnSubmit={false}
+                  onSubmitEditing={() => contactNoRef.current.focus()}
+                  ref={emailRef}
+                  onChangeText={handleChange('email')} 
+                  mt={2} 
+                  style={{alignSelf:'stretch'}}
+                />
                 <Input 
                   keyboardType="numeric" 
                   value={values&&values.contact_no?values.contact_no:""} 
