@@ -89,6 +89,7 @@ const ChangePasswordModal = ({setAlert,user,showModal,setShowModal}) => {
           }
       })
     }else{
+      setLoading(false);
       setShowModal(false)
       setAlert({visible:true,message:"Incorrect old password.",colorScheme:"danger",header:"Error"})
     }
