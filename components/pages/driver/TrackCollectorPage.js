@@ -7,7 +7,7 @@ import {
 import CollectorIcon from "../../../assets/collector_marker_icon.png"
 import * as Location from "expo-location";
 import MapView, { Marker ,PROVIDER_GOOGLE} from "react-native-maps";
-import { Dimensions } from "react-native";
+import { Alert, Dimensions } from "react-native";
 import MessageAlert from "../../helpers/MessageAlert";
 import { LogBox } from 'react-native';
 import Firebase from '../../helpers/Firebase';
@@ -32,6 +32,22 @@ const TrackCollectorPage = () => {
     colorScheme: null,
     header: null,
   });
+  useEffect(() => {
+    Alert.alert(
+      "Permission",
+      "GTrack collects location data to enable  driver/collector tracking during a scheduled waste "+
+      "collection even when the app is closed or not in use.",
+      [
+          {
+              text: "Cancel",
+              onPress: () => console.log("Cancel Pressed"),
+              style: "cancel"
+          },
+          { text: "Continue", onPress: () => console.log("Continue") }
+      ]
+    );
+  }, [])
+  
   useEffect(() => {
     LogBox.ignoreLogs(['Setting a timer']);
     getData();

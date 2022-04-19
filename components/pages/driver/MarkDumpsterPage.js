@@ -40,8 +40,12 @@ const MarkDumpsterPage = () => {
   }, []);
   const getDumpsters = async () =>{
     await db.ref("Dumpsters/").on("value", (snapshot) => {
-      let temp=Object.keys(snapshot.val()).map(key => snapshot.val()[key]);
-      setDumpsters(temp);
+      if(snapshot.val()){
+        let temp=Object.keys(snapshot.val()).map(key => snapshot.val()[key]);
+        setDumpsters(temp);
+      }else{
+        setDumpsters([]);
+      }
     });
   }
   const getData = async () => {

@@ -96,23 +96,25 @@ const InputGarbageWeightPage = () => {
       .then((res) => {
         if (res.data.success) {
           db.ref("Dumpsters/").once("value", (snapshot) => {
-            for (var x = 0; x < snapshot.val().length; x++) {
-              if (snapshot.val()[x] != undefined) {
-                if (
-                  snapshot.val()[x].driver_id != undefined &&
-                  snapshot.val()[x].driver_id === user.user_id
-                ) {
-                  db.ref("Dumpsters/" + snapshot.val()[x].dumpster_id).update({
-                    complete: 0,
-                  });
-                  db.ref("Dumpsters/" + snapshot.val()[x].dumpster_id)
-                    .child("driver_id")
-                    .remove();
-                  axios.put(
-                    `${envs.BACKEND_URL}/mobile/dumpster/update-dumpster/${
-                      snapshot.val()[x].dumpster_id
-                    }`
-                  );
+            if(snapshot.val()){
+              for (var x = 0; x < snapshot.val().length; x++) {
+                if (snapshot.val()[x] != undefined) {
+                  if (
+                    snapshot.val()[x].driver_id != undefined &&
+                    snapshot.val()[x].driver_id === user.user_id
+                  ) {
+                    db.ref("Dumpsters/" + snapshot.val()[x].dumpster_id).update({
+                      complete: 0,
+                    });
+                    db.ref("Dumpsters/" + snapshot.val()[x].dumpster_id)
+                      .child("driver_id")
+                      .remove();
+                    axios.put(
+                      `${envs.BACKEND_URL}/mobile/dumpster/update-dumpster/${
+                        snapshot.val()[x].dumpster_id
+                      }`
+                    );
+                  }
                 }
               }
             }
