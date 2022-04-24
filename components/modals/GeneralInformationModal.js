@@ -31,6 +31,7 @@ const GeneralInformationModal = ({setAlert,user,showModal,setShowModal}) => {
   const [initialValues,setInitialValues]=useState(null);
   const [show, setShow] = useState(false);
   const [date, setDate] = useState(new Date(moment()));
+  const [googleAuth, setGoogleAuth] = useState(false);
   const onChange = (event, selectedDate) => {
       const currentDate = selectedDate || date;
       setShow(Platform.OS === 'ios');
@@ -96,6 +97,7 @@ const GeneralInformationModal = ({setAlert,user,showModal,setShowModal}) => {
   }
   useEffect(() => {
     if(user){
+      setGoogleAuth(user.google_auth?user.google_auth:false);
       setInitialValues({
         email:user.email?user.email:"",
         fname:user.fname?user.fname:"",
@@ -161,6 +163,7 @@ const GeneralInformationModal = ({setAlert,user,showModal,setShowModal}) => {
                   placeholder="Email" 
                   returnKeyType="next" 
                   blurOnSubmit={false}
+                  isReadOnly={googleAuth}
                   onSubmitEditing={() => contactNoRef.current.focus()}
                   ref={emailRef}
                   onChangeText={handleChange('email')} 
