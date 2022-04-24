@@ -77,10 +77,12 @@ const InputGarbageWeightPage = () => {
   };
   const collectionValidation = yup.object().shape({
     weight: yup.string().required("Weight Volume is required"),
-    schedule: yup.object().shape({
-      date: yup.string().required("Date is required"),
-      time: yup.string().required("Time is required"),
-    }),
+    date: yup.string().required("Date is required"),
+    time: yup.string().required("Time is required"),
+    // schedule: yup.object().shape({
+    //   date: yup.string().required("Date is required"),
+    //   time: yup.string().required("Time is required"),
+    // }),
   });
   const handleFormSubmit = async (values, { resetForm }) => {
     setLoading(true);
@@ -89,7 +91,7 @@ const InputGarbageWeightPage = () => {
         `${envs.BACKEND_URL}/mobile/waste-collection/submit-collection/${user.user_id}`,
         {
           collection_weight_volume: values.weight,
-          collection_date: moment(moment(values.schedule.date).format("YYYY-MM-DD").toString()+" "+moment(values.schedule.time.toString().substring(16,24), ["HH:mm:ss"]).format("HH:mm:ss")).toISOString(),
+          collection_date: moment(moment(values.date).format("YYYY-MM-DD").toString()+" "+moment(values.time.toString().substring(16,24), ["HH:mm:ss"]).format("HH:mm:ss")).toISOString(),
           collection_route: route,
         }
       )
@@ -134,10 +136,12 @@ const InputGarbageWeightPage = () => {
     useFormik({
       initialValues: {
         weight: "",
-        schedule: {
-          date: "",
-          time:""
-        },
+        date: "",
+        time:""
+        // schedule: {
+        //   date: "",
+        //   time:""
+        // },
       },
       enableReinitialize: true,
       validationSchema: collectionValidation,
@@ -149,9 +153,9 @@ const InputGarbageWeightPage = () => {
     setShow(false);
     if (currentDate !== undefined) {
       if (curShow === "date") {
-        setFieldValue("schedule.date", moment(currentDate));
+        setFieldValue("date", moment(currentDate));
       } else {
-        setFieldValue("schedule.time", moment(currentDate));
+        setFieldValue("time", moment(currentDate));
       }
     }
   };
@@ -197,21 +201,20 @@ const InputGarbageWeightPage = () => {
                       width={175}
                       bg={"white"}
                       value={
-                        values.schedule.date != ""
-                          ? moment(values.schedule.date).format(
+                        values.date != ""
+                          ? moment(values.date).format(
                               "MMMM D, Y"
                             )
                           : ""
                       }
-                      onChangeText={handleChange("schedule.date")}
+                      onChangeText={handleChange("date")}
                       placeholder="Date"
                       isReadOnly="true"
                       isDisabled="true"
                     />
-                    {errors.schedule && touched.schedule && (
+                    {errors.date && touched.date && (
                       <Text style={{ fontSize: 10, color: "red" }}>
-                        {errors.schedule.date ||
-                          errors.schedule.time}
+                        {errors.date}
                       </Text>
                     )}
                   </VStack>
@@ -221,15 +224,20 @@ const InputGarbageWeightPage = () => {
                       bg={"white"}
                       width={120}
                       value={
-                        values.schedule.time != ""
-                          ? moment(values.schedule.time).format("h:mm A")
+                        values.time != ""
+                          ? moment(values.time).format("h:mm A")
                           : ""
                       }
-                      onChangeText={handleChange("schedule.time")}
+                      onChangeText={handleChange("time")}
                       placeholder="Time"
                       isReadOnly="true"
                       isDisabled="true"
                     />
+                    {errors.time && touched.time && (
+                      <Text style={{ fontSize: 10, color: "red"}}>
+                        {errors.time}
+                      </Text>
+                    )}
                   </VStack>
                 </HStack>
 
