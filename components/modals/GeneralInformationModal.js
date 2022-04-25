@@ -19,11 +19,11 @@ import envs from '../../config/env.js'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as yup from 'yup'
 import Firebase from '../helpers/Firebase';
-import * as firebase from "firebase";
 import 'firebase/auth';
+import CryptoES from "crypto-es";
 
 const auth = Firebase.auth();
-const GeneralInformationModal = ({setAlert,user,showModal,setShowModal}) => {
+const GeneralInformationModal = ({setAlert,user,showModal,setShowModal,getData}) => {
   const lnameRef=useRef();
   const contactNoRef=useRef();
   const emailRef=useRef();
@@ -67,6 +67,7 @@ const GeneralInformationModal = ({setAlert,user,showModal,setShowModal}) => {
         setShowModal(false);
         setLoading(false);
         setData(res.data.data);
+        getData();
         setAlert({visible:true,message:"Profile is updated. Verify your new email when you login",colorScheme:"success",header:"Success"});
       }).catch((error) => {
         setAlert({visible:true,message:error.message,colorScheme:"danger",header:"Error"});
@@ -75,8 +76,18 @@ const GeneralInformationModal = ({setAlert,user,showModal,setShowModal}) => {
       console.log('USER NOT LOGGED IN');
     }
   }
+  const decryptPassword=(password)=>{
+    const decryptedPassword = CryptoES.AES.decrypt(password,envs.SECRET_KEY).toString(CryptoES.enc.Utf8);
+    return decryptedPassword;
+  }
   const handleFormSubmit = async (values) =>{
     setLoading(true);
+    if(initialValues.email!=values.email){
+      var current_pass=decryptPassword(initialValues.password);
+      console.log(initialValues.email);
+      var credential=await Firebase.auth.EmailAuthProvider.credential(initialValues.email, current_pass);
+      await auth.currentUser.reauthenticateWithCredential(credential)
+    }
     axios.post(`${envs.BACKEND_URL}/mobile/profile/general_info`, {email:initialValues.email,newEmail:values.email,lname:values.lname,fname:values.fname,contact_no:values.contact_no!==""?values.contact_no:null,gender:values.gender!==""?values.gender:null,birthday:date})
     .then(res => {
         if(res.data.success){
@@ -104,7 +115,8 @@ const GeneralInformationModal = ({setAlert,user,showModal,setShowModal}) => {
         lname:user.lname?user.lname:"",
         gender:user.gender?user.gender:"",
         contact_no:user.contact_no?user.contact_no:"",
-        birthday:user.birthday?user.birthday:""
+        birthday:user.birthday?user.birthday:"",
+        password:user.password?user.password:""
       })
       if(user.birthday){
         setDate(new Date(moment(user.birthday)));

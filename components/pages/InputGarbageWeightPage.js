@@ -84,6 +84,12 @@ const InputGarbageWeightPage = () => {
     //   time: yup.string().required("Time is required"),
     // }),
   });
+  const handleDumpsterUpdate=async (dumpster_id)=>{
+    await db.ref("Dumpsters/" + dumpster_id).child("complete").set(0);
+    await db.ref("Dumpsters/" + dumpster_id)
+      .child("driver_id")
+      .remove();
+  }
   const handleFormSubmit = async (values, { resetForm }) => {
     setLoading(true);
     await axios
@@ -105,12 +111,7 @@ const InputGarbageWeightPage = () => {
                     snapshot.val()[x].driver_id != undefined &&
                     snapshot.val()[x].driver_id === user.user_id
                   ) {
-                    db.ref("Dumpsters/" + snapshot.val()[x].dumpster_id).update({
-                      complete: 0,
-                    });
-                    db.ref("Dumpsters/" + snapshot.val()[x].dumpster_id)
-                      .child("driver_id")
-                      .remove();
+                    handleDumpsterUpdate(snapshot.val()[x].dumpster_id);
                     axios.put(
                       `${envs.BACKEND_URL}/mobile/dumpster/update-dumpster/${
                         snapshot.val()[x].dumpster_id
