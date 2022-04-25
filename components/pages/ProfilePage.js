@@ -136,7 +136,7 @@ const ProfilePage = () => {
                 >
                     Change Password
                 </Button>
-                <GeneralInformationModal setAlert={setAlert} user={user} showModal={showGIModal} setShowModal={setShowGIModal}/>
+                <GeneralInformationModal setAlert={setAlert} user={user} showModal={showGIModal} setShowModal={setShowGIModal} getData={getData}/>
                 <ChangePasswordModal setAlert={setAlert} user={user} showModal={showCPModal} setShowModal={setShowCPModal}/>
                 <ChangeAddressModal setAlert={setAlert} user={user} showModal={showCAModal} setShowModal={setShowCAModal}/>
             </VStack>
