@@ -131,16 +131,18 @@ const MarkDumpsterPage = () => {
                       <Modal.Header>Dumpster</Modal.Header>
                       <Modal.Body>
                         {user && user.hasOwnProperty("userSchedule") ? (
-                          data.complete == 0 ? (
+                          <>
+                          {data.complete == 0 ? (
                             <Text bold>Mark this Dumpster as Collected?</Text>
                           ) : (
                             <Text bold>Mark this Dumpster as NOT Collected?</Text>
-                          )
+                          )}
+                          <Text marginTop={3}>Street: {data.street}</Text>
+                            <Text >Purok: {data.purok}</Text>
+                            <Text >Barangay: {data.barangay}</Text>
+                         </>
                         ):(<Text bold>You have no scheduled collection today</Text>)}
 
-                        <Text marginTop={3}>Street: {data.street}</Text>
-                        <Text >Purok: {data.purok}</Text>
-                        <Text >Barangay: {data.barangay}</Text>
                       </Modal.Body>
                       <Modal.Footer>
                         <Button.Group space={2}>
