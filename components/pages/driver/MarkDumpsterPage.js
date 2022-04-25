@@ -125,7 +125,16 @@ const MarkDumpsterPage = () => {
                     alt="Dumpster Marker"
                     rounded={"full"}
                   />
-                  <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
+                  
+                </Marker>
+              );
+            })
+          ) : (
+            <></>
+          )}
+        </MapView>
+      </View>
+                 <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
                     <Modal.Content maxWidth="400px">
                       <Modal.CloseButton />
                       <Modal.Header>Dumpster</Modal.Header>
@@ -182,14 +191,6 @@ const MarkDumpsterPage = () => {
                       </Modal.Footer>
                     </Modal.Content>
                   </Modal>
-                </Marker>
-              );
-            })
-          ) : (
-            <></>
-          )}
-        </MapView>
-      </View>
       {loading ? <ActivityIndicator /> : <></>}
     </>
   );
