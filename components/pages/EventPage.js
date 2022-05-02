@@ -191,10 +191,10 @@ const EventPage = ({ events, setEvents, refreshing, setRefreshing }) => {
                       <Column>
                         <Text fontSize={13} paddingLeft={3}>
                           {moment(arr.startDate).format("MMM DD, YYYY")}{" "}
-                          {moment(arr.startDate.substring(11,16), ["HH:mm A"]).format("h:mm A")}{" "}
+                          {moment(arr.startDate).format("LT")}{" "}
                           -{" "}
                           {moment(arr.endDate).format("MMM DD, YYYY")}{" "}
-                          {moment(arr.endDate.substring(11,16), ["HH:mm A"]).format("h:mm A")}
+                          {moment(arr.endDate).format("LT")}
                         </Text>
                       </Column>
                     </Row>

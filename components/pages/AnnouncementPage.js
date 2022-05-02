@@ -123,7 +123,7 @@ const AnnouncementPage = ({announcements,setAnnouncements,refreshing,setRefreshi
                       | {arr.announcementAdmin.user_type} {"\n"}
                       <Text fontSize="sm">
                         {moment(arr.createdAt).format("MMMM D, Y")} at{" "}
-                        {moment(arr.createdAt.substring(11,16), ["HH:mm A"]).format("hh:mm A")}
+                        {moment(arr.createdAt).format("LT")}
                       </Text>
                     </Text>
                     <Divider
