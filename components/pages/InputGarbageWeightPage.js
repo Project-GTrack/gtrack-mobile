@@ -105,16 +105,14 @@ const InputGarbageWeightPage = () => {
         if (res.data.success) {
           db.ref("Dumpsters/").once("value", (snapshot) => {
             if(snapshot.val()){
-              for (var x = 0; x < snapshot.val().length; x++) {
-                if (snapshot.val()[x] != undefined) {
-                  if (
-                    snapshot.val()[x].driver_id != undefined &&
-                    snapshot.val()[x].driver_id === user.user_id
-                  ) {
-                    handleDumpsterUpdate(snapshot.val()[x].dumpster_id);
+              var temp=Object.keys(snapshot.val()).map((key) => snapshot.val()[key]);
+              for (var x = 0; x < temp.length; x++) {
+                if (temp[x] !== undefined) {
+                  if (temp[x].driver_id !== undefined && temp[x].driver_id === user.user_id) {
+                    handleDumpsterUpdate(temp[x].dumpster_id);
                     axios.put(
                       `${envs.BACKEND_URL}/mobile/dumpster/update-dumpster/${
-                        snapshot.val()[x].dumpster_id
+                        temp[x].dumpster_id
                       }`
                     );
                   }
