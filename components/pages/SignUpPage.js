@@ -26,6 +26,7 @@ import * as yup from 'yup'
 import * as Google from 'expo-google-app-auth';
 import * as firebase from "firebase";
 import 'firebase/auth';
+import GooglePermissionAlert from '../helpers/GooglePermissionAlert';
 
 const auth = Firebase.auth();
 const SignUpPage = ({navigation}) => {
@@ -34,6 +35,7 @@ const SignUpPage = ({navigation}) => {
     const passwordRef=useRef();
     const passwordRepeatRef=useRef();
     const [loading,setLoading]=useState(false);
+    const [openPermission,setOpenPermission]=useState(false);
     const signupValidationSchema = yup.object().shape({
         fname: yup
           .string()
@@ -137,7 +139,8 @@ const SignUpPage = ({navigation}) => {
     // },[]);
     const handleGoogleClick = async () => {
         setLoading(true);
-        signInAsync();
+        // signInAsync();
+        setOpenPermission(true);
     }
     const handleFirebase =async (values,resetForm) =>{
         await auth.createUserWithEmailAndPassword(values.email, values.password)
@@ -182,6 +185,7 @@ const SignUpPage = ({navigation}) => {
         <>
         <ScrollView>
         <MessageAlert alert={alert} setAlert={setAlert}/>
+        <GooglePermissionAlert open={openPermission} setOpen={setOpenPermission} signInAsync={()=>signInAsync()} setLoading={setLoading}/>
         <Center
             mt={8}
         >
