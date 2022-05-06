@@ -13,7 +13,7 @@ import ActivityIndicator from "../../helpers/ActivityIndicator";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const db = Firebase.app().database();
-const MarkDumpsterPage = () => {
+const MarkDumpsterPage = ({userLoc}) => {
   const { height, width } = Dimensions.get( 'window' );
   const LATITUDE_DELTA=0.23;
   const [loading, setLoading] = useState(false);
@@ -96,7 +96,7 @@ const MarkDumpsterPage = () => {
      <View>
       <MessageAlert alert={alert} setAlert={setAlert} />
         <MapView
-          initialRegion={initLoc}
+          initialRegion={userLoc}
           showsUserLocation={true}
           showsMyLocationButton={true}
           provider={PROVIDER_GOOGLE}
