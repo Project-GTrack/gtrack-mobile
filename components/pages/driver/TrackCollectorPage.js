@@ -13,7 +13,8 @@ import { LogBox } from 'react-native';
 import Firebase from '../../helpers/Firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 const db = Firebase.app().database();
-const TrackCollectorPage = () => {
+
+const TrackCollectorPage = ({userLoc}) => {
   const { height, width } = Dimensions.get( 'window' );
   const LATITUDE_DELTA=0.23;
   const [user,setUser]=useState(null);
@@ -21,8 +22,8 @@ const TrackCollectorPage = () => {
   const [isDisabled,setIsDisabled] = useState(false);
   const [marker, showMarker] = useState(false);
   const [initLoc, setInitLoc] = useState({
-    latitude: 10.4659,
-    longitude: 123.9806,
+    latitude: 0,
+    longitude: 0,
     latitudeDelta: LATITUDE_DELTA,
     longitudeDelta: LATITUDE_DELTA * (width / height),
   });
@@ -32,6 +33,7 @@ const TrackCollectorPage = () => {
     colorScheme: null,
     header: null,
   });
+  
   useEffect(() => {
     Alert.alert(
       "Permission",
@@ -46,7 +48,9 @@ const TrackCollectorPage = () => {
           { text: "Continue", onPress: () => console.log("Continue") }
       ]
     );
+    
   }, [])
+  
   
   useEffect(() => {
     LogBox.ignoreLogs(['Setting a timer']);
@@ -119,7 +123,7 @@ const TrackCollectorPage = () => {
       <MessageAlert alert={alert} setAlert={setAlert} />
         <MapView
           // region={initLoc}
-          initialRegion={initLoc}
+          initialRegion={userLoc}
           showsUserLocation={true}
           showsMyLocationButton={true}
           provider={PROVIDER_GOOGLE}

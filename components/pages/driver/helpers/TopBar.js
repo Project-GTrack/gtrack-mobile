@@ -4,12 +4,12 @@ import MarkDumpsterPage from "../MarkDumpsterPage";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 
 const Tab = createMaterialTopTabNavigator();
-const TopBar = () => {
+const TopBar = ({userLoc}) => {
  
   return (
     <Tab.Navigator>
-      <Tab.Screen name="Share Location" component={TrackCollectorPage} />
-      <Tab.Screen name="Mark Dumpster" component={MarkDumpsterPage} />
+      <Tab.Screen name="Share Location" children={props => <TrackCollectorPage userLoc={userLoc}/>} />
+      <Tab.Screen name="Mark Dumpster" children={props => <MarkDumpsterPage userLoc={userLoc}/>}/>
     </Tab.Navigator>
   );
 };

@@ -24,7 +24,9 @@ import moment from "moment";
 import Firebase from "../helpers/Firebase";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as yup from "yup";
-
+const wait = (timeout) => {
+  return new Promise((resolve) => setTimeout(resolve, timeout));
+};
 const db = Firebase.app().database();
 const InputGarbageWeightPage = () => {
   const [mode, setMode] = useState("date");
@@ -92,7 +94,8 @@ const InputGarbageWeightPage = () => {
   }
   const handleFormSubmit = async (values, { resetForm }) => {
     setLoading(true);
-    await axios
+    if(new Date(moment(moment(values.date).format("YYYY-MM-DD").toString()+" "+moment(values.time.toString().substring(16,24), ["HH:mm:ss"]).format("HH:mm:ss")).toISOString()) <= new Date()){
+      await axios
       .post(
         `${envs.BACKEND_URL}/mobile/waste-collection/submit-collection/${user.user_id}`,
         {
@@ -120,8 +123,8 @@ const InputGarbageWeightPage = () => {
               }
             }
           });
-          resetForm();
           setLoading(false);
+          resetForm();
           setAlert({
             visible: true,
             message: res.data.message,
@@ -130,6 +133,17 @@ const InputGarbageWeightPage = () => {
           });
         }
       });
+    }else{
+      await wait(2000).then(() => setLoading(false));
+      setAlert({
+        visible: true,
+        message: "Invalid Date: Date must be the current date or a previous/past date.",
+        colorScheme: "error",
+        header: "Waste Collection Report",
+      });
+      resetForm();
+    }
+    
   };
   const { handleChange, handleSubmit, values, errors, touched, setFieldValue } =
     useFormik({

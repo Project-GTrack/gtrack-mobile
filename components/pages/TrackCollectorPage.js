@@ -15,7 +15,7 @@ import { LogBox } from 'react-native';
 import DumpsterMarker from '../../assets/dumpster_marker_icon.png';
 import DumpsterComplete from '../../assets/dumpster_complete_icon.png'
 const database=Firebase.database();
-const TrackCollectorPage = () => {
+const TrackCollectorPage = ({userLoc}) => {
     const { height, width } = Dimensions.get( 'window' );
     const LATITUDE_DELTA=0.23;
     const [marginBottom,setMarginBottom]=useState(1);
@@ -85,7 +85,7 @@ const TrackCollectorPage = () => {
         >
             <MapView
             // region={initLoc}
-            initialRegion={initLoc}
+            initialRegion={userLoc}
             showsUserLocation={true}
             showsMyLocationButton={true}
             provider={PROVIDER_GOOGLE}
