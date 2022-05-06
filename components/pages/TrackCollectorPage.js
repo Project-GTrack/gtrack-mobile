@@ -3,7 +3,9 @@ import {
     Text,
     Center,
     Icon,
-    HStack
+    HStack,
+    Menu,
+    Button
   } from "native-base";
 import { MaterialIcons } from "@expo/vector-icons"
 import { Linking, View } from 'react-native';
@@ -25,7 +27,9 @@ const TrackCollectorPage = ({userLoc}) => {
         latitudeDelta: LATITUDE_DELTA,
         longitudeDelta: LATITUDE_DELTA * (width / height)});
     const [drivers,setDrivers]=useState([]);
+    const [filter,setFilter]=useState("All");
     const [dumpsters,setDumpsters]=useState([]);
+    const [shouldOverlapWithTrigger] = useState(false);
     const getFirebaseDrivers = () => {
         database.ref(`Drivers/`).on('value', function (snapshot) {
             if(snapshot.val()){
@@ -52,6 +56,9 @@ const TrackCollectorPage = ({userLoc}) => {
         LogBox.ignoreLogs(['Setting a timer']);
         getFirebaseDrivers();
         getFirebaseDumpsters();
+        return ()=>{
+            setFilter("All");
+        }
     }, []);
     // const _onMapReady = useCallback(async () => {
     //     let { status } = await Location.requestForegroundPermissionsAsync();
@@ -78,108 +85,142 @@ const TrackCollectorPage = ({userLoc}) => {
     }, [])
     return (
         <>
-        <Center
-        style={{
-            alignSelf:'stretch'
-        }}
-        >
-            <MapView
-            // region={initLoc}
-            initialRegion={userLoc}
-            showsUserLocation={true}
-            showsMyLocationButton={true}
-            provider={PROVIDER_GOOGLE}
-            onMapReady={()=>setMarginBottom(0)}
+            <Center
             style={{
-                width: '100%',
-                height: '100%',
-                marginBottom:marginBottom
-            }} >
-                {drivers && drivers.map((value,i)=>{
-                    return (
-                        <Marker 
-                            key={i} 
-                            coordinate={{ latitude : value.latitude , longitude : value.longitude }}
-                            image={require('../../assets/collector_marker_icon.png')}
-                        >
-                            <Callout >
-                                <View style={{padding:3}}>
-                                    <Center>
-                                        <Text fontSize={18}>Garbage Collection:</Text>
-                                    </Center>
-                                    <HStack space={3}>
-                                        <Icon
-                                            as={<MaterialIcons name="directions" />}
-                                            color={"#10b981"}
-                                            size={25}
-                                        />
-                                        <Text fontSize={16}>{value.landmark}</Text>
-                                    </HStack>
-                                    <HStack space={3}>
-                                        <Icon
-                                            as={<MaterialIcons name="info" />}
-                                            color={"#10b981"}
-                                            size={25}
-                                        />
-                                        <Text fontSize={16}>{value.barangay}</Text>
-                                    </HStack>
-                                    <HStack space={3}>
-                                        <Icon
-                                            as={<MaterialIcons name="person" />}
-                                            color={"#10b981"}
-                                            size={25}
-                                        />
-                                        <Text fontSize={16}>{value.driver_name}</Text>
-                                    </HStack>
-                                    <HStack space={3}>
-                                        <Icon
-                                            as={<MaterialIcons name="delete" />}
-                                            color={"#10b981"}
-                                            size={25}
-                                        />
-                                        <Text fontSize={16}>{value.garbage_type}</Text>
-                                    </HStack>
-                                </View>
-                            </Callout>
-                        </Marker>
-                    );
-                })}
-                {dumpsters && dumpsters.map((value,i)=>{
-                    return (
+                alignSelf:'stretch'
+            }}
+            >
+                <MapView
+                // region={initLoc}
+                initialRegion={userLoc}
+                showsUserLocation={true}
+                showsMyLocationButton={true}
+                provider={PROVIDER_GOOGLE}
+                onMapReady={()=>setMarginBottom(0)}
+                style={{
+                    width: '100%',
+                    height: '100%',
+                    marginBottom:marginBottom
+                }} >
+                    {(filter=="All"||filter=="Collectors Only")?
+                        (drivers && drivers.map((value,i)=>{
+                            return (
+                                <Marker 
+                                    key={i} 
+                                    coordinate={{ latitude : value.latitude , longitude : value.longitude }}
+                                    image={require('../../assets/collector_marker_icon.png')}
+                                >
+                                    <Callout >
+                                        <View style={{padding:3}}>
+                                            <Center>
+                                                <Text fontSize={18}>Garbage Collection:</Text>
+                                            </Center>
+                                            <HStack space={3}>
+                                                <Icon
+                                                    as={<MaterialIcons name="directions" />}
+                                                    color={"#10b981"}
+                                                    size={25}
+                                                />
+                                                <Text fontSize={16}>{value.landmark}</Text>
+                                            </HStack>
+                                            <HStack space={3}>
+                                                <Icon
+                                                    as={<MaterialIcons name="info" />}
+                                                    color={"#10b981"}
+                                                    size={25}
+                                                />
+                                                <Text fontSize={16}>{value.barangay}</Text>
+                                            </HStack>
+                                            <HStack space={3}>
+                                                <Icon
+                                                    as={<MaterialIcons name="person" />}
+                                                    color={"#10b981"}
+                                                    size={25}
+                                                />
+                                                <Text fontSize={16}>{value.driver_name}</Text>
+                                            </HStack>
+                                            <HStack space={3}>
+                                                <Icon
+                                                    as={<MaterialIcons name="delete" />}
+                                                    color={"#10b981"}
+                                                    size={25}
+                                                />
+                                                <Text fontSize={16}>{value.garbage_type}</Text>
+                                            </HStack>
+                                        </View>
+                                    </Callout>
+                                </Marker>
+                            );
+                    })):(<></>)
+                    }
+                    {(filter=="All"||filter=="Dumpsters Only")?
+                        (dumpsters && dumpsters.map((value,i)=>{
+                            return (
 
-                        <Marker 
-                            key={i} 
-                            coordinate={{ latitude : parseFloat(value.latitude) , longitude : parseFloat(value.longitude) }}
-                            image={value.complete===1?DumpsterComplete:DumpsterMarker}
+                                <Marker 
+                                    key={i} 
+                                    coordinate={{ latitude : parseFloat(value.latitude) , longitude : parseFloat(value.longitude) }}
+                                    image={value.complete===1?DumpsterComplete:DumpsterMarker}
+                                >
+                                    <Callout >
+                                        <View style={{padding:3}}>
+                                            <Center>
+                                                <Text fontSize={16}>Pick-Up Points:</Text>
+                                            </Center>
+                                            <HStack space={3}>
+                                                <Icon
+                                                    as={<MaterialIcons name="directions" />}
+                                                    color={"#10b981"}
+                                                    size={22}
+                                                />
+                                                <Text fontSize={14}>{value.landmark}</Text>
+                                            </HStack>
+                                            <HStack space={3}>
+                                                <Icon
+                                                    as={<MaterialIcons name="info" />}
+                                                    color={"#10b981"}
+                                                    size={22}
+                                                />
+                                                <Text w={"100%"} fontSize={12}>{`${value.purok} ${value.street} ${value.barangay}`}</Text>
+                                            </HStack>
+                                        </View>
+                                    </Callout>
+                                </Marker>
+                            );
+                        })):(<></>)
+                    }
+                </MapView>
+                <Menu
+                alignSelf={"center"}
+                shouldOverlapWithTrigger={shouldOverlapWithTrigger}
+                placement={"top right"} 
+                trigger={triggerProps => {
+                return (
+                    <HStack alignContent={"center"} alignItems={"center"} position={"absolute"} 
+                    right={16}
+                    top={3} >
+                        <Text mr={"2"} fontSize={16}>Filter:</Text>
+                        <Button 
+                            
+                            colorScheme="success"
+                            {...triggerProps}
+                            rightIcon={
+                                <Icon
+                                    as={<MaterialIcons name="arrow-drop-down" />}
+                                    size={"sm"}
+                                />
+                            }
                         >
-                            <Callout >
-                                <View style={{padding:3}}>
-                                    <Center>
-                                        <Text fontSize={18}>Pick-Up Points:</Text>
-                                    </Center>
-                                    <HStack space={3}>
-                                        <Icon
-                                            as={<MaterialIcons name="directions" />}
-                                            color={"#10b981"}
-                                            size={25}
-                                        />
-                                        <Text fontSize={16}>{value.purok}</Text>
-                                    </HStack>
-                                    <HStack space={3}>
-                                        <Icon
-                                            as={<MaterialIcons name="info" />}
-                                            color={"#10b981"}
-                                            size={25}
-                                        />
-                                        <Text w={"50%"} fontSize={16}>{value.street + " " + value.barangay}</Text>
-                                    </HStack>
-                                </View>
-                            </Callout>
-                        </Marker>
-                    );
-                })}
-            </MapView>
-        </Center>
+                            {filter}
+                        </Button>
+                    </HStack>
+                );
+                }}>
+                    <Menu.Item onPress={()=>setFilter("All")}>All</Menu.Item>
+                    <Menu.Item onPress={()=>setFilter("Dumpsters Only")}>Dumpsters Only</Menu.Item>
+                    <Menu.Item onPress={()=>setFilter("Collectors Only")}>Collectors Only</Menu.Item>
+                </Menu>  
+            </Center>
         </>
     )
 }
