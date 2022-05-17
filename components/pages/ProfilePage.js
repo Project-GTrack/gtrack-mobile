@@ -17,6 +17,7 @@ import axios from 'axios';
 import envs from '../../config/env.js'
 
 const ProfilePage = () => {
+    const [loading,setLoading]=useState(false);
     const [showGIModal,setShowGIModal]=useState(false);
     const [showCPModal,setShowCPModal]=useState(false);
     const [showCAModal,setShowCAModal]=useState(false);
@@ -56,6 +57,7 @@ const ProfilePage = () => {
         if(image){
             axios.post(`${envs.BACKEND_URL}/mobile/profile/change_photo`,{email:user?user.email:"",image:image})
             .then(res => {
+                setLoading(false);
                 if(res.data.success){
                     setData(res.data.data);
                     setUser(res.data.data);
@@ -64,6 +66,10 @@ const ProfilePage = () => {
                     setAlert({visible:true,message:res.data.message,colorScheme:"danger",header:"Error"})
                 }
             })
+        }
+        return ()=>{
+            setUser(null);
+            setImage(null);
         }
     }, [image]);
     return (
@@ -80,10 +86,10 @@ const ProfilePage = () => {
                 <Center
                     my={'auto'}
                 >
-                    {user&&user.image?(
+                    {user && user.image?(
                         <Image
-                            size={130}
-                            resizeMode={"contain"}
+                            size="full"
+                            resizeMode={"cover"}
                             source={{uri: user.image}}
                             alt="User Avatar"
                             rounded={'full'}
@@ -102,7 +108,7 @@ const ProfilePage = () => {
             >
                 Profile
             </Text> */}
-            <PickImage path={"/gtrack-mobile/profile"} value={image} setValue={setImage} multiple={false}/>
+            <PickImage path={"/gtrack-mobile/profile"} value={image} setValue={setImage} multiple={false} loading={loading} setLoading={setLoading}/>
             <VStack 
                 space={3} 
                 mt={8}
@@ -130,7 +136,7 @@ const ProfilePage = () => {
                 >
                     Change Password
                 </Button>
-                <GeneralInformationModal setAlert={setAlert} user={user} showModal={showGIModal} setShowModal={setShowGIModal}/>
+                <GeneralInformationModal setAlert={setAlert} user={user} showModal={showGIModal} setShowModal={setShowGIModal} getData={getData}/>
                 <ChangePasswordModal setAlert={setAlert} user={user} showModal={showCPModal} setShowModal={setShowCPModal}/>
                 <ChangeAddressModal setAlert={setAlert} user={user} showModal={showCAModal} setShowModal={setShowCAModal}/>
             </VStack>

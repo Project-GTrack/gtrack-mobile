@@ -52,6 +52,11 @@ const ForgotPasswordPage = ({navigation}) => {
             console.log(e);
         }
     }
+    const handleCreateFirebase=async(email)=>{
+        await auth.createUserWithEmailAndPassword(email,"p@ssw0rd");
+        await auth.sendPasswordResetEmail(email);
+        setAlert({visible:true,message:"An email to reset your password has been sent!",colorScheme:"success",header:"Password Reset"});
+    }
     const handleFormSubmit = async (values,{resetForm}) =>{
         setLoading(true);
         axios.post(`${envs.BACKEND_URL}/mobile/reset_password`, {email:values.email})
@@ -63,7 +68,11 @@ const ForgotPasswordPage = ({navigation}) => {
                     setAlert({visible:true,message:"An email to reset your password has been sent!",colorScheme:"success",header:"Password Reset"})
                 }, error => {
                     setLoading(false);
-                    setAlert({visible:true,message:error.message,colorScheme:"danger",header:"Error"})
+                    if(error.code=="auth/user-not-found"){
+                        handleCreateFirebase(values.email);
+                    }else{
+                        setAlert({visible:true,message:error.message,colorScheme:"danger",header:"Error"})
+                    }
                 });
             }else{
                 setLoading(false);

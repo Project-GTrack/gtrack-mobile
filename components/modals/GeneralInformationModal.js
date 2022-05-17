@@ -18,14 +18,20 @@ import { useFormik } from 'formik';
 import envs from '../../config/env.js'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as yup from 'yup'
+import Firebase from '../helpers/Firebase';
+import 'firebase/auth';
+import CryptoES from "crypto-es";
 
-const GeneralInformationModal = ({setAlert,user,showModal,setShowModal}) => {
+const auth = Firebase.auth();
+const GeneralInformationModal = ({setAlert,user,showModal,setShowModal,getData}) => {
   const lnameRef=useRef();
   const contactNoRef=useRef();
+  const emailRef=useRef();
   const [loading,setLoading]=useState(false);
   const [initialValues,setInitialValues]=useState(null);
   const [show, setShow] = useState(false);
   const [date, setDate] = useState(new Date(moment()));
+  const [googleAuth, setGoogleAuth] = useState(false);
   const onChange = (event, selectedDate) => {
       const currentDate = selectedDate || date;
       setShow(Platform.OS === 'ios');
@@ -37,6 +43,10 @@ const GeneralInformationModal = ({setAlert,user,showModal,setShowModal}) => {
       .required('First Name is Required'),
     lname: yup
       .string()
+      .required('Last Name is Required'),
+    email: yup
+      .string()
+      .email('Please enter a valid email')
       .required('Last Name is Required'),
     contact_no: yup
       .string()
@@ -51,30 +61,62 @@ const GeneralInformationModal = ({setAlert,user,showModal,setShowModal}) => {
         setAlert({visible:true,message:e,colorScheme:"danger",header:"Error"});
     }
   }
+  const handleFirebase =async (values,res) =>{
+    if(auth.currentUser){
+      await auth.currentUser.updateEmail(values.email).then(() => {
+        setShowModal(false);
+        setLoading(false);
+        setData(res.data.data);
+        getData();
+        setAlert({visible:true,message:"Profile is updated. Verify your new email when you login",colorScheme:"success",header:"Success"});
+      }).catch((error) => {
+        setAlert({visible:true,message:error.message,colorScheme:"danger",header:"Error"});
+      });
+    }else{
+      console.log('USER NOT LOGGED IN');
+    }
+  }
+  const decryptPassword=(password)=>{
+    const decryptedPassword = CryptoES.AES.decrypt(password,envs.SECRET_KEY).toString(CryptoES.enc.Utf8);
+    return decryptedPassword;
+  }
   const handleFormSubmit = async (values) =>{
     setLoading(true);
-    axios.post(`${envs.BACKEND_URL}/mobile/profile/general_info`, {email:values.email,lname:values.lname,fname:values.fname,contact_no:values.contact_no!==""?values.contact_no:null,gender:values.gender!==""?values.gender:null,birthday:date})
+    if(initialValues.email!=values.email){
+      var current_pass=decryptPassword(initialValues.password);
+      console.log(initialValues.email);
+      var credential=await Firebase.auth.EmailAuthProvider.credential(initialValues.email, current_pass);
+      await auth.currentUser.reauthenticateWithCredential(credential)
+    }
+    axios.post(`${envs.BACKEND_URL}/mobile/profile/general_info`, {email:initialValues.email,newEmail:values.email,lname:values.lname,fname:values.fname,contact_no:values.contact_no!==""?values.contact_no:null,gender:values.gender!==""?values.gender:null,birthday:date})
     .then(res => {
-        setLoading(false);
         if(res.data.success){
-          setShowModal(false);
-          setData(res.data.data)
-          setAlert({visible:true,message:res.data.message,colorScheme:"success",header:"Success"});
+          if(initialValues.email!=values.email){
+            handleFirebase(values,res);
+          }else{
+            setShowModal(false);
+            setLoading(false);
+            setData(res.data.data);
+            setAlert({visible:true,message:res.data.message,colorScheme:"success",header:"Success"});
+          }
         }else{
+          setLoading(false);
           setShowModal(false)
-          setAlert({visible:true,message:"Update Unsuccessful.",colorScheme:"danger",header:"Error"})
+          setAlert({visible:true,message:res.data.message,colorScheme:"danger",header:"Error"})
         }
     })
   }
   useEffect(() => {
     if(user){
+      setGoogleAuth(user.google_auth?user.google_auth:false);
       setInitialValues({
         email:user.email?user.email:"",
         fname:user.fname?user.fname:"",
         lname:user.lname?user.lname:"",
         gender:user.gender?user.gender:"",
         contact_no:user.contact_no?user.contact_no:"",
-        birthday:user.birthday?user.birthday:""
+        birthday:user.birthday?user.birthday:"",
+        password:user.password?user.password:""
       })
       if(user.birthday){
         setDate(new Date(moment(user.birthday)));
@@ -118,13 +160,28 @@ const GeneralInformationModal = ({setAlert,user,showModal,setShowModal}) => {
                     placeholder="Last Name" 
                     returnKeyType="next" 
                     blurOnSubmit={false}
-                    onSubmitEditing={() => contactNoRef.current.focus()}
+                    onSubmitEditing={() => emailRef.current.focus()}
                     ref={lnameRef}
                     onChangeText={handleChange('lname')} 
                     style={{alignSelf:'stretch',width:'50%'}}
                   />
                 </HStack>
-                <Input keyboardType="email-address" value={values&&values.email?values.email:""} placeholder="email" onChangeText={handleChange('email')} isDisabled mt={2} style={{alignSelf:'stretch'}}/>
+                {(errors.email && touched.email) &&
+                  <Text style={{ fontSize: 10, color: 'red' }}>{errors.email}</Text>
+                }
+                <Input 
+                  keyboardType="email-address" 
+                  value={values&&values.email?values.email:""} 
+                  placeholder="Email" 
+                  returnKeyType="next" 
+                  blurOnSubmit={false}
+                  isReadOnly={googleAuth}
+                  onSubmitEditing={() => contactNoRef.current.focus()}
+                  ref={emailRef}
+                  onChangeText={handleChange('email')} 
+                  mt={2} 
+                  style={{alignSelf:'stretch'}}
+                />
                 <Input 
                   keyboardType="numeric" 
                   value={values&&values.contact_no?values.contact_no:""} 

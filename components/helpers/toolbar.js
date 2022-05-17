@@ -16,7 +16,10 @@ import envs from "../../config/env.js";
 import ProfilePage from "../pages/ProfilePage";
 import InputGarbageWeightPage from "../pages/InputGarbageWeightPage";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Dimensions } from "react-native";
+import * as Location from "expo-location";
 import axios from "axios";
+import ImageBrowserScreen from "./ImageBrowserScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -31,6 +34,27 @@ const Toolbar = ({navigation}) => {
   const [announcements,setAnnouncements] = useState([]);
   const [events,setEvents] = useState([]);
   const [user,setUser]=useState(null);
+  const { height, width } = Dimensions.get( 'window' );
+  const LATITUDE_DELTA=0.23;
+  const [userLoc, setUserLoc] = useState({
+    latitude: 0,
+    longitude: 0,
+    latitudeDelta: LATITUDE_DELTA,
+    longitudeDelta: LATITUDE_DELTA * (width / height),
+  });
+  useEffect(() => {
+    const getUserLocation = async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        Linking.openURL("app-settings:");
+        return;
+      }
+      let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.BestForNavigation, maximumAge: 10000});
+      setUserLoc(prevState => ({...prevState,latitude:location.coords.latitude,longitude:location.coords.longitude}))    
+    }
+    getUserLocation();
+    console.log(userLoc);
+  },[])
   useEffect(() => {
     getData(setUser);
   }, []);
@@ -162,7 +186,7 @@ const Toolbar = ({navigation}) => {
         {user && user.user_type==="Driver"?(
           <Tab.Screen
           name="Location Map"
-          component={TopBar}
+          children={props => <TopBar userLoc={userLoc}/>}
           options={{
             headerStyle: {
               backgroundColor: "white",
@@ -194,7 +218,7 @@ const Toolbar = ({navigation}) => {
         />
         ):(<Tab.Screen
           name="Track Collector"
-          component={TrackCollectorPage}
+          children={props => <TrackCollectorPage userLoc={userLoc}/>}
           options={{
             headerStyle: {
               backgroundColor: "white",
@@ -226,9 +250,10 @@ const Toolbar = ({navigation}) => {
         />)}
         {user && user.user_type==="Driver"?(
           <Tab.Screen
-          name="Report/Concern"
+          name="Report"
           component={DriverReportPage}
           options={{
+            headerTitle:"Report",
             headerStyle: {
               backgroundColor: "white",
             },
@@ -258,9 +283,10 @@ const Toolbar = ({navigation}) => {
           }}
         />
         ):(<Tab.Screen
-          name="Report/Concern"
+          name="Concern"
           component={ReportPage}
           options={{
+            headerTitle:"Concern",
             headerStyle: {
               backgroundColor: "white",
             },
@@ -324,7 +350,6 @@ const Toolbar = ({navigation}) => {
             }}
           />
         ):(<></>)}
-        
         <Tab.Screen
           name="Profile"
           component={ProfilePage}
@@ -355,6 +380,15 @@ const Toolbar = ({navigation}) => {
               />
               </Link>
             )
+          }}
+        />
+        <Tab.Screen
+          name='ImageBrowser'
+          component={ImageBrowserScreen}
+          options={{
+            title: 'Selected 0 files',
+            tabBarButton: () => null,
+            unmountOnBlur:true
           }}
         />
       </Tab.Navigator>

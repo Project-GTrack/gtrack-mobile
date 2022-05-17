@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Text,
   Center,
@@ -22,6 +22,8 @@ const wait = (timeout) => {
 
 const AnnouncementPage = ({announcements,setAnnouncements,refreshing,setRefreshing}) => {
   let img = [];
+  // const [showMore, setShowMore] = useState([]);
+  
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     axios
@@ -33,12 +35,32 @@ const AnnouncementPage = ({announcements,setAnnouncements,refreshing,setRefreshi
       .catch((error) => console.log(error));
   }, []);
   useEffect(() => {
+    let arrTemp = [];
     if (announcements.length > 0) {
+      // for(var x = 0; x < announcements.length; x++){
+      //   var temp = {
+      //     announcement_id:announcements[x].announcement_id,
+      //     isShowMore:false
+      //   }
+      //   arrTemp.push(temp);
+        
+      // }
+      // setShowMore(arrTemp);
       setRefreshing(false);
     } else {
       wait(2000).then(() => setRefreshing(false));
     }
   }, [announcements]);
+  // const updateShowMore = async (id) => {
+  //   const items = [...showMore];
+  //   for(var x = 0; x < items.length;x++){
+  //     if(items[x].announcement_id === id){
+  //       items[x].isShowMore = !items[x].isShowMore;
+  //       break;
+  //     }
+  //   }
+  //   setShowMore(items);
+  // }
   return (
     <View>
       <ScrollView
@@ -123,7 +145,7 @@ const AnnouncementPage = ({announcements,setAnnouncements,refreshing,setRefreshi
                       | {arr.announcementAdmin.user_type} {"\n"}
                       <Text fontSize="sm">
                         {moment(arr.createdAt).format("MMMM D, Y")} at{" "}
-                        {moment(arr.createdAt.substring(11,16), ["HH:mm A"]).format("hh:mm A")}
+                        {moment(arr.createdAt).format("LT")}
                       </Text>
                     </Text>
                     <Divider
@@ -137,9 +159,7 @@ const AnnouncementPage = ({announcements,setAnnouncements,refreshing,setRefreshi
                 <Text bold fontSize={20} mt={1} px={4}>
                   {arr.title}
                 </Text>
-                <Text fontSize={16} px={4} mb={2}>
-                  {arr.content}
-                </Text>
+                <Text fontSize={16} px={4} mb={2}>{arr.content}</Text>
                 {img.length > 0 ? (
                   <Center height={200}>
                     <SliderBox
@@ -160,6 +180,24 @@ const AnnouncementPage = ({announcements,setAnnouncements,refreshing,setRefreshi
         )}
       </ScrollView>
     </View>
+    // <Text fontSize={16} px={4} mb={2} numberOfLines={(()=>{
+    //   const obj = showMore.find(i => i.announcement_id === arr.announcement_id);
+    //   if(obj.isShowMore){
+    //     return undefined;
+    //   }else{
+    //     return 2;
+    //   }
+    // })()}>
+    //   {arr.content}
+    // </Text>
+    // <Text onPress={()=>updateShowMore(arr.announcement_id)}>{(()=>{
+    //   const obj = showMore.find(i => i.announcement_id === arr.announcement_id);
+    //   if(obj.isShowMore){
+    //     return 'Show less';
+    //   }else{
+    //     return 'Show more';
+    //   }
+    // })()}</Text>
   );
 };
 

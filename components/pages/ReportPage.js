@@ -28,7 +28,8 @@ import Firebase from '../helpers/Firebase.js';
 import * as yup from 'yup'
 
 const database=Firebase.database();
-const ReportPage = () => {
+const ReportPage = ({navigation,route}) => {
+    const [loading,setLoading]=useState(false);
     const messageRef=useRef();
     const [initialValues, setInitialValues] = useState(null);
     const [user,setUser]=useState(null);
@@ -95,13 +96,29 @@ const ReportPage = () => {
         })
     }
     const handleRemoveImage=(index)=>{
-        let imgTemp=[...images];
-        imgTemp.splice(index,1);
+        let imgTemp=[];
+        imgTemp=images;
+        imgTemp.splice(index,1); 
         setImages([...imgTemp]);
+        setFieldValue("images",[...imgTemp]);
     }
+    
+    useEffect(() => {
+        if(route.params&&route.params.photos){
+            setImages(route.params.photos);
+            setFieldValue("images",route.params.photos);
+            delete route.params.photos;
+        }
+        return ()=>{
+            setImages([]);
+            setFieldValue("images",[]);
+        }
+    }, [route.params]);
     const handleFormSubmit = async (values,{resetForm}) =>{
+        setLoading(true);
         axios.post(`${envs.BACKEND_URL}/mobile/concern/send`,{email:values.email,subject:values.subject,message:values.message,classification:values.classification,images:images})
         .then(res => {
+            setLoading(false);
             if(res.data.success){
                 resetForm();
                 setImages([]);
@@ -160,25 +177,22 @@ const ReportPage = () => {
                 {(errors.images && touched.images) &&
                     <Text style={{ fontSize: 10, color: 'red' }}>{errors.images}</Text>
                 }
-                <PickImage path={path} value={images} setValue={setImages} multiple={true} setFieldValue={setFieldValue}/>
+                <PickImage navigation={navigation} fromPage={'Concern'} path={path} value={images} setValue={setImages} multiple={true} setFieldValue={setFieldValue}/>
                 
                 <Center >
-                    <HStack space={2}>
+                    <HStack space={3}>
                     {images.map((img,i)=>{
                         return  (
-                            <Box rounded={'full'} key={i}>
+                            <Box rounded={'full'} key={img}>
                                 <Image
-                                    size={50}
-                                    resizeMode={"contain"}
-                                    source={{uri: img}}
+                                    size="md"
+                                    source={{uri:img}}
                                     alt="Concern Photo"
-                                    rounded={'full'}
                                 />
-                                <Link onPress={()=>handleRemoveImage(i)} style={{position:'absolute',right:0,marginRight:-10,top:0,marginTop:-5}}>
+                                <Link onPress={()=>{handleRemoveImage(i)}} style={{position:'absolute',right:0,marginRight:-10,top:0,marginTop:-5}}>
                                     <Badge colorScheme="danger" rounded={'full'}>X</Badge>
                                 </Link>
                             </Box>
-                            
                         );
                     })
                     }
@@ -188,8 +202,8 @@ const ReportPage = () => {
                     <Text style={{ fontSize: 10, color: 'red' }}>{errors.classification}</Text>
                 }
                 <Select
-                    accessibilityLabel="Choose report category"
-                    placeholder="Choose report category"
+                    accessibilityLabel="Choose concern classification"
+                    placeholder="Choose concern classification"
                     _selectedItem={{
                         bg: "success.500",
                         endIcon: <CheckIcon size="5" />,
@@ -211,9 +225,14 @@ const ReportPage = () => {
                     <Select.Item label="Violation" value="Violation" />
                     <Select.Item label="Delay" value="Delay" />
                     <Select.Item label="Pile-up" value="Pile-up" />
+                    <Select.Item label="General Concern" value="General Concern" />
+                    <Select.Item label="Request" value="Request" />
+                    <Select.Item label="Others" value="Others" />
                 </Select>
             </Stack>
             <Button colorScheme='danger' mt={10} mb={2}
+                isLoading={loading}
+                isLoadingText="Sending"
                 leftIcon={
                     <Icon
                         as={<MaterialIcons name="send" />}
@@ -224,7 +243,7 @@ const ReportPage = () => {
                 onPress={handleSubmit}
                 disabled={!isValid}
             >
-                Send Report
+                Send Concern
             </Button>
         </Center>
         </ScrollView>

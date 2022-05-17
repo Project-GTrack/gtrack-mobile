@@ -13,6 +13,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import CryptoES from "crypto-es";
 import Firebase from '../helpers/Firebase';
 import * as yup from 'yup'
+import "firebase/auth"
 
 const auth = Firebase.auth();
 const ChangePasswordModal = ({setAlert,user,showModal,setShowModal}) => {
@@ -53,7 +54,8 @@ const ChangePasswordModal = ({setAlert,user,showModal,setShowModal}) => {
     if(auth.currentUser){
       await auth.currentUser.updatePassword(values.new_password);
       resetForm();
-      setData(data)
+      setShowModal(false);
+      setLoading(false);
       setAlert({visible:true,message:message,colorScheme:"success",header:"Success"});
     }
     // await auth.signInWithEmailAndPassword(values.email, values.old_password)
@@ -74,21 +76,25 @@ const ChangePasswordModal = ({setAlert,user,showModal,setShowModal}) => {
     setLoading(true);
     const decrypted=decryptPassword(user.password);
     if(decrypted===values.old_password){
+      console.log(values.email);
+      var credential=await Firebase.auth.EmailAuthProvider.credential(values.email, values.old_password);
+      await auth.currentUser.reauthenticateWithCredential(credential)
       const encrypted=encryptPassword(values.new_password)
       axios.post(`${envs.BACKEND_URL}/mobile/profile/change_password`, {email:values.email,password:encrypted})
       .then(res => {
-        setLoading(false);
           if(res.data.success){
-            setShowModal(false);
             handleFirebase(values,resetForm,res.data.data,res.data.message);
-            // setData(res.data.data)
+            // setShowModal(false);
+            setData(res.data.data)
             // setAlert({visible:true,message:res.data.message,colorScheme:"success",header:"Success"});
           }else{
+            setLoading(false);
             setShowModal(false)
             setAlert({visible:true,message:"Password Change Unsuccessful.",colorScheme:"danger",header:"Error"})
           }
       })
     }else{
+      setLoading(false);
       setShowModal(false)
       setAlert({visible:true,message:"Incorrect old password.",colorScheme:"danger",header:"Error"})
     }
@@ -102,7 +108,6 @@ const ChangePasswordModal = ({setAlert,user,showModal,setShowModal}) => {
         repeat_password:"",
       })
     };
-    
   }, [user]);
   const { handleChange, handleBlur, handleSubmit, values, errors, isValid, touched } = useFormik({
     initialValues:initialValues,

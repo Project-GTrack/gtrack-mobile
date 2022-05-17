@@ -24,7 +24,9 @@ import moment from "moment";
 import Firebase from "../helpers/Firebase";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as yup from "yup";
-
+const wait = (timeout) => {
+  return new Promise((resolve) => setTimeout(resolve, timeout));
+};
 const db = Firebase.app().database();
 const InputGarbageWeightPage = () => {
   const [mode, setMode] = useState("date");
@@ -77,48 +79,52 @@ const InputGarbageWeightPage = () => {
   };
   const collectionValidation = yup.object().shape({
     weight: yup.string().required("Weight Volume is required"),
-    schedule: yup.object().shape({
-      date: yup.string().required("Date is required"),
-      time: yup.string().required("Time is required"),
-    }),
+    date: yup.string().required("Date is required"),
+    time: yup.string().required("Time is required"),
+    // schedule: yup.object().shape({
+    //   date: yup.string().required("Date is required"),
+    //   time: yup.string().required("Time is required"),
+    // }),
   });
+  const handleDumpsterUpdate=async (dumpster_id)=>{
+    await db.ref("Dumpsters/" + dumpster_id).child("complete").set(0);
+    await db.ref("Dumpsters/" + dumpster_id)
+      .child("driver_id")
+      .remove();
+  }
   const handleFormSubmit = async (values, { resetForm }) => {
     setLoading(true);
-    await axios
+    if(new Date(moment(moment(values.date).format("YYYY-MM-DD").toString()+" "+moment(values.time.toString().substring(16,24), ["HH:mm:ss"]).format("HH:mm:ss")).toISOString()) <= new Date()){
+      await axios
       .post(
         `${envs.BACKEND_URL}/mobile/waste-collection/submit-collection/${user.user_id}`,
         {
           collection_weight_volume: values.weight,
-          collection_date: moment(moment(values.schedule.date).format("YYYY-MM-DD").toString()+" "+moment(values.schedule.time.toString().substring(16,24), ["HH:mm:ss"]).format("HH:mm:ss")).toISOString(),
+          collection_date: moment(moment(values.date).format("YYYY-MM-DD").toString()+" "+moment(values.time.toString().substring(16,24), ["HH:mm:ss"]).format("HH:mm:ss")).toISOString(),
           collection_route: route,
         }
       )
       .then((res) => {
         if (res.data.success) {
           db.ref("Dumpsters/").once("value", (snapshot) => {
-            for (var x = 0; x < snapshot.val().length; x++) {
-              if (snapshot.val()[x] != undefined) {
-                if (
-                  snapshot.val()[x].driver_id != undefined &&
-                  snapshot.val()[x].driver_id === user.user_id
-                ) {
-                  db.ref("Dumpsters/" + snapshot.val()[x].dumpster_id).update({
-                    complete: 0,
-                  });
-                  db.ref("Dumpsters/" + snapshot.val()[x].dumpster_id)
-                    .child("driver_id")
-                    .remove();
-                  axios.put(
-                    `${envs.BACKEND_URL}/mobile/dumpster/update-dumpster/${
-                      snapshot.val()[x].dumpster_id
-                    }`
-                  );
+            if(snapshot.val()){
+              var temp=Object.keys(snapshot.val()).map((key) => snapshot.val()[key]);
+              for (var x = 0; x < temp.length; x++) {
+                if (temp[x] !== undefined) {
+                  if (temp[x].driver_id !== undefined && temp[x].driver_id === user.user_id) {
+                    handleDumpsterUpdate(temp[x].dumpster_id);
+                    axios.put(
+                      `${envs.BACKEND_URL}/mobile/dumpster/update-dumpster/${
+                        temp[x].dumpster_id
+                      }`
+                    );
+                  }
                 }
               }
             }
           });
-          resetForm();
           setLoading(false);
+          resetForm();
           setAlert({
             visible: true,
             message: res.data.message,
@@ -127,15 +133,28 @@ const InputGarbageWeightPage = () => {
           });
         }
       });
+    }else{
+      await wait(2000).then(() => setLoading(false));
+      setAlert({
+        visible: true,
+        message: "Invalid Date: Date must be the current date or a previous/past date.",
+        colorScheme: "error",
+        header: "Waste Collection Report",
+      });
+      resetForm();
+    }
+    
   };
   const { handleChange, handleSubmit, values, errors, touched, setFieldValue } =
     useFormik({
       initialValues: {
         weight: "",
-        schedule: {
-          date: "",
-          time:""
-        },
+        date: "",
+        time:""
+        // schedule: {
+        //   date: "",
+        //   time:""
+        // },
       },
       enableReinitialize: true,
       validationSchema: collectionValidation,
@@ -147,9 +166,9 @@ const InputGarbageWeightPage = () => {
     setShow(false);
     if (currentDate !== undefined) {
       if (curShow === "date") {
-        setFieldValue("schedule.date", moment(currentDate));
+        setFieldValue("date", moment(currentDate));
       } else {
-        setFieldValue("schedule.time", moment(currentDate));
+        setFieldValue("time", moment(currentDate));
       }
     }
   };
@@ -195,21 +214,20 @@ const InputGarbageWeightPage = () => {
                       width={175}
                       bg={"white"}
                       value={
-                        values.schedule.date != ""
-                          ? moment(values.schedule.date).format(
+                        values.date != ""
+                          ? moment(values.date).format(
                               "MMMM D, Y"
                             )
                           : ""
                       }
-                      onChangeText={handleChange("schedule.date")}
+                      onChangeText={handleChange("date")}
                       placeholder="Date"
                       isReadOnly="true"
                       isDisabled="true"
                     />
-                    {errors.schedule && touched.schedule && (
+                    {errors.date && touched.date && (
                       <Text style={{ fontSize: 10, color: "red" }}>
-                        {errors.schedule.date ||
-                          errors.schedule.time}
+                        {errors.date}
                       </Text>
                     )}
                   </VStack>
@@ -219,15 +237,20 @@ const InputGarbageWeightPage = () => {
                       bg={"white"}
                       width={120}
                       value={
-                        values.schedule.time != ""
-                          ? moment(values.schedule.time).format("h:mm A")
+                        values.time != ""
+                          ? moment(values.time).format("h:mm A")
                           : ""
                       }
-                      onChangeText={handleChange("schedule.time")}
+                      onChangeText={handleChange("time")}
                       placeholder="Time"
                       isReadOnly="true"
                       isDisabled="true"
                     />
+                    {errors.time && touched.time && (
+                      <Text style={{ fontSize: 10, color: "red"}}>
+                        {errors.time}
+                      </Text>
+                    )}
                   </VStack>
                 </HStack>
 

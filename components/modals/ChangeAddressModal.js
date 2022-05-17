@@ -4,15 +4,28 @@ import {
   Modal,
   FormControl,
   Input,
+  Text
 } from "native-base"
 import axios from 'axios';
 import { useFormik } from 'formik';
 import envs from '../../config/env.js'
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as yup from 'yup'
 
 const ChangeAddressModal = ({setAlert,user,showModal,setShowModal}) => {
   const streetRef=useRef();
   const barangayRef=useRef();
+  const changeAddressValidationSchema = yup.object().shape({
+    purok: yup
+      .string()
+      .required('Purok is required'),
+    street: yup
+      .string()
+      .required('Street is required'),
+    barangay: yup
+      .string()
+      .required('Barangay is required'),
+  })
   const [loading,setLoading]=useState(false);
   const [initialValues, setInitialValues] = useState(null);
   const setData = async (data) => {
@@ -49,9 +62,10 @@ const ChangeAddressModal = ({setAlert,user,showModal,setShowModal}) => {
     };
     
   }, [user]);
-  const { handleChange, handleSubmit, values } = useFormik({
+  const { handleChange, handleBlur, handleSubmit, values, errors, isValid, touched } = useFormik({
     initialValues:initialValues,
     enableReinitialize:true,
+    validationSchema:changeAddressValidationSchema,
     onSubmit: handleFormSubmit
   });
   return (
@@ -69,8 +83,12 @@ const ChangeAddressModal = ({setAlert,user,showModal,setShowModal}) => {
               blurOnSubmit={false}
               onSubmitEditing={() => streetRef.current.focus()}
               onChangeText={handleChange('purok')}
+              onBlur={handleBlur('purok')}
             />
           </FormControl>
+          {(errors.purok && touched.purok) &&
+              <Text style={{ fontSize: 10, color: 'red' }}>{errors.purok}</Text>
+          }
           <FormControl mt="3">
             <FormControl.Label>Street</FormControl.Label>
             <Input 
@@ -81,8 +99,12 @@ const ChangeAddressModal = ({setAlert,user,showModal,setShowModal}) => {
               onSubmitEditing={() => barangayRef.current.focus()}
               ref={streetRef}
               onChangeText={handleChange('street')}
+              onBlur={handleBlur('street')}
             />
           </FormControl>
+          {(errors.street && touched.street) &&
+              <Text style={{ fontSize: 10, color: 'red' }}>{errors.street}</Text>
+          }
           <FormControl mt="3">
             <FormControl.Label>Barangay</FormControl.Label>
             <Input 
@@ -90,8 +112,12 @@ const ChangeAddressModal = ({setAlert,user,showModal,setShowModal}) => {
               ref={barangayRef}
               value={values&&values.barangay?values.barangay:""} 
               onChangeText={handleChange('barangay')}
+              onBlur={handleBlur('barangay')}
             />
           </FormControl>
+          {(errors.barangay && touched.barangay) &&
+              <Text style={{ fontSize: 10, color: 'red' }}>{errors.barangay}</Text>
+          }
         </Modal.Body>
         <Modal.Footer>
           <Button.Group space={2}>
@@ -108,6 +134,7 @@ const ChangeAddressModal = ({setAlert,user,showModal,setShowModal}) => {
               isLoading={loading}
               isLoadingText="Updating"
               onPress={handleSubmit}
+              disabled={!isValid}
             >
               Update
             </Button>

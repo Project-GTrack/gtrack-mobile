@@ -26,12 +26,14 @@ import * as yup from 'yup'
 import * as Google from 'expo-google-app-auth';
 import * as firebase from "firebase";
 import 'firebase/auth';
+import GooglePermissionAlert from '../helpers/GooglePermissionAlert';
 
 const auth = Firebase.auth();
 const SignInPage = ({navigation}) => {
     const passwordRef = useRef();
     const [loading,setLoading]=useState(false);
     const [user,setUser]=useState(null);
+    const [openPermission,setOpenPermission]=useState(false);
     const signinValidationSchema = yup.object().shape({
         email: yup
           .string()
@@ -83,6 +85,24 @@ const SignInPage = ({navigation}) => {
         ]
         );
     }
+    const permissionAlert = () =>{
+        Alert.alert(
+        "Google",
+        "To continue, Google will share your name, email address, language preference, and profile picture with GTrack. Before using the app, you can view GTrack's privacy policy.",
+        [
+            {
+                text: "Back",
+                onPress: () => setLoading(false),
+                style: "cancel"
+            },
+            { text: "Continue", onPress: () => {signInAsync()} }
+        ]
+        );
+    }
+    const handleCreateFirebase=async(email,password)=>{
+        await auth.createUserWithEmailAndPassword(email,password);
+        createAlert(auth);
+    }
     const handleFirebase = async(data,values,resetForm)=>{
         await auth.signInWithEmailAndPassword(values.email, values.password)
         .then(function() {
@@ -96,7 +116,11 @@ const SignInPage = ({navigation}) => {
         })
         .catch(function(error) {
             setLoading(false);
-            setAlert({visible:true,message:error.message,colorScheme:"danger",header:`Error`});
+            if(error.code=="auth/user-not-found"){
+                handleCreateFirebase(values.email, values.password);
+            }else{
+                setAlert({visible:true,message:error.message,colorScheme:"danger",header:`Error`});
+            }
         });
     }
     const handleFormSubmit = async (values,{resetForm}) =>{
@@ -171,6 +195,7 @@ const SignInPage = ({navigation}) => {
         const { type, accessToken, user,idToken } = await Google.logInAsync({
             clientId:  envs.EXPO_ANDROID_CLIENT_ID,
             androidStandaloneAppClientId:  envs.ANDROID_CLIENT_ID,
+            scopes: ['profile', 'email'],
         });
         
         if (type === 'success') {
@@ -201,12 +226,15 @@ const SignInPage = ({navigation}) => {
 
     const handleGoogleClick = async () => {
         setLoading(true);
-        signInAsync();
+        // signInAsync();
+        // permissionAlert();
+        setOpenPermission(true);
     }
     return (
         <>
             <ScrollView>
             <MessageAlert alert={alert} setAlert={setAlert}/>
+            <GooglePermissionAlert open={openPermission} setOpen={setOpenPermission} signInAsync={()=>signInAsync()} setLoading={setLoading}/>
                 <Center
                     px={3}
                     mt={10}

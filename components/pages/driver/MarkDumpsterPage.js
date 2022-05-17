@@ -13,7 +13,7 @@ import ActivityIndicator from "../../helpers/ActivityIndicator";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const db = Firebase.app().database();
-const MarkDumpsterPage = () => {
+const MarkDumpsterPage = ({userLoc}) => {
   const { height, width } = Dimensions.get( 'window' );
   const LATITUDE_DELTA=0.23;
   const [loading, setLoading] = useState(false);
@@ -39,10 +39,17 @@ const MarkDumpsterPage = () => {
     getDumpsters();
   }, []);
   const getDumpsters = async () =>{
-    await db.ref("Dumpsters/").on("value", (snapshot) => {
-      let temp=Object.keys(snapshot.val()).map(key => snapshot.val()[key]);
-      setDumpsters(temp);
-    });
+  
+      await db.ref("Dumpsters/").on("value", (snapshot) => {
+        if(snapshot.val()){
+          let temp=Object.keys(snapshot.val()).map(key => snapshot.val()[key]);
+          setDumpsters(temp);
+        }else{
+          setDumpsters([]);
+        }
+      });
+    
+    
   }
   const getData = async () => {
     try {
@@ -89,7 +96,7 @@ const MarkDumpsterPage = () => {
      <View>
       <MessageAlert alert={alert} setAlert={setAlert} />
         <MapView
-          initialRegion={initLoc}
+          initialRegion={userLoc}
           showsUserLocation={true}
           showsMyLocationButton={true}
           provider={PROVIDER_GOOGLE}
@@ -118,19 +125,33 @@ const MarkDumpsterPage = () => {
                     alt="Dumpster Marker"
                     rounded={"full"}
                   />
-                  <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
+                  
+                </Marker>
+              );
+            })
+          ) : (
+            <></>
+          )}
+        </MapView>
+      </View>
+                 <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
                     <Modal.Content maxWidth="400px">
                       <Modal.CloseButton />
                       <Modal.Header>Dumpster</Modal.Header>
                       <Modal.Body>
                         {user && user.hasOwnProperty("userSchedule") ? (
-                          data.complete == 0 ? (
+                          <>
+                          {data.complete == 0 ? (
                             <Text bold>Mark this Dumpster as Collected?</Text>
                           ) : (
                             <Text bold>Mark this Dumpster as NOT Collected?</Text>
-                          )
+                          )}
+                          <Text marginTop={3}>Street: {data.street}</Text>
+                            <Text >Purok: {data.purok}</Text>
+                            <Text >Barangay: {data.barangay}</Text>
+                         </>
                         ):(<Text bold>You have no scheduled collection today</Text>)}
-                        
+
                       </Modal.Body>
                       <Modal.Footer>
                         <Button.Group space={2}>
@@ -170,14 +191,6 @@ const MarkDumpsterPage = () => {
                       </Modal.Footer>
                     </Modal.Content>
                   </Modal>
-                </Marker>
-              );
-            })
-          ) : (
-            <></>
-          )}
-        </MapView>
-      </View>
       {loading ? <ActivityIndicator /> : <></>}
     </>
   );
